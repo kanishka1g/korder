@@ -1,0 +1,31 @@
+name: Deploy Vue 3 Project
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Project
+        run: npm run build
+
+      - name: Deploy with Docker
+        run: |
+          docker build -t korder-vue:latest .
+          docker stop korder-vue || true
+          docker rm korder-vue || true
+          docker run -d -p 80:80 --name korder-vue korder-vue:latest

@@ -1,8 +1,11 @@
-# Use an NGINX image
+# Use an official NGINX image
 FROM nginx:alpine
 
-# Copy built files into the NGINX html directory
+# Copy the built Vue files into the NGINX default HTML folder
 COPY dist /usr/share/nginx/html
 
-# Expose port 80
+# Expose port 80 for the container
 EXPOSE 80
+
+# Start the NGINX server
+CMD ["nginx", "-g", "daemon off;"]

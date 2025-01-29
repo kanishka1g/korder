@@ -43,6 +43,6 @@ jobs:
 
           script: |
             cd /home/ubuntu/korder-main
-            git pull
+            git pull origin main
             docker-compose down
             docker-compose up -d

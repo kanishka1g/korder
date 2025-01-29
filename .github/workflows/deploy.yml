@@ -1,33 +1,48 @@
-# .github/workflows/deploy.yml
-name: Deploy Vue App to Oracle Cloud
+name: Docker Build and Deploy
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      # Set up Docker
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Log in to DockerHub
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
         with:
-          node-version: '18'
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Install Dependencies
-        run: npm install
+      # Build and push Docker image
+      - name: Build and Push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: kanishka1g/korder-vue:latest
 
-      - name: Build Vue App
-        run: npm run build
-
-      - name: Deploy to Oracle Cloud
-        uses: appleboy/scp-action@master
+      # SSH into server and update Docker container
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v0.1.9
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          source: 'dist/'
-          target: '/home/ubuntu/korder.cloud'
-          strip_components: 1
+
+          script: |
+            cd /home/ubuntu/korder-main
+            git pull
+            docker-compose down
+            docker-compose up -d

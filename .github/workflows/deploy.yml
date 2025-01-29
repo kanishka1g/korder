@@ -1,43 +1,33 @@
-name: Deploy Vue 3 Project
+# .github/workflows/deploy.yml
+name: Deploy Vue App to Oracle Cloud
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      # Step 1: Checkout Code
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      # Step 2: Set up Node.js
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: '18'
 
-      # Step 3: Install Dependencies
-      - name: Install dependencies
+      - name: Install Dependencies
         run: npm install
 
-      # Step 4: Build the Vue 3 Project
-      - name: Build project
+      - name: Build Vue App
         run: npm run build
 
-      # Step 5: SSH into Server and Deploy
       - name: Deploy to Oracle Cloud
-        uses: appleboy/ssh-action@v0.1.10
+        uses: appleboy/scp-action@master
         with:
-          host: <your-server-ip>
-          username: ubuntu
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd ~/korder-main
-            docker build -t korder-vue:latest .
-            docker stop korder-vue || true
-            docker rm korder-vue || true
-            docker run -d --name korder-vue --network teslamate-net -p 8080:80 korder-vue:latest
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          source: 'dist/'
+          target: '/home/ubuntu/korder.cloud'
+          strip_components: 1

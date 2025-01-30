@@ -19,40 +19,6 @@ jobs:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.SSH_KEY }}
-
-    - name: Pull and rebuild Docker container
-      run: |
-        docker stop korder-main || true
-        docker rm korder-main || true
-        docker pull ghcr.io/kanishka1g/korder-main:latest
-        docker run -d --name korder-main -p 8080:80 ghcr.io/kanishka1g/korder-main:latest
-
-
-
-
-
-
-name: Deploy to Oracle Cloud
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Log in to Oracle server
-      uses: appleboy/ssh-action@v0.1.7
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.SSH_KEY }}
         script: |
           # Stop and remove existing container (if any)
           docker stop korder-main || true

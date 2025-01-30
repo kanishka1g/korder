@@ -1,29 +1,12 @@
-# Stage 1: Build the Vue 3 project
-FROM node:18 AS build-stage
-
-# Set the working directory
+FROM node:18 as build-stage
 WORKDIR /app
-
-# Copy package.json and package-lock.json
 COPY package*.json ./
-
-# Install dependencies
-RUN npm i --verbose
-
-# Copy the rest of the application code
+RUN npm install
 COPY . .
-
-# Build the Vue 3 project
 RUN npm run build
 
-# Stage 2: Serve the built files using nginx
-FROM nginx:alpine AS production-stage
-
-# Copy the built files from the build-stage
+FROM nginx:stable-alpine as production-stage
 COPY --from=build-stage /app/dist /usr/share/nginx/html
-
-# Expose port 80
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
-
-# Start nginx
 CMD ["nginx", "-g", "daemon off;"]

@@ -1,44 +1,74 @@
-# .github/workflows/deploy.yml
 name: Deploy to Oracle Cloud
 
 on:
   push:
-    branches: [main]
-
-permissions:
-  contents: read
-  packages: write
+    branches:
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Log in to Oracle server
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: true
-          tags: |
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ github.sha }}
+    - name: Pull and rebuild Docker container
+      run: |
+        docker stop korder-main || true
+        docker rm korder-main || true
+        docker pull ghcr.io/kanishka1g/korder-main:latest
+        docker run -d --name korder-main -p 8080:80 ghcr.io/kanishka1g/korder-main:latest
 
-      - name: Deploy to Oracle Cloud
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            docker pull ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
-            docker stop korder-main || true
-            docker rm korder-main || true
-            docker run -d --name korder-main -p 80:80 ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
+
+
+
+
+
+name: Deploy to Oracle Cloud
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Log in to Oracle server
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          # Stop and remove existing container (if any)
+          docker stop korder-main || true
+          docker rm korder-main || true
+
+          # Remove old image
+          docker rmi korder-main:latest || true
+
+          # Clone the latest code from GitHub
+          rm -rf /home/ubuntu/korder-main || true
+          mkdir -p /home/ubuntu/korder-main
+          git clone https://github.com/kanishka1g/korder-main.git /home/ubuntu/korder-main
+
+          # Build the Docker image
+          cd /home/ubuntu/korder-main
+          docker build -t korder-main:latest .
+
+          # Run the container
+          docker run -d --name korder-main -p 8080:80 korder-main:latest

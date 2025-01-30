@@ -1,7 +1,13 @@
+# .github/workflows/deploy.yml
 name: Deploy to Oracle Cloud
+
 on:
   push:
     branches: [main]
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   deploy:
@@ -21,7 +27,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository }}:latest
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ github.sha }}
 
       - name: Deploy to Oracle Cloud
         uses: appleboy/ssh-action@master
@@ -30,7 +38,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            docker pull ghcr.io/${{ github.repository }}:latest
-            docker stop korder-main || true
-            docker rm korder-main || true
-            docker run -d --name korder-main -p 80:80 ghcr.io/${{ github.repository }}:latest
+            docker pull ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
+            docker stop vue-app || true
+            docker rm vue-app || true
+            docker run -d --name vue-app -p 80:80 ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest

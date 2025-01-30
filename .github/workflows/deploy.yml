@@ -39,6 +39,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             docker pull ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
-            docker stop vue-app || true
-            docker rm vue-app || true
-            docker run -d --name vue-app -p 80:80 ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
+            docker stop korder-main || true
+            docker rm korder-main || true
+            docker run -d --name korder-main -p 80:80 ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest

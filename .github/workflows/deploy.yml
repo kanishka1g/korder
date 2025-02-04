@@ -102,4 +102,4 @@ jobs:
             docker load -i /home/ubuntu/korder-main.tar
 
             # Run the container
-            docker run -d --name korder-main -p 3005:80 korder-main:latest
+            docker run -d --name korder-main -p 3006:80 korder-main:latest

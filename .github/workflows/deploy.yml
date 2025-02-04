@@ -10,31 +10,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Log in to Oracle server
-      uses: appleboy/ssh-action@v0.1.7
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.SSH_KEY }}
-        script: |
-          # Stop and remove existing container (if any)
-          docker stop korder-main || true
-          docker rm korder-main || true
+      - name: Log in to Oracle server
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            # Stop and remove existing container (if any)
+            docker stop korder-main || true
+            docker rm korder-main || true
 
-          # Remove old image
-          docker rmi korder-main:latest || true
+            # Remove old image
+            docker rmi korder-main:latest || true
 
-          # Clone the latest code from GitHub
-          rm -rf /home/ubuntu/korder-main || true
-          mkdir -p /home/ubuntu/korder-main
-          git clone https://github.com/kanishka1g/korder-main.git /home/ubuntu/korder-main
+            # Clone the latest code from GitHub
+            rm -rf /home/ubuntu/korder-main || true
+            mkdir -p /home/ubuntu/korder-main
+            git clone https://github.com/kanishka1g/korder-main.git /home/ubuntu/korder-main
 
-          # Build the Docker image
-          cd /home/ubuntu/korder-main
-          docker build -t korder-main:latest .
+            # Build the Docker image
+            cd /home/ubuntu/korder-main
+            docker build -t korder-main:latest .
 
-          # Run the container
-          docker run -d --name korder-main -p 8080:80 korder-main:latest
+            # Run the container
+            docker run -d --name korder-main -p 3000 korder-main:latest
+

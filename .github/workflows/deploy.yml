@@ -11,10 +11,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
 
@@ -25,7 +25,7 @@ jobs:
         run: npm run build
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: vue-build
           path: dist
@@ -36,26 +36,26 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: vue-build
           path: dist
 
       - name: Build Docker image
         run: |
-          docker build -t korder-vue:latest .
+          docker build -t korder-main:latest .
 
       - name: Save Docker image
-        run: docker save -o korder-vue.tar korder-vue:latest
+        run: docker save -o korder-main.tar korder-main:latest
 
       - name: Upload Docker image artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: docker-image
-          path: korder-vue.tar
+          path: korder-main.tar
 
   deploy:
     needs: dockerize
@@ -63,7 +63,7 @@ jobs:
 
     steps:
       - name: Download Docker image artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: docker-image
           path: .
@@ -76,11 +76,11 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             # Stop and remove existing container (if any)
-            docker stop korder-vue || true
-            docker rm korder-vue || true
+            docker stop korder-main || true
+            docker rm korder-main || true
 
             # Remove old image
-            docker rmi korder-vue:latest || true
+            docker rmi korder-main:latest || true
 
       - name: Copy Docker image to Oracle server
         uses: appleboy/scp-action@v0.1.4
@@ -88,7 +88,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          source: 'korder-vue.tar'
+          source: 'korder-main.tar'
           target: '/home/ubuntu/'
 
       - name: Load and run Docker container on Oracle server
@@ -99,7 +99,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             # Load Docker image
-            docker load -i /home/ubuntu/korder-vue.tar
+            docker load -i /home/ubuntu/korder-main.tar
 
             # Run the container
-            docker run -d --name korder-vue -p 3005:80 korder-vue:latest
+            docker run -d --name korder-main -p 80:80 korder-main:latest

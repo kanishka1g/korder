@@ -1,4 +1,4 @@
-name: Deploy to Oracle Cloud
+name: Deploy Vue to Oracle Cloud
 
 on:
   push:
@@ -38,4 +38,3 @@ jobs:
 
             # Run the container
             docker run -d --name korder-main -p 3005:80 korder-main:latest
-

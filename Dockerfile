@@ -4,5 +4,5 @@ FROM nginx:alpine
 # Copy your HTML files to the default web root
 COPY ./ /usr/share/nginx/html/
 
-# Expose port 3000
-EXPOSE 3000
+# Expose port 3005
+EXPOSE 3005

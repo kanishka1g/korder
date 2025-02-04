@@ -1,8 +1,20 @@
-# Use a lightweight web server image
-FROM nginx:alpine
+# Use the official Node.js image from the Docker Hub
+FROM node:18
 
-# Copy your HTML files to the default web root
-COPY ./ /usr/share/nginx/html/
+# Set the working directory in the container
+WORKDIR /usr/src/app
 
-# Expose port 80
+# Copy package.json and package-lock.json
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the application code
+COPY . .
+
+# Expose the port the app runs on
 EXPOSE 80
+
+# Define the command to run the app
+CMD ["node", "app.js"]

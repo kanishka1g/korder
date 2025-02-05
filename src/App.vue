@@ -1,5 +1,5 @@
 <template>
-	<VApp>
+	<VApp theme="dark">
 		<RouterView />
 	</VApp>
 </template>

@@ -1,105 +1,115 @@
 name: Deploy Vue to Oracle Cloud
 
 on:
-  push:
-    branches:
-      - main
+    push:
+        branches:
+            - main
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+    build:
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 18
 
-      - name: Install dependencies
-        run: npm install
+            - name: Install dependencies
+              run: npm install
 
-      - name: Build Vue app
-        run: npm run build
+            - name: Format code
+              run: npm run format
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: vue-build
-          path: dist
+            - name: Lint code
+              run: npm run lint
 
-  dockerize:
-    needs: build
-    runs-on: ubuntu-latest
+            - name: Test code
+              run: npm run test:unit
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+            - name: Build Vue app
+              run: npm run build
 
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: vue-build
-          path: dist
+            - name: Upload build artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: vue-build
+                  path: dist
 
-      - name: Build Docker image
-        run: |
-          docker build -t korder-main:latest .
+    dockerize:
+        needs: build
+        runs-on: ubuntu-latest
 
-      - name: Save Docker image
-        run: docker save -o korder-main.tar korder-main:latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-      - name: Upload Docker image artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: docker-image
-          path: korder-main.tar
+            - name: Download build artifacts
+              uses: actions/download-artifact@v4
+              with:
+                  name: vue-build
+                  path: dist
 
-  deploy:
-    needs: dockerize
-    runs-on: ubuntu-latest
+            - name: Build Docker image
+              run: |
+                  docker build -t korder-main:latest .
 
-    steps:
-      - name: Download Docker image artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: docker-image
-          path: .
+            - name: Save Docker image
+              run: docker save -o korder-main.tar korder-main:latest
 
-      - name: Log in to Oracle server
-        uses: appleboy/ssh-action@v0.1.7
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            # Stop and remove existing container (if any)
-            docker stop korder-main || true
-            docker rm korder-main || true
+            - name: Upload Docker image artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: docker-image
+                  path: korder-main.tar
 
-            # Remove old image
-            docker rmi korder-main:latest || true
+    deploy:
+        needs: dockerize
+        runs-on: ubuntu-latest
 
-      - name: Copy Docker image to Oracle server
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          source: 'korder-main.tar'
-          target: '/home/ubuntu/'
+        steps:
+            - name: Download Docker image artifact
+              uses: actions/download-artifact@v4
+              with:
+                  name: docker-image
+                  path: .
 
-      - name: Load and run Docker container on Oracle server
-        uses: appleboy/ssh-action@v0.1.7
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            # Load Docker image
-            docker load -i /home/ubuntu/korder-main.tar
+            - name: Log in to Oracle server
+              uses: appleboy/ssh-action@v0.1.7
+              with:
+                  host: ${{ secrets.HOST }}
+                  username: ${{ secrets.USERNAME }}
+                  key: ${{ secrets.SSH_KEY }}
+                  script: |
+                      # Stop and remove existing container (if any)
+                      docker stop korder-main || true
+                      docker rm korder-main || true
 
-            # Run the container
-            docker run -d --name korder-main -p 3006:80 korder-main:latest
+                      # Remove old image
+                      docker rmi korder-main:latest || true
+
+            - name: Copy Docker image to Oracle server
+              uses: appleboy/scp-action@v0.1.4
+              with:
+                  host: ${{ secrets.HOST }}
+                  username: ${{ secrets.USERNAME }}
+                  key: ${{ secrets.SSH_KEY }}
+                  source: "korder-main.tar"
+                  target: "/home/ubuntu/"
+
+            - name: Load and run Docker container on Oracle server
+              uses: appleboy/ssh-action@v0.1.7
+              with:
+                  host: ${{ secrets.HOST }}
+                  username: ${{ secrets.USERNAME }}
+                  key: ${{ secrets.SSH_KEY }}
+                  script: |
+                      # Load Docker image
+                      docker load -i /home/ubuntu/korder-main.tar
+
+                      # Run the container
+                      docker run -d --name korder-main -p 3006:80 korder-main:latest
+

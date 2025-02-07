@@ -2,16 +2,15 @@
 	<VContainer>
 		<VRow>
 			<VCol cols="12" md="6">
-				<WeatherWidget />
+				<Welcome />
 			</VCol>
 			<VCol cols="12" md="6">
-				<ClockWidget />
+				<!-- <ClockWidget /> -->
 			</VCol>
 		</VRow>
 	</VContainer>
 </template>
 
 <script setup>
-	import WeatherWidget from "@/components/common/WeatherWidget.vue";
-    import ClockWidget from "@/components/common/ClockWidget.vue";
+	import Welcome from "@/components/workdesk/Welcome.vue";
 </script>

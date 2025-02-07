@@ -76,10 +76,12 @@
 	}
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+	@use "@/assets/styles/variables";
+
 	.title {
 		color: inherit;
 		text-decoration: none;
-		font-family: "Noto Serif", serif;
+		font-family: variables.$subtitle-font;
 	}
 </style>

@@ -81,6 +81,7 @@
       const quoteData = await quoteResponse.json();
       quote.value = quoteData.quote;
 		} catch (error) {
+			console.error(error); // TODO: snackbar error
 			throw error;
 		}
 	}

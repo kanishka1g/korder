@@ -1,6 +1,6 @@
 <template>
-	<VCard class="welcome-card pb-3" variant="tonal" elevation="4" rounded="lg" density="comfortable">
-		<VCardTitle class="d-flex align-center mb-3">
+	<VCard class="welcome-card pb-3 fill-height" variant="tonal" elevation="4" rounded="lg" density="comfortable">
+		<VCardTitle class="d-flex align-center mb-3 text-wrap">
 			<VAvatar variant="outlined" size="48" class="me-3">
 				<img src="https://i.pravatar.cc/48" />
 			</VAvatar>
@@ -55,7 +55,7 @@
 	const now = useNow();
 	const temperature = ref();
 	const city = ref();
-  const quote = ref();
+	const quote = ref();
 
 	const formattedDate = computed(() => {
 		return now.value.format(displayLongDateTimeFormat);
@@ -78,8 +78,8 @@
 			const cityData = await cityResponse.json();
 			city.value = cityData.address.suburb || cityData.address.city || "Unknown Location";
 
-      const quoteData = await quoteResponse.json();
-      quote.value = quoteData.quote;
+			const quoteData = await quoteResponse.json();
+			quote.value = quoteData.quote;
 		} catch (error) {
 			console.error(error); // TODO: snackbar error
 			throw error;

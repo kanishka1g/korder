@@ -12,13 +12,13 @@
 	</VAppBar>
 	<VNavigationDrawer v-model="drawer" :permanent="mdAndUp">
 		<VList>
-			<template v-for="item in list" :key="item.title">
+			<template v-for="item in appLinks" :key="item.title">
 				<VListItem
 					slim
 					:href="item.route"
 					:prepend-icon="item.icon"
 					:title="item.title"
-					:target="item.route.startsWith('http') ? '_blank' : '_self'"
+					:target="item.isExternalLink ? '_blank' : '_self'"
 				/>
 			</template>
 		</VList>
@@ -36,7 +36,7 @@
 	import { ref } from "vue";
 	import { useAuthStore } from "@/stores/authStore";
 	import { useRouter, useRoute } from "vue-router";
-	import { domain } from "@/utils/helpers";
+	import { domain, appLinks } from "@/utils/helpers";
 	import { useDisplay } from "vuetify";
 
 	const { mdAndUp } = useDisplay();
@@ -48,23 +48,6 @@
 
 	const drawer = ref(false);
 	const loading = ref(false);
-	const list = ref([
-		{
-			title: "Teslamate",
-			icon: "fas fa-car",
-			route: `https://teslamate.${domain}`,
-		},
-		{
-			title: "Grafana",
-			icon: "fas fa-chart-line",
-			route: `https://grafana.${domain}`,
-		},
-		{
-			title: "Weight Wave",
-			icon: "fas fa-weight-hanging",
-			route: `/weight-wave`,
-		},
-	]);
 
 	async function handleLogout() {
 		loading.value = true;

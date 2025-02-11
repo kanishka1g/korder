@@ -5,7 +5,7 @@
 				<Welcome />
 			</VCol>
 			<VCol cols="12" md="6">
-				<!-- <ClockWidget /> -->
+				<AppLinks />
 			</VCol>
 		</VRow>
 	</VContainer>
@@ -13,4 +13,5 @@
 
 <script setup>
 	import Welcome from "@/components/workdesk/Welcome.vue";
+	import AppLinks from "@/components/workdesk/AppLinks.vue";
 </script>

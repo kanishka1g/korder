@@ -23,12 +23,12 @@
 </template>
 
 <script setup>
-	import { ref } from "vue";
 	import { appLinks } from "@/utils/helpers";
 </script>
 
 <style scoped lang="scss">
 	@use "@/assets/styles/variables";
+
 	.card {
 		background: variables.$card-color;
 	}

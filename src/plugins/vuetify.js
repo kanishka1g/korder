@@ -1,6 +1,7 @@
 import { createVuetify } from "vuetify";
 import "vuetify/styles";
 import { aliases, fa } from "vuetify/iconsets/fa-svg";
+import { VDateInput } from "vuetify/labs/VDateInput";
 
 const fieldDefaults = {
 	variant: "outlined",
@@ -21,6 +22,9 @@ const vuetifyOptions = {
 		VTextarea: fieldDefaults,
 		VSelect: fieldDefaults,
 		VAutocomplete: fieldDefaults,
+	},
+	components: {
+		VDateInput,
 	},
 };
 

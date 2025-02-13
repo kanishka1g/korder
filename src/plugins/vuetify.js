@@ -1,7 +1,8 @@
 import { createVuetify } from "vuetify";
 import "vuetify/styles";
 import { aliases, fa } from "vuetify/iconsets/fa-svg";
-import { VDateInput } from "vuetify/labs/VDateInput";
+import DayJsAdapter from "@date-io/dayjs";
+import enAU from "date-fns/locale/en-AU";
 
 const fieldDefaults = {
 	variant: "outlined",
@@ -23,8 +24,11 @@ const vuetifyOptions = {
 		VSelect: fieldDefaults,
 		VAutocomplete: fieldDefaults,
 	},
-	components: {
-		VDateInput,
+	date: {
+		adapter: DayJsAdapter,
+		locale: {
+			en: enAU,
+		},
 	},
 };
 

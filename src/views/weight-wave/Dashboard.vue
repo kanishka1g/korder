@@ -5,7 +5,7 @@
 				<p class="text-h5 font-weight-bold title">Weight Wave</p>
 			</VCol>
 			<VCol cols="auto">
-				<VBtn color="primary" variant="outlined" @click="addModal = true">Add Weight</VBtn>
+				<VBtn color="primary" variant="outlined" @click="handleAdd">Add Weight</VBtn>
 			</VCol>
 		</VRow>
 		<VDialog v-model="addModal" width="auto" persistent>
@@ -20,13 +20,13 @@
 						</VRow>
 						<VRow>
 							<VCol cols="12">
-								<VTextField v-model="weight" label="Weight" />
+								<VTextField v-model="weight" label="Weight" variant="outlined" />
 							</VCol>
 						</VRow>
 					</VForm>
 				</VCardText>
 				<template #actions>
-					<VBtn color="primary" variant="elevated" text="Add" @click="handleAdd" />
+					<VBtn color="primary" variant="elevated" text="Add" @click="handleSubmit" />
 				</template>
 			</VCard>
 		</VDialog>
@@ -43,11 +43,17 @@
 
 	const addModal = ref(false);
 
-	const date = ref(now.value);
+	const date = ref();
 	const weight = ref(null);
 
 	function handleAdd() {
+		date.value = now.value;
+		weight.value = null;
 		addModal.value = true;
+	}
+
+	function handleSubmit() {
+		addModal.value = false;
 	}
 </script>
 

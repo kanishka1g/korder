@@ -3,6 +3,7 @@ import pluginVue from "eslint-plugin-vue";
 import pluginVitest from "@vitest/eslint-plugin";
 import oxlint from "eslint-plugin-oxlint";
 import skipFormatting from "@vue/eslint-config-prettier/skip-formatting";
+import prettier from "eslint-plugin-prettier";
 
 export default [
 	{
@@ -20,7 +21,6 @@ export default [
 
 	js.configs.recommended,
 	...pluginVue.configs["flat/recommended"],
-
 	{
 		...pluginVitest.configs.recommended,
 		files: ["src/**/__tests__/*"],
@@ -45,6 +45,7 @@ export default [
 					},
 				},
 			],
+			"prettier/prettier": ["error"],
 			"vue/singleline-html-element-content-newline": "error",
 			"vue/multiline-html-element-content-newline": "off",
 			"vue/multi-word-component-names": "off",
@@ -63,7 +64,11 @@ export default [
 			],
 		},
 	},
-
 	oxlint.configs["flat/recommended"],
-	skipFormatting,
+	{
+		files: ["**/*.{js,jsx,vue}"],
+		...skipFormatting,
+	},
+	prettier.configs.recommended,
 ];
+

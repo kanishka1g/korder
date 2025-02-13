@@ -23,6 +23,11 @@
 								<VTextField v-model="weight" label="Weight" variant="outlined" />
 							</VCol>
 						</VRow>
+						<VRow>
+							<VCol>
+								<VTextField v-model="calorieBurnt" label="Calorie Burnt" variant="outlined" />
+							</VCol>
+						</VRow>
 					</VForm>
 				</VCardText>
 				<template #actions>

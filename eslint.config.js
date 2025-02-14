@@ -67,3 +67,4 @@ export default [
 	oxlint.configs["flat/recommended"],
 	skipFormatting,
 ];
+

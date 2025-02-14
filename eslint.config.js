@@ -2,17 +2,28 @@ import js from "@eslint/js";
 import pluginVue from "eslint-plugin-vue";
 import pluginVitest from "@vitest/eslint-plugin";
 import oxlint from "eslint-plugin-oxlint";
-import prettier from "eslint-plugin-prettier";
+import skipFormatting from "@vue/eslint-config-prettier/skip-formatting";
 
 export default [
 	{
-		ignores: ["dist/**", "node_modules/**", "**/cypress/**", "html/", "coverage/", "**/dist-ssr/**"],
+		ignores: ["dist/**", "node_modules/**", "**/cypress/**", "html/", "coverage/"],
+		files: ["**/*.vue", "**/*.js", "**/*.ts", "**/*.jsx", "**/*.tsx"],
 	},
+	{
+		name: "app/files-to-lint",
+		files: ["**/*.{js,mjs,jsx,vue}"],
+	},
+	{
+		name: "app/files-to-ignore",
+		ignores: ["**/dist/**", "**/dist-ssr/**", "**/coverage/**"],
+	},
+
 	js.configs.recommended,
 	...pluginVue.configs["flat/recommended"],
+
 	{
-		files: ["src/**/__tests__/*"],
 		...pluginVitest.configs.recommended,
+		files: ["src/**/__tests__/*"],
 	},
 	{
 		rules: {
@@ -24,7 +35,6 @@ export default [
 					ignores: [],
 				},
 			],
-			"vue/component-name-in-template-casing": ["error", "PascalCase", { registeredComponentsOnly: false }],
 			"vue/html-self-closing": [
 				"error",
 				{
@@ -43,23 +53,17 @@ export default [
 			"vue/no-unused-vars": "error",
 			"vue/no-use-v-if-with-v-for": "error",
 			"vue/prop-name-casing": "error",
-			"vue/html-end-tags": "error",
-			"vue/valid-v-slot": ["error", { allowModifiers: true }],
-
-			"prettier/prettier": "error",
-
 			"linebreak-style": ["error", "windows"],
+			"vue/html-end-tags": "error",
+			"vue/valid-v-slot": [
+				"error",
+				{
+					allowModifiers: true,
+				},
+			],
 		},
 	},
-	oxlint.configs["flat/recommended"],
-	{
-		// Prettier compatibility
-		files: ["**/*.{js,jsx,vue}"],
-		rules: {
-			"arrow-body-style": "off",
-			"prefer-arrow-callback": "off",
-		},
-	},
-	prettier.configs.recommended,
-];
 
+	oxlint.configs["flat/recommended"],
+	skipFormatting,
+];

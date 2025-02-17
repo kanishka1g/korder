@@ -12,9 +12,11 @@ export default [
 			{
 				path: "weight-wave",
 				component: () => import("@/views/weight-wave/Dashboard.vue"),
-				children: [{ path: "add", component: () => import("@/views/weight-wave/AddWeight.vue") }],
 			},
-			// { path: "weight-wave/add", component: () => import("@/views/weight-wave/AddWeight.vue") },
+			{
+				path: "day-planner",
+				component: () => import("@/views/day-planner/Dashboard.vue"),
+			},
 		],
 	},
 

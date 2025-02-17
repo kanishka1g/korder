@@ -19,4 +19,10 @@ export const appLinks = [
 		route: `/weight-wave`,
 		isExternalLink: false,
 	},
+	{
+		title: "Day Planner",
+		icon: "fas fa-calendar",
+		route: `/day-planner`,
+		isExternalLink: false,
+	},
 ];

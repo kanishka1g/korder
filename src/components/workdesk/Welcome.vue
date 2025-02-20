@@ -63,23 +63,22 @@
 
 	async function fetchTemperatureAndCity(position) {
 		const { latitude, longitude } = position.coords;
-
+		console.log(Math.floor(Math.random() * 10) + 1);
 		try {
 			const [weatherResponse, cityResponse, quoteResponse] = await Promise.all([
 				fetch(
 					`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`,
 				),
 				fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`),
-				fetch("https://dummyjson.com/quotes/1"),
+				fetch("https://api.devexcus.es/"),
 			]);
 			const weatherData = await weatherResponse.json();
 			temperature.value = `${Math.round(weatherData.current_weather.temperature)}°C`;
 
 			const cityData = await cityResponse.json();
 			city.value = cityData.address.suburb || cityData.address.city || "Unknown Location";
-
 			const quoteData = await quoteResponse.json();
-			quote.value = quoteData.quote;
+			quote.value = quoteData.text;
 		} catch (error) {
 			console.error(error); // TODO: snackbar error
 			throw error;
@@ -95,6 +94,7 @@
 		navigator.geolocation.getCurrentPosition(
 			(position) => fetchTemperatureAndCity(position),
 			(error) => {
+				// TODO: snackbar
 				console.warn("Location access denied.", error);
 			},
 		);

@@ -15,7 +15,7 @@ export default [
 			},
 			{
 				path: "day-planner",
-				component: () => import("@/views/day-planner/Dashboard.vue"),
+				component: () => import("@/views/day_planner/Dashboard.vue"),
 			},
 		],
 	},
@@ -25,3 +25,4 @@ export default [
 		component: () => import("@/views/PathNotFound.vue"),
 	},
 ];
+

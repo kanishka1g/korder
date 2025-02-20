@@ -3,7 +3,7 @@
 		<VAppBarNavIcon>
 			<VAppBarNavIcon @click="drawer = !drawer" />
 		</VAppBarNavIcon>
-		<RouterLink to="/" class="title">
+		<RouterLink to="/workdesk" class="title">
 			<VAppBarTitle>Korder</VAppBarTitle>
 		</RouterLink>
 		<template #append>

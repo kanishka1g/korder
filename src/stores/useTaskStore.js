@@ -51,7 +51,8 @@ export const useTasksStore = defineStore("tasksStore", {
 	getters: {
 		tasksForSelectedDate: (state) => {
 			return state.tasks;
-			return state.tasks.filter((task) => task.date.isSame(state.selectedDate, "day"));
+			// return state.tasks.filter((task) => task.date.isSame(state.selectedDate, "day"));
 		},
 	},
 });
+

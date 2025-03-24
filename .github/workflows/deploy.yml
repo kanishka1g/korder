@@ -36,6 +36,7 @@ jobs:
           source: "."
           target: "/home/${{ secrets.HOMELAB_USER }}/app"
           tar_tmp_path: "/tmp"
+          overwrite: true
 
       # SSH into homelab, load image, and deploy
       - name: Deploy Docker Container on Homelab

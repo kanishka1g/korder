@@ -25,7 +25,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/my-korder-main:latest
+          tags: ghcr.io/${{ github.repository_owner }}/korder-main:latest
 
       - name: Deploy to Homelab via Cloudflare SSH
         uses: and-fm/cloudflared-ssh-action@v3
@@ -37,6 +37,6 @@ jobs:
           service_token_id: ${{ secrets.CF_SERVICE_TOKEN_ID }}
           service_token_secret: ${{ secrets.CF_SERVICE_TOKEN_SECRET }}
           commands: |
-            docker pull ghcr.io/${{ github.repository_owner }}/my-korder-main:latest
-            docker stop vue3app || true && docker rm vue3app || true
-            docker run -d --name vue3app --restart unless-stopped -p 3006:3006 ghcr.io/${{ github.repository_owner }}/my-korder-main:latest
+            docker pull ghcr.io/${{ github.repository_owner }}/korder-main:latest
+            docker stop korder-main || true && docker rm korder-main || true
+            docker run -d --name korder-main --restart unless-stopped -p 3006:3006 ghcr.io/${{ github.repository_owner }}/korder-main:latest

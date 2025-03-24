@@ -1,61 +1,30 @@
-name: Deploy to Homelab Docker
+name: Deploy to Homelab
 
 on:
   push:
-    branches:
-      - main  # Or your deployment branch
+    branches: [main]
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      # Login to GitHub Container Registry (optional)
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build Docker image
+        run: docker build -t korder-main:${{ github.sha }} .
 
-      # Build Docker image
-      - name: Build Docker Image
-        run: |
-          docker build -t korder-main:latest .
-          docker save korder-main:latest -o korder-main.tar
-      - name: Test SSH Connection to Homelab
-        uses: appleboy/ssh-action@master
+      - name: Deploy to Homelab
+        uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.HOMELAB_HOST }}
           username: ${{ secrets.HOMELAB_USER }}
           key: ${{ secrets.HOMELAB_SSH_PRIVATE_KEY }}
           script: |
-            echo "SSH connection successful!"
-            hostname
-            docker --version
-
-      # Copy Docker image to homelab via SSH
-      - name: Copy Image to Homelab
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.HOMELAB_HOST }}
-          username: ${{ secrets.HOMELAB_USER }}
-          key: ${{ secrets.HOMELAB_SSH_PRIVATE_KEY }}
-          source: "korder-main.tar"
-          target: "/home/${{ secrets.HOMELAB_USER }}/korder-main.tar"
-
-      # SSH into homelab, load image, and deploy
-      - name: Deploy Docker Container on Homelab
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.HOMELAB_HOST }}
-          username: ${{ secrets.HOMELAB_USER }}
-          key: ${{ secrets.HOMELAB_SSH_PRIVATE_KEY }}
-          script: |
-            docker load -i ~/korder-main.tar
             docker stop korder-main || true
             docker rm korder-main || true
-            docker run -d --name korder-main -p 3006:80 --restart unless-stopped korder-main:latest
-            rm ~/korder-main.tar
+            docker run -d \
+              --name korder-main \
+              -p 3006:80 \
+              --restart always \
+              korder-main:${{ github.sha }}

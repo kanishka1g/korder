@@ -33,8 +33,9 @@ jobs:
           host: ${{ secrets.HOMELAB_HOST }}
           username: ${{ secrets.HOMELAB_USER }}
           key: ${{ secrets.HOMELAB_SSH_PRIVATE_KEY }}
-          source: "korder-main.tar"
-          target: "/home/${{ secrets.HOMELAB_USER }}/korder-main.tar"
+          source: "."
+          target: "/home/${{ secrets.HOMELAB_USER }}/app"
+          tar_tmp_path: "/tmp"
 
       # SSH into homelab, load image, and deploy
       - name: Deploy Docker Container on Homelab

@@ -18,6 +18,7 @@ export function* range(start, end, step = 1) {
 
 // Parameters left for code completion reasons.
 
-export function rangeArray(start, end, step) {
+export function rangeArray() {
 	return [...range(...arguments)];
 }
+

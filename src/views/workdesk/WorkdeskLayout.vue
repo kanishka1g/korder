@@ -34,7 +34,7 @@
 
 <script setup>
 	import { ref } from "vue";
-	import { useAuthStore } from "@/stores/authStore";
+	import { useAuthStore } from "@/stores/auth_store";
 	import { useRouter, useRoute } from "vue-router";
 	import { domain, appLinks } from "@/utils/helpers";
 	import { useDisplay } from "vuetify";

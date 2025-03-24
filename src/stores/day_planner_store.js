@@ -1,14 +1,11 @@
 import { defineStore } from "pinia";
-import { useNow } from "@/utils/now";
 import axios from "axios";
 import dayjs from "dayjs";
-
-const now = useNow();
 
 export const useTasksStore = defineStore("tasksStore", {
 	state: () => ({
 		tasks: [],
-		selectedDate: now.value,
+		selectedDate: dayjs().format("YYYY-MM-DD"), // or any date format you prefer
 	}),
 	actions: {
 		async fetchTasks() {
@@ -18,21 +15,29 @@ export const useTasksStore = defineStore("tasksStore", {
 				{
 					_id: "1",
 					title: "Task 1",
+					date: "2025-002-21",
 					description: "Description 1",
-					date: dayjs("2025-02-24T17:25:00.000Z"),
+					completed: false,
 				},
 				{
 					_id: "2",
 					title: "Task 2",
+					date: "2025-002-22",
 					description: "Description 2",
-					date: dayjs("2025-02-24T01:00:00.000Z"),
+					completed: true,
+				},
+				{
+					_id: "3",
+					title: "Task 3",
+					date: "2025-002-23",
+					description: "Description 3",
+					completed: false,
 				},
 			];
 		},
-		async addTask({ title, date, description }) {
-			// const res = await axios.post("http://localhost:3000/api/tasks", { title, date });
-			// this.tasks.push(res.data);
-			this.tasks.push({ _id: this.tasks.length + 1, title: title, description: description, date: date });
+		async addTask({ title, date }) {
+			const res = await axios.post("http://localhost:3000/api/tasks", { title, date });
+			this.tasks.push(res.data);
 		},
 		async updateTask(id, updates) {
 			const res = await axios.put(`http://localhost:3000/api/tasks/${id}`, updates);
@@ -44,15 +49,15 @@ export const useTasksStore = defineStore("tasksStore", {
 			await axios.delete(`http://localhost:3000/api/tasks/${id}`);
 			this.tasks = this.tasks.filter((t) => t._id !== id);
 		},
-		setDate(date) {
-			this.selectedDate = date;
+		setDate(dateString) {
+			this.selectedDate = dateString;
 		},
 	},
 	getters: {
 		tasksForSelectedDate: (state) => {
-			return state.tasks;
-			// return state.tasks.filter((task) => task.date.isSame(state.selectedDate, "day"));
+			return state.tasks.filter((task) => {
+				return dayjs(task.date).format("YYYY-MM-DD") === state.selectedDate;
+			});
 		},
 	},
 });
-

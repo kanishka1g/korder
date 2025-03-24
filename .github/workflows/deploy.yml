@@ -23,8 +23,8 @@ jobs:
       # Build Docker image
       - name: Build Docker Image
         run: |
-          docker build -t myvueapp:latest .
-          docker save myvueapp:latest -o myvueapp.tar
+          docker build -t korder-main:latest .
+          docker save korder-main:latest -o korder-main.tar
 
       # Copy Docker image to homelab via SSH
       - name: Copy Image to Homelab
@@ -33,7 +33,7 @@ jobs:
           host: ${{ secrets.HOMELAB_HOST }}
           username: ${{ secrets.HOMELAB_USER }}
           key: ${{ secrets.HOMELAB_SSH_PRIVATE_KEY }}
-          source: "myvueapp.tar"
+          source: "korder-main.tar"
           target: "/home/${{ secrets.HOMELAB_USER }}/"
 
       # SSH into homelab, load image, and deploy
@@ -44,8 +44,8 @@ jobs:
           username: ${{ secrets.HOMELAB_USER }}
           key: ${{ secrets.HOMELAB_SSH_PRIVATE_KEY }}
           script: |
-            docker load -i ~/myvueapp.tar
-            docker stop myvueapp || true
-            docker rm myvueapp || true
-            docker run -d --name myvueapp -p 3006:80 --restart unless-stopped myvueapp:latest
-            rm ~/myvueapp.tar
+            docker load -i ~/korder-main.tar
+            docker stop korder-main || true
+            docker rm korder-main || true
+            docker run -d --name korder-main -p 3006:80 --restart unless-stopped korder-main:latest
+            rm ~/korder-main.tar

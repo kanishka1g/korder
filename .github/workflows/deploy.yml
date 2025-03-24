@@ -25,6 +25,16 @@ jobs:
         run: |
           docker build -t korder-main:latest .
           docker save korder-main:latest -o korder-main.tar
+      - name: Test SSH Connection to Homelab
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOMELAB_HOST }}
+          username: ${{ secrets.HOMELAB_USER }}
+          key: ${{ secrets.HOMELAB_SSH_PRIVATE_KEY }}
+          script: |
+            echo "SSH connection successful!"
+            hostname
+            docker --version
 
       # Copy Docker image to homelab via SSH
       - name: Copy Image to Homelab
@@ -33,10 +43,8 @@ jobs:
           host: ${{ secrets.HOMELAB_HOST }}
           username: ${{ secrets.HOMELAB_USER }}
           key: ${{ secrets.HOMELAB_SSH_PRIVATE_KEY }}
-          source: "."
-          target: "/home/${{ secrets.HOMELAB_USER }}/app"
-          tar_tmp_path: "/tmp"
-          overwrite: true
+          source: "korder-main.tar"
+          target: "/home/${{ secrets.HOMELAB_USER }}/korder-main.tar"
 
       # SSH into homelab, load image, and deploy
       - name: Deploy Docker Container on Homelab

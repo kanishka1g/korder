@@ -1,115 +1,51 @@
-name: Deploy Vue to Oracle Cloud
+name: Deploy to Homelab Docker
 
 on:
-    push:
-        branches:
-            - main
+  push:
+    branches:
+      - main  # Or your deployment branch
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
+  build-and-deploy:
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-            - name: Set up Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 18
+      # Login to GitHub Container Registry (optional)
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Install dependencies
-              run: npm install
+      # Build Docker image
+      - name: Build Docker Image
+        run: |
+          docker build -t myvueapp:latest .
+          docker save myvueapp:latest -o myvueapp.tar
 
-            - name: Format code
-              run: npm run format
+      # Copy Docker image to homelab via SSH
+      - name: Copy Image to Homelab
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOMELAB_HOST }}
+          username: ${{ secrets.HOMELAB_USER }}
+          key: ${{ secrets.HOMELAB_SSH_PRIVATE_KEY }}
+          source: "myvueapp.tar"
+          target: "/home/${{ secrets.HOMELAB_USER }}/"
 
-            - name: Lint code
-              run: npm run lint
-
-            - name: Test code
-              run: npm run test:unit
-
-            - name: Build Vue app
-              run: npm run build
-
-            - name: Upload build artifacts
-              uses: actions/upload-artifact@v4
-              with:
-                  name: vue-build
-                  path: dist
-
-    dockerize:
-        needs: build
-        runs-on: ubuntu-latest
-
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-
-            - name: Download build artifacts
-              uses: actions/download-artifact@v4
-              with:
-                  name: vue-build
-                  path: dist
-
-            - name: Build Docker image
-              run: |
-                  docker build -t korder-main:latest .
-
-            - name: Save Docker image
-              run: docker save -o korder-main.tar korder-main:latest
-
-            - name: Upload Docker image artifact
-              uses: actions/upload-artifact@v4
-              with:
-                  name: docker-image
-                  path: korder-main.tar
-
-    deploy:
-        needs: dockerize
-        runs-on: ubuntu-latest
-
-        steps:
-            - name: Download Docker image artifact
-              uses: actions/download-artifact@v4
-              with:
-                  name: docker-image
-                  path: .
-
-            - name: Log in to Oracle server
-              uses: appleboy/ssh-action@v0.1.7
-              with:
-                  host: ${{ secrets.HOST }}
-                  username: ${{ secrets.USERNAME }}
-                  key: ${{ secrets.SSH_KEY }}
-                  script: |
-                      # Stop and remove existing container (if any)
-                      docker stop korder-main || true
-                      docker rm korder-main || true
-
-                      # Remove old image
-                      docker rmi korder-main:latest || true
-
-            - name: Copy Docker image to Oracle server
-              uses: appleboy/scp-action@v0.1.4
-              with:
-                  host: ${{ secrets.HOST }}
-                  username: ${{ secrets.USERNAME }}
-                  key: ${{ secrets.SSH_KEY }}
-                  source: "korder-main.tar"
-                  target: "/home/ubuntu/"
-
-            - name: Load and run Docker container on Oracle server
-              uses: appleboy/ssh-action@v0.1.7
-              with:
-                  host: ${{ secrets.HOST }}
-                  username: ${{ secrets.USERNAME }}
-                  key: ${{ secrets.SSH_KEY }}
-                  script: |
-                      # Load Docker image
-                      docker load -i /home/ubuntu/korder-main.tar
-
-                      # Run the container
-                      docker run -d --name korder-main -p 3006:80 korder-main:latest
-
+      # SSH into homelab, load image, and deploy
+      - name: Deploy Docker Container on Homelab
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOMELAB_HOST }}
+          username: ${{ secrets.HOMELAB_USER }}
+          key: ${{ secrets.HOMELAB_SSH_PRIVATE_KEY }}
+          script: |
+            docker load -i ~/myvueapp.tar
+            docker stop myvueapp || true
+            docker rm myvueapp || true
+            docker run -d --name myvueapp -p 3006:80 --restart unless-stopped myvueapp:latest
+            rm ~/myvueapp.tar

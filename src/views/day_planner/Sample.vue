@@ -42,7 +42,7 @@
 
 		<VDialog v-model="showAddTaskDialog" max-width="500">
 			<VCard>
-				<VCardTitle>Add New Task</VCardTitle>
+				<VCardTitle> Add New Task </VCardTitle>
 				<VCardText>
 					<VTextField v-model="newTask.title" label="Task Title" required />
 					<VTextField v-model="newTask.description" label="Task Description" />

@@ -1,42 +1,52 @@
-name: Build and Deploy
-on: push  # trigger on push to main (adjust as needed)
-permissions:
-  contents: read
-  packages: write  # needed to push to GHCR
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+# name: CI/CD Pipeline
+# on:
+#   push:
+#     branches: [ main ]
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v3
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+#       - name: Set up Node.js
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: '18'
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          push: true
-          tags: ghcr.io/${{ github.repository_owner }}/korder-main:latest
+#       - name: Install and build
+#         run: |
+#           npm ci
+#           npm run build
 
-      - name: Deploy to Homelab via Cloudflare SSH
-        uses: and-fm/cloudflared-ssh-action@v3
-        with:
-          host: ${{ secrets.HOMELAB_HOST }}              # e.g. your-tunnel-hostname
-          username: ${{ secrets.HOMELAB_USER }}         # e.g. "ubuntu"
-          port: 22                                      # SSH port on homelab (likely 22)
-          private_key_value: ${{ secrets.HOMELAB_SSH_PRIVATE_KEY }}
-          service_token_id: ${{ secrets.CF_SERVICE_TOKEN_ID }}
-          service_token_secret: ${{ secrets.CF_SERVICE_TOKEN_SECRET }}
-          commands: |
-            docker pull ghcr.io/${{ github.repository_owner }}/korder-main:latest
-            docker stop korder-main || true && docker rm korder-main || true
-            docker run -d --name korder-main --restart unless-stopped -p 3006:3006 ghcr.io/${{ github.repository_owner }}/korder-main:latest
+#       - name: Log in to GitHub Container Registry
+#         uses: docker/login-action@v2
+#         with:
+#           registry: ghcr.io
+#           username: ${{ github.actor }}
+#           password: ${{ secrets.GITHUB_TOKEN }}
+
+#       - name: Build and push Docker image
+#         uses: docker/build-push-action@v3
+#         with:
+#           context: .
+#           push: true
+#           tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:latest
+
+#   deploy:
+#     needs: build
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: SSH to deploy server
+#         uses: appleboy/ssh-action@v0.1.5
+#         with:
+#           host: ${{ secrets.REMOTE_HOST }}
+#           username: ${{ secrets.REMOTE_USER }}
+#           key: ${{ secrets.REMOTE_PRIVATE_KEY }}
+#           script: |
+#             # Log in to GHCR on the server
+#             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+#             # Navigate to compose dir and update
+#             cd /opt/vue-app
+#             docker-compose pull
+#             docker-compose up -d

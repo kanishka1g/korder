@@ -16,10 +16,6 @@ export default defineConfig({
 	},
 	server: {
 		port: 3006,
-		allowedHosts: [
-			'localhost',
-			'korder.cloud',
-		],
 	},
 	build: {
 		outDir: "dist", // Ensure the output directory is correct

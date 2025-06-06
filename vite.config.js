@@ -16,6 +16,7 @@ export default defineConfig({
 	},
 	server: {
 		port: 3006,
+		 allowedHosts: 'all'
 	},
 	build: {
 		outDir: "dist", // Ensure the output directory is correct

@@ -14,10 +14,10 @@ export default defineConfig({
 			"@": fileURLToPath(new URL("./src", import.meta.url)),
 		},
 	},
-	server: {
-		port: 3006,
-		allowedHosts: ["korder.cloud"],
-	},
+	// server: {
+	// 	port: 3006,
+	// 	allowedHosts: ["korder.cloud"],
+	// },
 	build: {
 		outDir: "dist", // Ensure the output directory is correct
 		assetsDir: "assets", // Ensure static assets are placed in the correct directory

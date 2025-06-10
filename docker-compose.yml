@@ -1,14 +1,14 @@
 services:
-  korder_main:
-    container_name: korder_main
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "3006:3006"
-    volumes:
-      - .:/app
-      - /app/node_modules
-    command: "npm run dev -- --host --port 3006"
-    environment:
-      - VITE_API_URL=https://korder.cloud
+    korder_main:
+        container_name: korder_main
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "3006:80"
+        volumes:
+            - .:/app
+            - /app/node_modules
+        command: "npm run dev -- --host --port 3006"
+        environment:
+            - VITE_API_URL=https://korder.cloud

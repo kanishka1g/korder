@@ -5,7 +5,7 @@
 				<img src="https://i.pravatar.cc/48" />
 			</VAvatar>
 			<div class="d-flex flex-column">
-				<div class="text-h6 font-weight-bold title">Welcome, Korder</div>
+				<div class="text-h6 font-weight-bold title">Welcome, Korder Test</div>
 				<div class="text-body-1 subtitle">{{ quote }}</div>
 			</div>
 		</VCardTitle>

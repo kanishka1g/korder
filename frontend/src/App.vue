@@ -1,6 +1,8 @@
 <template>
 	<VApp theme="dark">
-		<RouterView />
+		<VMain class="pa-4" style="background-color: #1e1e1e; min-height: 100vh">
+			<RouterView />
+		</VMain>
 	</VApp>
 </template>
 

@@ -4,7 +4,7 @@ export const appLinks = [
 	{
 		title: "Teslamate",
 		icon: "fas fa-car",
-		route: `https://teslamate.${domain}`,
+		route: `https://tesla.${domain}`,
 		isExternalLink: true,
 	},
 	{
@@ -23,6 +23,12 @@ export const appLinks = [
 		title: "Day Planner",
 		icon: "fas fa-calendar",
 		route: `/day-planner`,
+		isExternalLink: false,
+	},
+	{
+		title: "Habits",
+		icon: "fas fa-circle-check",
+		route: `/habits`,
 		isExternalLink: false,
 	},
 ];

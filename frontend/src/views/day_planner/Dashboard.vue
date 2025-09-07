@@ -1,13 +1,11 @@
 <template>
-	<VMain class="pa-4" style="background-color: #1e1e1e; min-height: 100vh">
-		<VContainer fluid>
-			<DayNavBar :week-days="weekDays" :selected-date="selectedDate" @select-day="onSelectDay" />
-			<TimelineDay :tasks="tasksForSelectedDate" :date="selectedDate" />
-		</VContainer>
-		<VBtn fab large color="green" style="position: fixed; bottom: 24px; right: 24px" @click="addNewTask">
-			<VIcon icon="fas fa-plus"></VIcon>
-		</VBtn>
-	</VMain>
+	<VContainer fluid>
+		<DayNavBar :week-days="weekDays" :selected-date="selectedDate" @select-day="onSelectDay" />
+		<TimelineDay :tasks="tasksForSelectedDate" :date="selectedDate" />
+	</VContainer>
+	<VBtn fab large color="green" style="position: fixed; bottom: 24px; right: 24px" @click="addNewTask">
+		<VIcon icon="fas fa-plus"></VIcon>
+	</VBtn>
 </template>
 
 <script setup>

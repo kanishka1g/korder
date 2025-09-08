@@ -49,13 +49,14 @@
 	import { ref } from "vue";
 	import { useRouter, useRoute } from "vue-router";
 	import { useAuthStore } from "@/stores/auth_store";
+	import api from "@/services/api";
 
 	const authStore = useAuthStore();
 	const router = useRouter();
 	const route = useRoute();
 
-	const username = ref(null);
-	const password = ref(null);
+	const username = ref("kanishka1g");
+	const password = ref("test");
 	const loading = ref(false);
 	const error = ref(null);
 
@@ -63,17 +64,19 @@
 		if (!username.value || !password.value) {
 			return;
 		}
-		if (username.value.toLowerCase() !== "Kanishka1g".toLowerCase() || password.value !== "test") {
-			error.value = "Username or password is incorrect";
-			return;
-		}
+		// loading.value = true;
 
-		loading.value = true;
-		setTimeout(() => {
-			loading.value = false;
+		const res = await api.post("api/auth/login", {
+			username: username.value,
+			password: password.value,
+		});
+
+		if (res.data.token) {
+			localStorage.setItem("token", res.data.token);
 			authStore.logIn();
-			router.push(route.query.redirect || "/workdesk");
-		}, 1500);
+			router.push("/workdesk");
+			// loading.value = true;
+		}
 	}
 </script>
 
@@ -93,3 +96,4 @@
 		font-family: variables.$title-font;
 	}
 </style>
+

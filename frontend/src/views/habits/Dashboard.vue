@@ -11,15 +11,21 @@
 						</VRow>
 					</VCardTitle>
 					<VCardText>
-						<!-- TODO:log Today habits -->
 						<VRow>
-							<VCol cols="12" md="6">
+							<VCol v-if="todayList.length" cols="12" md="6">
 								<VCard variant="outlined" class="mt-3">
 									<VCardTitle> Today's checkin </VCardTitle>
 									<VCardText>
 										<VRow v-for="habit in todayList" :key="habit.id" dense>
 											<VCol>
-												<VCheckbox v-model="habit.checked" :label="habit.title" />
+												<VCheckbox
+													v-model="habit.checked"
+													color="primary"
+													:label="habit.title"
+													hide-details
+													density="compact"
+													@update:model-value="handleCheckin(habit)"
+												/>
 											</VCol>
 										</VRow>
 									</VCardText>
@@ -80,6 +86,7 @@
 	import { ref, computed } from "vue";
 	import { useNow } from "@/utils/now";
 	import dayjs from "@/plugins/dayjs";
+	import api from "@/services/api";
 
 	const now = useNow();
 
@@ -90,43 +97,86 @@
 		{ title: "", key: "action" },
 	];
 
+	const loading = ref(false);
 	const habits = ref([]);
 
 	const todayList = computed(() => {
-		return habits.value.filter((habit) => {
-			return now.value.isBetween(habit.startDate, habit.endDate, "day", "[]");
-		});
+		let list = [];
+		for (const item of habits.value) {
+			item.checked = item.checkIns.some((checkin) => {
+				return now.value.isSame(dayjs(checkin.date), "day");
+			});
+			if (now.value.isBetween(item.startDate, item.endDate, "day", "[]")) {
+				list.push(item);
+			}
+		}
+		return list;
 	});
 
 	async function reload() {
-		habits.value = [
-			{
-				id: 1,
-				title: "meditate",
-				description: "",
-				startDate: dayjs("2025-09-05"),
-				endDate: dayjs("2025-09-14"),
-			},
-			{
-				id: 2,
-				title: "sleep early",
-				description: "",
-				startDate: dayjs("2025-09-05"),
-				endDate: dayjs("2025-10-05"),
-			},
-			{
-				id: 3,
-				title: "eat less calories",
-				description: "",
-				startDate: dayjs("2025-09-10"),
-				endDate: dayjs("2025-10-05"),
-			},
-		];
+		try {
+			loading.value = true;
+
+			const token = localStorage.getItem("token");
+			const res = await api.get("api/habits", { headers: { Authorization: `Bearer ${token}` } });
+			habits.value = res.data;
+			// console.log(res);
+		} catch (err) {
+			console.error("Get habits error:", err.response?.data?.message || err.message);
+			throw err;
+		} finally {
+			loading.value = false;
+		}
 	}
 
 	reload();
 
-	function handleAdd() {
-		console.log("handleAdd");
+	async function handleAdd() {
+		try {
+			const token = localStorage.getItem("token");
+			const res = await api.post(
+				"api/habits",
+				{
+					title: "Less display time",
+					description: null,
+					startDate: "2025-09-08",
+					endDate: "2025-09-30",
+				},
+				{
+					headers: { Authorization: `Bearer ${token}` },
+				},
+			);
+
+			//TODO: Update snackbar
+			console.log("Habit added:", res.data);
+			reload();
+		} catch (err) {
+			console.error("Add habit error:", err.response?.data?.message || err.message);
+			throw err;
+		} finally {
+			loading.value = false;
+		}
+	}
+
+	async function handleCheckin(habit) {
+		try {
+			const token = localStorage.getItem("token");
+			const res = await api.post(
+				`api/habits/${habit._id}/check`,
+				{},
+				{
+					headers: { Authorization: `Bearer ${token}` },
+				},
+			);
+
+			// TODO: Update snackbar
+			console.log(`${habit.title} checked`);
+			reload();
+		} catch (err) {
+			console.error("Add habit error:", err.response?.data?.message || err.message);
+			throw err;
+		} finally {
+			loading.value = false;
+		}
 	}
 </script>

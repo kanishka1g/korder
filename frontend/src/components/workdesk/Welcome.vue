@@ -63,7 +63,6 @@
 
 	async function fetchTemperatureAndCity(position) {
 		const { latitude, longitude } = position.coords;
-		console.log(Math.floor(Math.random() * 10) + 1);
 		try {
 			const [weatherResponse, cityResponse, quoteResponse] = await Promise.all([
 				fetch(
@@ -117,3 +116,4 @@
 		font-family: variables.$subtitle-font;
 	}
 </style>
+

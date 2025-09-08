@@ -61,7 +61,6 @@ export const deleteHabit = async (req, res) => {
 // daily check
 export const dailyCheck = async (req, res) => {
   try {
-    console.log(req.params);
     const habit = await Habit.findOne({
       _id: req.params.id,
     });

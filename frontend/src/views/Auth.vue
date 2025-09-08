@@ -36,7 +36,7 @@
 					</VRow>
 					<VRow>
 						<VCol>
-							<VBtn type="submit" color="primary" block :loading="loading"> Login </VBtn>
+							<VBtn type="submit" color="primary" block :loading="loading.isLoading.value"> Login </VBtn>
 						</VCol>
 					</VRow>
 				</VForm>
@@ -50,32 +50,37 @@
 	import { useRouter, useRoute } from "vue-router";
 	import { useAuthStore } from "@/stores/auth_store";
 	import api from "@/services/api";
+	import { useLogger } from "@/utils/useLogger";
+	import { useLoading } from "@/utils/useLoading";
 
 	const authStore = useAuthStore();
 	const router = useRouter();
 	const route = useRoute();
+	const loading = useLoading();
 
 	const username = ref("kanishka1g");
 	const password = ref("test");
-	const loading = ref(false);
 	const error = ref(null);
 
 	async function handleLogin() {
 		if (!username.value || !password.value) {
 			return;
 		}
-		// loading.value = true;
 
-		const res = await api.post("api/auth/login", {
-			username: username.value,
-			password: password.value,
-		});
+		loading.start();
 
-		if (res.data.token) {
-			localStorage.setItem("token", res.data.token);
-			authStore.logIn();
-			router.push("/workdesk");
-			// loading.value = true;
+		try {
+			const res = await api.post("api/auth/login", {
+				username: username.value,
+				password: password.value,
+			});
+
+			if (res.data.token) {
+				authStore.logIn(res.data.token);
+				router.push("/workdesk");
+			}
+		} finally {
+			loading.end();
 		}
 	}
 </script>
@@ -96,4 +101,3 @@
 		font-family: variables.$title-font;
 	}
 </style>
-

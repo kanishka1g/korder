@@ -24,10 +24,10 @@
 		</VList>
 	</VNavigationDrawer>
 	<VMain>
+		{{ loading.isLoading.value }}
 		<RouterView />
-		<!-- Loads internal pages here -->
 	</VMain>
-	<VOverlay v-model="loading" class="align-center justify-center" persistent>
+	<VOverlay v-model="loading.isLoading.value" class="align-center justify-center" persistent>
 		<VProgressCircular color="success" :size="70" :width="7" indeterminate></VProgressCircular>
 	</VOverlay>
 </template>
@@ -38,8 +38,10 @@
 	import { useRouter, useRoute } from "vue-router";
 	import { domain, appLinks } from "@/utils/helpers";
 	import { useDisplay } from "vuetify";
+	import { useLoading } from "@/utils/useLoading";
 
 	const { mdAndUp } = useDisplay();
+	const loading = useLoading();
 
 	const router = useRouter();
 	const route = useRoute();
@@ -47,12 +49,11 @@
 	const authStore = useAuthStore();
 
 	const drawer = ref(false);
-	const loading = ref(false);
 
 	async function handleLogout() {
-		loading.value = true;
+		loading.start();
 		setTimeout(() => {
-			loading.value = false;
+			loading.end();
 			authStore.logOut();
 			router.push("/");
 		}, 1500);

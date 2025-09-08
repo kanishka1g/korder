@@ -87,8 +87,14 @@
 	import { useNow } from "@/utils/now";
 	import dayjs from "@/plugins/dayjs";
 	import api from "@/services/api";
+	import { useAuthStore } from "@/stores/auth_store";
+	import { useLogger } from "@/utils/useLogger";
+	import { useLoading } from "@/utils/useLoading";
 
 	const now = useNow();
+	const authStore = useAuthStore();
+	const loading = useLoading();
+	const logger = useLogger();
 
 	const headers = [
 		{ title: "Title", key: "title" },
@@ -97,7 +103,6 @@
 		{ title: "", key: "action" },
 	];
 
-	const loading = ref(false);
 	const habits = ref([]);
 
 	const todayList = computed(() => {
@@ -114,69 +119,57 @@
 	});
 
 	async function reload() {
-		try {
-			loading.value = true;
-
-			const token = localStorage.getItem("token");
-			const res = await api.get("api/habits", { headers: { Authorization: `Bearer ${token}` } });
-			habits.value = res.data;
-			// console.log(res);
-		} catch (err) {
-			console.error("Get habits error:", err.response?.data?.message || err.message);
-			throw err;
-		} finally {
-			loading.value = false;
-		}
+		const token = authStore.token;
+		const res = await api.get("api/habits", { headers: { Authorization: `Bearer ${token}` } });
+		habits.value = res.data;
 	}
 
 	reload();
 
 	async function handleAdd() {
+		loading.start();
 		try {
-			const token = localStorage.getItem("token");
 			const res = await api.post(
 				"api/habits",
 				{
-					title: "Less display time",
+					title: "Test Habit",
 					description: null,
 					startDate: "2025-09-08",
 					endDate: "2025-09-30",
 				},
 				{
-					headers: { Authorization: `Bearer ${token}` },
+					headers: { Authorization: `Bearer ${authStore.token}` },
 				},
 			);
-
-			//TODO: Update snackbar
-			console.log("Habit added:", res.data);
+			//TODO: update res.data.title
+			logger.success(`${res.data.title} added`);
 			reload();
 		} catch (err) {
-			console.error("Add habit error:", err.response?.data?.message || err.message);
-			throw err;
+			console.log("err");
+			logger.error(err, "handleAdd");
 		} finally {
-			loading.value = false;
+			loading.end();
 		}
 	}
 
 	async function handleCheckin(habit) {
+		loading.start();
 		try {
-			const token = localStorage.getItem("token");
 			const res = await api.post(
 				`api/habits/${habit._id}/check`,
 				{},
 				{
-					headers: { Authorization: `Bearer ${token}` },
+					headers: { Authorization: `Bearer ${authStore.token}` },
 				},
 			);
 
-			// TODO: Update snackbar
-			console.log(`${habit.title} checked`);
+			logger.success(`${habit.title} checked in`);
+
 			reload();
 		} catch (err) {
-			console.error("Add habit error:", err.response?.data?.message || err.message);
-			throw err;
+			logger.error(err, "handleCheckin");
 		} finally {
-			loading.value = false;
+			loading.end();
 		}
 	}
 </script>

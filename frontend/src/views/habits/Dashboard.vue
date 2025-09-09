@@ -80,6 +80,46 @@
 			</VCol>
 		</VRow>
 	</VContainer>
+	<Modal
+		v-model="habitModal.show"
+		:title="`${habitModal.action} Habit`"
+		confirm-icon="fas fa-floppy-disk"
+		:confirm-text="habitModal.action"
+		@confirm="handleConfirm"
+	>
+		<VCardText>
+			<VForm>
+				<VRow>
+					<VCol cols="12" md="6">
+						<VTextField v-model="habitModal.data.title" label="Title" variant="outlined" required />
+					</VCol>
+					<VCol cols="12" md="6">
+						<VTextField v-model="habitModal.data.description" label="Description" variant="outlined" />
+					</VCol>
+				</VRow>
+				<VRow>
+					<VCol cols="12" md="6">
+						<VTextField
+							v-model="habitModal.data.startDate"
+							label="Start Date"
+							type="date"
+							variant="outlined"
+							required
+						/>
+					</VCol>
+					<VCol cols="12" md="6">
+						<VTextField
+							v-model="habitModal.data.endDate"
+							label="End Date"
+							type="date"
+							variant="outlined"
+							required
+						/>
+					</VCol>
+				</VRow>
+			</VForm>
+		</VCardText>
+	</Modal>
 </template>
 
 <script setup>
@@ -90,6 +130,7 @@
 	import { useAuthStore } from "@/stores/auth_store";
 	import { useLogger } from "@/utils/useLogger";
 	import { useLoading } from "@/utils/useLoading";
+	import { confirmation } from "@/utils/generic_modals";
 
 	const now = useNow();
 	const authStore = useAuthStore();
@@ -100,10 +141,15 @@
 		{ title: "Title", key: "title" },
 		{ title: "Start Date", key: "startDate" },
 		{ title: "End Date", key: "endDate" },
-		{ title: "", key: "action" },
+		{ title: "", key: "action", align: "end", width: "100px" },
 	];
 
 	const habits = ref([]);
+	const habitModal = ref({
+		show: false,
+		action: "Add",
+		data: habitObject(),
+	});
 
 	const todayList = computed(() => {
 		let list = [];
@@ -126,30 +172,37 @@
 
 	reload();
 
-	async function handleAdd() {
-		loading.start();
-		try {
-			const res = await api.post(
-				"api/habits",
-				{
-					title: "Test Habit",
-					description: null,
-					startDate: "2025-09-08",
-					endDate: "2025-09-30",
-				},
-				{
-					headers: { Authorization: `Bearer ${authStore.token}` },
-				},
-			);
-			//TODO: update res.data.title
-			logger.success(`${res.data.title} added`);
-			reload();
-		} catch (err) {
-			console.log("err");
-			logger.error(err, "handleAdd");
-		} finally {
-			loading.end();
+	function handleAdd() {
+		habitModal.value.data = habitObject();
+		habitModal.value.action = "Add";
+		habitModal.value.show = true;
+	}
+
+	function handleEdit(habit) {
+		habitModal.value.data = {
+			title: habit.title,
+			description: habit.description,
+			startDate: dayjs(habit.startDate).format("YYYY-MM-DD"),
+			endDate: dayjs(habit.endDate).format("YYYY-MM-DD"),
+			_id: habit._id,
+		};
+		habitModal.value.action = "Edit";
+		habitModal.value.show = true;
+	}
+
+	async function handleDelete(habit) {
+		const confirmed = await confirmation("Delete", `Are you sure you want to delete ${habit.title}?`, true);
+
+		if (!confirmed) {
+			return;
 		}
+
+		const res = await api.delete(`api/habits/${habit._id}`, {
+			headers: { Authorization: `Bearer ${authStore.token}` },
+		});
+
+		logger.success(`${habit.title} deleted`);
+		reload();
 	}
 
 	async function handleCheckin(habit) {
@@ -171,5 +224,51 @@
 		} finally {
 			loading.end();
 		}
+	}
+
+	async function handleConfirm() {
+		if (habitModal.value.action === "Add") {
+			const res = await api.post(
+				"api/habits",
+				{
+					title: habitModal.value.data.title,
+					description: habitModal.value.data.description,
+					startDate: habitModal.value.data.startDate,
+					endDate: habitModal.value.data.endDate,
+				},
+				{
+					headers: { Authorization: `Bearer ${authStore.token}` },
+				},
+			);
+
+			logger.success(`${res.data.title} added`);
+		} else if (habitModal.value.action === "Edit") {
+			const res = await api.put(
+				`api/habits/${habitModal.value.data._id}`,
+				{
+					title: habitModal.value.data.title,
+					description: habitModal.value.data.description,
+					startDate: habitModal.value.data.startDate,
+					endDate: habitModal.value.data.endDate,
+				},
+				{
+					headers: { Authorization: `Bearer ${authStore.token}` },
+				},
+			);
+
+			logger.success(`${res.data.title} edited`);
+		}
+
+		reload();
+		habitModal.value.show = false;
+	}
+
+	function habitObject() {
+		return {
+			title: null,
+			description: null,
+			startDate: now.value.format("YYYY-MM-DD"),
+			endDate: now.value.add(7, "day").format("YYYY-MM-DD"),
+		};
 	}
 </script>

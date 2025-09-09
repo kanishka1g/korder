@@ -69,7 +69,7 @@ export function confirmation(
 	type = null,
 ) {
 	if (type === null) {
-		type = dangerous ? "error" : "main";
+		type = dangerous ? "error" : "success";
 	}
 	const typeIcon = {
 		primary: "fas fa-floppy-disk",

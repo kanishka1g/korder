@@ -13,10 +13,9 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(
-	loading.start(),
 	(config) => {
+		loading.start();
 		const token = authStore.token;
-		console.log(token);
 		if (token) {
 			config.headers.Authorization = `Bearer ${token}`;
 		}
@@ -30,8 +29,10 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use(
-	loading.end(),
-	(response) => response,
+	(response) => {
+		loading.end();
+		return response;
+	},
 	(error) => {
 		loading.end();
 		logger.error(error, "API Response");

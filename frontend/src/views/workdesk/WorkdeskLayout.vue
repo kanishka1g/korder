@@ -24,7 +24,6 @@
 		</VList>
 	</VNavigationDrawer>
 	<VMain>
-		{{ loading.isLoading.value }}
 		<RouterView />
 	</VMain>
 	<VOverlay v-model="loading.isLoading.value" class="align-center justify-center" persistent>
@@ -36,16 +35,13 @@
 	import { ref } from "vue";
 	import { useAuthStore } from "@/stores/auth_store";
 	import { useRouter, useRoute } from "vue-router";
-	import { domain, appLinks } from "@/utils/helpers";
+	import { appLinks } from "@/utils/helpers";
 	import { useDisplay } from "vuetify";
 	import { useLoading } from "@/utils/useLoading";
 
 	const { mdAndUp } = useDisplay();
 	const loading = useLoading();
-
 	const router = useRouter();
-	const route = useRoute();
-
 	const authStore = useAuthStore();
 
 	const drawer = ref(false);

@@ -77,7 +77,7 @@
 
 			if (res.data.token) {
 				authStore.logIn(res.data.token);
-				router.push("/workdesk");
+				router.push(route.query.redirect || "/workdesk");
 			}
 		} finally {
 			loading.end();

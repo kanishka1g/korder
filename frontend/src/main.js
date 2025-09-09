@@ -7,6 +7,7 @@ import router from "./router";
 import "@/plugins/icons/register";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
+import registerGlobals from "@/components/global";
 
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
@@ -18,5 +19,7 @@ app.use(pinia);
 app.use(router);
 
 app.component("FontAwesomeIcon", FontAwesomeIcon);
+
+registerGlobals(app);
 
 app.mount("#app");

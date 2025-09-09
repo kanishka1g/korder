@@ -1,9 +1,9 @@
-import { ref } from "vue";
+import { ref, computed } from "vue";
 
 const loadingCounter = ref(0);
 
 export function useLoading() {
-	const isLoading = ref(false);
+	const isLoading = computed(() => loadingCounter.value > 0);
 
 	function start() {
 		console.log("Loading started");

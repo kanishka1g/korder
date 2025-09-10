@@ -7,10 +7,8 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - MONGO_URI=${MONGO_URI}   # from MongoDB Atlas
+      - MONGO_URI=${MONGO_URI}
       - NODE_ENV=production
-    depends_on:
-      - frontend
     restart: always
 
   frontend:
@@ -18,4 +16,6 @@ services:
     container_name: korder-frontend
     ports:
       - "8080:80"
+    depends_on:
+      - backend
     restart: always

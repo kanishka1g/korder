@@ -1,18 +1,14 @@
-# Use Node.js image
 FROM node:18
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files and install dependencies
 COPY package*.json ./
 RUN npm install --production
 
-# Copy source code
+# Copy everything
 COPY . .
 
-# Expose backend port
-EXPOSE 5000
-
-# Start app
+# IMPORTANT: use server.js from src folder
 CMD ["node", "src/server.js"]
+
+EXPOSE 5000

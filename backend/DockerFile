@@ -5,10 +5,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --production
 
-# Copy everything
 COPY . .
 
-# IMPORTANT: use server.js from src folder
+# Run your app from src/server.js
 CMD ["node", "src/server.js"]
 
 EXPOSE 5000

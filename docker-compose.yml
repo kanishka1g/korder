@@ -1,9 +1,9 @@
-version: "3.9"
-
 services:
   backend:
-    build: ./backend
     container_name: korder-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
       - "5000:5000"
     environment:
@@ -12,8 +12,10 @@ services:
     restart: always
 
   frontend:
-    build: ./frontend
     container_name: korder-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - "8080:80"
     depends_on:

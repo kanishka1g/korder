@@ -9,7 +9,9 @@ services:
     environment:
       - MONGO_URI=${MONGO_URI}
       - NODE_ENV=production
-    restart: always
+    networks:
+      - my_network
+    restart: unless-stopped
 
   frontend:
     container_name: korder-frontend
@@ -20,4 +22,10 @@ services:
       - "8080:80"
     depends_on:
       - backend
-    restart: always
+    networks:
+      - my_network
+    restart: unless-stopped
+
+networks:
+  my_network:
+    external: true

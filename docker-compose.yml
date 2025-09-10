@@ -1,34 +1,21 @@
-version: "3.8"
+version: "3.9"
 
 services:
-  frontend:
-    build: ./frontend
-    ports:
-      - "3006:80"
-    environment:
-      - VITE_API_URL=http://localhost:5000
-    depends_on:
-      - backend
-
   backend:
     build: ./backend
+    container_name: korder-backend
     ports:
       - "5000:5000"
     environment:
+      - MONGO_URI=${MONGO_URI}   # from MongoDB Atlas
       - NODE_ENV=production
-      - MONGODB_URI=mongodb://mongo:27017/habittracker
     depends_on:
-      - mongo
+      - frontend
+    restart: always
 
-  mongo:
-    image: mongo:7
+  frontend:
+    build: ./frontend
+    container_name: korder-frontend
     ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-    environment:
-      - MONGO_INITDB_DATABASE=habittracker
-
-volumes:
-  mongo_data:
-
+      - "8080:80"
+    restart: always

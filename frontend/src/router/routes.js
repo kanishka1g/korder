@@ -29,4 +29,3 @@ export default [
 		component: () => import("@/views/PathNotFound.vue"),
 	},
 ];
-

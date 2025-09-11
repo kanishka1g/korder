@@ -11,6 +11,20 @@ const habitSchema = new mongoose.Schema(
     description: { type: String },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
+    weekdays: [
+      {
+        type: String,
+        enum: [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday",
+        ],
+      },
+    ],
     checkIns: [
       {
         date: { type: Date, required: true },

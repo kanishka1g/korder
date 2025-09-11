@@ -117,6 +117,25 @@
 						/>
 					</VCol>
 				</VRow>
+				<VCard class="card fill-height mt-3" variant="tonal" elevation="4" rounded="lg" density="comfortable">
+					<VCardTitle>
+						<p class="title text-h6 font-weight-bold">Check-in Days</p>
+					</VCardTitle>
+					<VCardText>
+						<VRow>
+							<VCol v-for="day in weekDays" :key="day" cols="12" md="3" sm="4">
+								<VCheckbox
+									multiple
+									:label="day.title"
+									color="primary"
+									hide-details
+									density="compact"
+									@update:model-value="handleAddWeekday(day.value)"
+								/>
+							</VCol>
+						</VRow>
+					</VCardText>
+				</VCard>
 			</VForm>
 		</VCardText>
 	</Modal>
@@ -151,7 +170,7 @@
 		data: habitObject(),
 	});
 
-	const todayList = computed(() => {
+	const todayList = computed(function () {
 		let list = [];
 		for (const item of habits.value) {
 			item.checked = item.checkIns.some((checkin) => {
@@ -164,6 +183,20 @@
 		return list;
 	});
 
+	const weekDays = computed(function () {
+		const days = [];
+		for (let i = 0; i < 7; i++) {
+			const day = dayjs()
+				.day(i + 1)
+				.format("dddd");
+			days.push({
+				title: day,
+				value: day.toLocaleLowerCase(),
+			});
+		}
+		return days;
+	});
+
 	async function reload() {
 		const token = authStore.token;
 		const res = await request.get("habits", { headers: { Authorization: `Bearer ${token}` } });
@@ -174,6 +207,7 @@
 
 	function handleAdd() {
 		habitModal.value.data = habitObject();
+		habitModal.value.data.weekDays = weekDays.value.map((day) => day.value);
 		habitModal.value.action = "Add";
 		habitModal.value.show = true;
 	}
@@ -188,6 +222,14 @@
 		};
 		habitModal.value.action = "Edit";
 		habitModal.value.show = true;
+	}
+
+	function handleAddWeekday(day) {
+		if (habitModal.value.data.weekDays.includes(day)) {
+			habitModal.value.data.weekDays = habitModal.value.data.weekDays.filter((d) => d !== day);
+		} else {
+			habitModal.value.data.weekDays.push(day);
+		}
 	}
 
 	async function handleDelete(habit) {
@@ -269,6 +311,7 @@
 			description: null,
 			startDate: now.value.format("YYYY-MM-DD"),
 			endDate: now.value.add(7, "day").format("YYYY-MM-DD"),
+			weekDays: [],
 		};
 	}
 </script>

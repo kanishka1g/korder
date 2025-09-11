@@ -21,4 +21,3 @@ export function* range(start, end, step = 1) {
 export function rangeArray() {
 	return [...range(...arguments)];
 }
-

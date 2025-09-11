@@ -38,7 +38,7 @@
 			default: "Date",
 		},
 	});
-w
+	w;
 	const innerValue = defineModel({
 		type: dayjs,
 		default: null,

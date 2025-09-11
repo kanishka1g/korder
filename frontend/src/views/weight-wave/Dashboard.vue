@@ -137,4 +137,3 @@
 		font-family: variables.$subtitle-font;
 	}
 </style>
-

@@ -8,7 +8,7 @@ const loading = useLoading();
 const authStore = useAuthStore();
 
 const api = axios.create({
-	baseURL: "https://backend.korder.cloud/api",
+	baseURL: import.meta.env.VITE_API_BASE_URL,
 	timeout: 10000,
 });
 

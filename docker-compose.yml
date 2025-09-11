@@ -9,8 +9,6 @@ services:
     environment:
       - MONGO_URI=${MONGO_URI}
       - NODE_ENV=production
-    networks:
-      - my_network
     restart: unless-stopped
 
   frontend:
@@ -22,10 +20,5 @@ services:
       - "8080:80"
     depends_on:
       - backend
-    networks:
-      - my_network
     restart: unless-stopped
 
-networks:
-  my_network:
-    external: true

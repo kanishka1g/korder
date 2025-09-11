@@ -9,8 +9,8 @@ services:
     environment:
       - MONGO_URI=${MONGO_URI}
       - NODE_ENV=production
-    networks:
-      - korder
+    # networks:
+    #   - korder
     restart: unless-stopped
 
   frontend:
@@ -25,7 +25,6 @@ services:
     # networks:
     #   - korder
     restart: unless-stopped
-
-networks:
-  korder:
-    external: true
+# networks:
+#   korder:
+#     external: true

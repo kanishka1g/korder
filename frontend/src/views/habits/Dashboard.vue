@@ -126,7 +126,7 @@
 	import { ref, computed } from "vue";
 	import { useNow } from "@/utils/now";
 	import dayjs from "@/plugins/dayjs";
-	import api from "@/services/api";
+	import request from "@/utils/request";
 	import { useAuthStore } from "@/stores/auth_store";
 	import { useLogger } from "@/utils/useLogger";
 	import { useLoading } from "@/utils/useLoading";
@@ -166,7 +166,7 @@
 
 	async function reload() {
 		const token = authStore.token;
-		const res = await api.get("api/habits", { headers: { Authorization: `Bearer ${token}` } });
+		const res = await request.get("habits", { headers: { Authorization: `Bearer ${token}` } });
 		habits.value = res.data;
 	}
 
@@ -197,7 +197,7 @@
 			return;
 		}
 
-		const res = await api.delete(`api/habits/${habit._id}`, {
+		const res = await request.delete(`habits/${habit._id}`, {
 			headers: { Authorization: `Bearer ${authStore.token}` },
 		});
 
@@ -208,8 +208,8 @@
 	async function handleCheckin(habit) {
 		loading.start();
 		try {
-			const res = await api.post(
-				`api/habits/${habit._id}/check`,
+			const res = await request.post(
+				`habits/${habit._id}/check`,
 				{},
 				{
 					headers: { Authorization: `Bearer ${authStore.token}` },
@@ -228,8 +228,8 @@
 
 	async function handleConfirm() {
 		if (habitModal.value.action === "Add") {
-			const res = await api.post(
-				"api/habits",
+			const res = await request.post(
+				"habits",
 				{
 					title: habitModal.value.data.title,
 					description: habitModal.value.data.description,
@@ -243,8 +243,8 @@
 
 			logger.success(`${res.data.title} added`);
 		} else if (habitModal.value.action === "Edit") {
-			const res = await api.put(
-				`api/habits/${habitModal.value.data._id}`,
+			const res = await request.put(
+				`habits/${habitModal.value.data._id}`,
 				{
 					title: habitModal.value.data.title,
 					description: habitModal.value.data.description,

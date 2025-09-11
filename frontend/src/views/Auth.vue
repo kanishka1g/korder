@@ -49,8 +49,7 @@
 	import { ref } from "vue";
 	import { useRouter, useRoute } from "vue-router";
 	import { useAuthStore } from "@/stores/auth_store";
-	import api from "@/services/api";
-	import { useLogger } from "@/utils/useLogger";
+	import request from "@/utils/request";
 	import { useLoading } from "@/utils/useLoading";
 
 	const authStore = useAuthStore();
@@ -70,7 +69,7 @@
 		loading.start();
 
 		try {
-			const res = await api.post("api/auth/login", {
+			const res = await request.post("auth/login", {
 				username: username.value,
 				password: password.value,
 			});

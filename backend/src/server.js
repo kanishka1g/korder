@@ -20,7 +20,6 @@ mongoose
 app.use("/api/auth", authRoutes);
 app.use("/api/habits", habitRoutes);
 
-// Example protected route
 app.get("/api/protected", authMiddleware, (req, res) => {
   res.json({ message: "Protected route", user: req.user });
 });

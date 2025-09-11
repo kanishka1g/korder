@@ -8,7 +8,7 @@ const loading = useLoading();
 const authStore = useAuthStore();
 
 const api = axios.create({
-	baseURL: "http://localhost:5000/api",
+	baseURL: "https://backend.korder.cloud/api",
 	timeout: 10000,
 });
 

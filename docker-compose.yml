@@ -25,3 +25,7 @@ services:
     # networks:
     #   - korder
     restart: unless-stopped
+
+networks:
+  korder:
+    external: true

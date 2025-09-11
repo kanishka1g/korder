@@ -5,7 +5,6 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import habitRoutes from "./routes/habit.js";
 import { authMiddleware } from "./middleware/authMiddleware.js";
-import "dotenv/config";
 
 dotenv.config();
 

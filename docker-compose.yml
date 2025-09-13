@@ -21,4 +21,8 @@ services:
       - "8080:80"
     depends_on:
       - backend
+    env_file:
+      - ./frontend/.env # load frontend-specific env vars
+    environment:
+      - NODE_ENV=production
     restart: unless-stopped

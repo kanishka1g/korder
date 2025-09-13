@@ -6,8 +6,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5000:5000"
+    env_file:
+      - ./backend/.env
     environment:
-      - MONGO_URI=${MONGO_URI}
       - NODE_ENV=production
     restart: unless-stopped
 
@@ -20,4 +21,8 @@ services:
       - "8080:80"
     depends_on:
       - backend
+    env_file:
+      - ./frontend/.env
+    environment:
+      - NODE_ENV=production
     restart: unless-stopped

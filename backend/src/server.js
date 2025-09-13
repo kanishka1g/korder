@@ -13,7 +13,9 @@ app.use(cors());
 app.use(express.json());
 
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(
+    "mongodb+srv://kanishka:Plesewait89@korder.lon8u.mongodb.net/korderDB?retryWrites=true&w=majority&appName=Korder"
+  )
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err));
 

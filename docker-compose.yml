@@ -22,7 +22,7 @@ services:
     depends_on:
       - backend
     env_file:
-      - ./frontend/.env # load frontend-specific env vars
+      - ./frontend/.env
     environment:
       - NODE_ENV=production
     restart: unless-stopped

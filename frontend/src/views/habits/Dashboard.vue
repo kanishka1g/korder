@@ -123,8 +123,9 @@
 					</VCardTitle>
 					<VCardText>
 						<VRow>
-							<VCol v-for="day in weekDays" :key="day" cols="12" md="3" sm="4">
+							<VCol v-for="day in weekdays" :key="day" cols="12" md="3" sm="4">
 								<VCheckbox
+									:model-value="habitModal.data.weekdays.includes(day.value)"
 									multiple
 									:label="day.title"
 									color="primary"
@@ -176,14 +177,18 @@
 			item.checked = item.checkIns.some((checkin) => {
 				return now.value.isSame(dayjs(checkin.date), "day");
 			});
-			if (now.value.isBetween(item.startDate, item.endDate, "day", "[]")) {
+
+			if (
+				now.value.isBetween(item.startDate, item.endDate, "day", "[]") &&
+				item.weekdays.includes(now.value.format("dddd").toLocaleLowerCase())
+			) {
 				list.push(item);
 			}
 		}
 		return list;
 	});
 
-	const weekDays = computed(function () {
+	const weekdays = computed(function () {
 		const days = [];
 		for (let i = 0; i < 7; i++) {
 			const day = dayjs()
@@ -207,7 +212,7 @@
 
 	function handleAdd() {
 		habitModal.value.data = habitObject();
-		habitModal.value.data.weekDays = weekDays.value.map((day) => day.value);
+		habitModal.value.data.weekdays = weekdays.value.map((day) => day.value);
 		habitModal.value.action = "Add";
 		habitModal.value.show = true;
 	}
@@ -218,6 +223,7 @@
 			description: habit.description,
 			startDate: dayjs(habit.startDate).format("YYYY-MM-DD"),
 			endDate: dayjs(habit.endDate).format("YYYY-MM-DD"),
+			weekdays: habit.weekdays,
 			_id: habit._id,
 		};
 		habitModal.value.action = "Edit";
@@ -225,10 +231,10 @@
 	}
 
 	function handleAddWeekday(day) {
-		if (habitModal.value.data.weekDays.includes(day)) {
-			habitModal.value.data.weekDays = habitModal.value.data.weekDays.filter((d) => d !== day);
+		if (habitModal.value.data.weekdays.includes(day)) {
+			habitModal.value.data.weekdays = habitModal.value.data.weekdays.filter((d) => d !== day);
 		} else {
-			habitModal.value.data.weekDays.push(day);
+			habitModal.value.data.weekdays.push(day);
 		}
 	}
 
@@ -269,6 +275,8 @@
 	}
 
 	async function handleConfirm() {
+		//TODO: check at least one weekdays are selected
+
 		if (habitModal.value.action === "Add") {
 			const res = await request.post(
 				"habits",
@@ -277,6 +285,7 @@
 					description: habitModal.value.data.description,
 					startDate: habitModal.value.data.startDate,
 					endDate: habitModal.value.data.endDate,
+					weekdays: habitModal.value.data.weekdays,
 				},
 				{
 					headers: { Authorization: `Bearer ${authStore.token}` },
@@ -292,6 +301,7 @@
 					description: habitModal.value.data.description,
 					startDate: habitModal.value.data.startDate,
 					endDate: habitModal.value.data.endDate,
+					weekdays: habitModal.value.data.weekdays,
 				},
 				{
 					headers: { Authorization: `Bearer ${authStore.token}` },
@@ -311,7 +321,7 @@
 			description: null,
 			startDate: now.value.format("YYYY-MM-DD"),
 			endDate: now.value.add(7, "day").format("YYYY-MM-DD"),
-			weekDays: [],
+			weekdays: [],
 		};
 	}
 </script>

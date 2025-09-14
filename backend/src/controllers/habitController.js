@@ -3,13 +3,16 @@ import Habit from "../models/Habit.js";
 // Add new habit
 export const addHabit = async (req, res) => {
   try {
-    const { title, description, startDate, endDate } = req.body;
+    const { title, description, startDate, endDate, weekdays } = req.body;
+    debugger;
     const habit = await Habit.create({
       userId: req.user.userId,
       title,
       description,
       startDate,
       endDate,
+      weekdays,
+      checkIns: [],
     });
     res.status(201).json(habit);
   } catch (err) {

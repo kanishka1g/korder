@@ -23,6 +23,7 @@ const habitSchema = new mongoose.Schema(
           "saturday",
           "sunday",
         ],
+        required: true,
       },
     ],
     checkIns: [

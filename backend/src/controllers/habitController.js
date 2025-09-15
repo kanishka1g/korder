@@ -1,4 +1,6 @@
 import Habit from "../models/Habit.js";
+import dayjs from "../plugins/dayjs.js";
+	import clock  from "../utils/now.js";
 
 // Add new habit
 export const addHabit = async (req, res) => {
@@ -55,38 +57,35 @@ export const deleteHabit = async (req, res) => {
       userId: req.user.userId,
     });
     if (!habit) return res.status(404).json({ message: "Habit not found" });
-    res.json({ message: "Habit deleted" });
+    res.json({ message: `Habit ${habit.title.toLowerCase()} deleted` });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-// daily check
 export const dailyCheck = async (req, res) => {
-  try {
-    const habit = await Habit.findOne({
-      _id: req.params.id,
-    });
+try {
+    const habit = await Habit.findOne({ _id: req.params.id });
     if (!habit) return res.status(404).json({ message: "Habit not found" });
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = clock.now.startOf("day");
+    const todayTime = today.valueOf();
 
-    // Prevent duplicate check-in for today
-    const alreadyCheckedIn = habit.checkIns.some((ci) => {
-      const d = new Date(ci.date);
-      d.setHours(0, 0, 0, 0);
-      return d.getTime() === today.getTime();
+
+    const index = habit.checkIns.findIndex((ci) => {
+      const ciDate = dayjs(ci.date).startOf("day");
+      return ciDate.valueOf() === todayTime;
     });
 
-    if (alreadyCheckedIn) {
-      return res.status(400).json({ message: "Already checked in today" });
+    if (index >= 0) {
+      habit.checkIns.splice(index, 1);
+      await habit.save();
+      return res.json({ message: `Checked out of ${habit.title.toLowerCase()}` });
     }
 
-    habit.checkIns.push({ date: today });
+    habit.checkIns.push({ date: today.toDate() });
     await habit.save();
-
-    res.json({ message: "Check-in recorded", habit });
+    return res.json({ message: `Checked in to ${habit.title.toLowerCase()}` });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }

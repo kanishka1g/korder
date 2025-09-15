@@ -249,7 +249,7 @@
 			headers: { Authorization: `Bearer ${authStore.token}` },
 		});
 
-		logger.success(`${habit.title} deleted`);
+		logger.success(res.data.message);
 		reload();
 	}
 
@@ -264,7 +264,7 @@
 				},
 			);
 
-			logger.success(`${habit.title} checked in`);
+			logger.success(res.data.message);
 
 			reload();
 		} catch (err) {

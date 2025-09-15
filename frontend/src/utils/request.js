@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useLogger } from "@/utils/useLogger";
-import { useLoading } from "@/utils/useLoading";
+import { useLoading } from "@/utils/loading";
 import { useAuthStore } from "@/stores/auth_store";
 
 const logger = useLogger();

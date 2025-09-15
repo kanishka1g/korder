@@ -149,8 +149,8 @@
 	import request from "@/utils/request";
 	import { useAuthStore } from "@/stores/auth_store";
 	import { useLogger } from "@/utils/useLogger";
-	import { useLoading } from "@/utils/useLoading";
-	import { confirmation } from "@/utils/generic_modals";
+	import { useLoading } from "@/utils/loading";
+	import { snackbar, confirmation } from "@/utils/generic_modals";
 
 	const now = useNow();
 	const authStore = useAuthStore();
@@ -249,11 +249,19 @@
 			headers: { Authorization: `Bearer ${authStore.token}` },
 		});
 
-		logger.success(res.data.message);
+		snackbar.success(res.data.message);
 		reload();
 	}
 
 	async function handleCheckin(habit) {
+
+		if(!habit.checked){
+			const confirmed = await confirmation("Confirm", `Are you sure you want to check out of ${habit.title}?`, true);
+			if (!confirmed) {
+				return;
+			}
+		}
+
 		loading.start();
 		try {
 			const res = await request.post(
@@ -264,7 +272,7 @@
 				},
 			);
 
-			logger.success(res.data.message);
+			snackbar.success(res.data.message);
 
 			reload();
 		} catch (err) {
@@ -275,7 +283,10 @@
 	}
 
 	async function handleConfirm() {
-		//TODO: check at least one weekdays are selected
+		if (!habitModal.value.data.weekdays.length) {
+			snackbar.warning("Please select at least one weekday");
+			return;
+		}
 
 		if (habitModal.value.action === "Add") {
 			const res = await request.post(
@@ -292,7 +303,7 @@
 				},
 			);
 
-			logger.success(`${res.data.title} added`);
+			snackbar.success(`${res.data.title} added`);
 		} else if (habitModal.value.action === "Edit") {
 			const res = await request.put(
 				`habits/${habitModal.value.data._id}`,
@@ -308,7 +319,7 @@
 				},
 			);
 
-			logger.success(`${res.data.title} edited`);
+			snackbar.success(`${res.data.title} edited`);
 		}
 
 		reload();

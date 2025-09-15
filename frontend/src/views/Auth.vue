@@ -50,7 +50,7 @@
 	import { useRouter, useRoute } from "vue-router";
 	import { useAuthStore } from "@/stores/auth_store";
 	import request from "@/utils/request";
-	import { useLoading } from "@/utils/useLoading";
+	import { useLoading } from "@/utils/loading";
 
 	const authStore = useAuthStore();
 	const router = useRouter();

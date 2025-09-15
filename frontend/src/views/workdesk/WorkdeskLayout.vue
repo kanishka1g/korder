@@ -37,7 +37,7 @@
 	import { useRouter, useRoute } from "vue-router";
 	import { appLinks } from "@/utils/helpers";
 	import { useDisplay } from "vuetify";
-	import { useLoading } from "@/utils/useLoading";
+	import { useLoading } from "@/utils/loading";
 
 	const { mdAndUp } = useDisplay();
 	const loading = useLoading();

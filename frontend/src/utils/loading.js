@@ -3,7 +3,7 @@ import { ref, computed } from "vue";
 const loadingCounter = ref(0);
 
 export function useLoading() {
-	    const isLoading = computed({
+	const isLoading = computed({
 		get() {
 			return loadingCounter.value > 0;
 		},

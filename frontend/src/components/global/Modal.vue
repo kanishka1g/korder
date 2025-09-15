@@ -82,7 +82,7 @@
 		},
 		/** The text to display above the main content */
 		title: {
-			type: String,
+			type: [String, null],
 			required: true,
 		},
 		/** The color to use for the modal */

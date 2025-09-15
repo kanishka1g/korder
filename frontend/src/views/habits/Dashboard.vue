@@ -12,29 +12,18 @@
 					</VCardTitle>
 					<VCardText>
 						<VRow>
-							<VCol v-if="todayList.length" cols="12" md="6">
-								<VCard variant="outlined" class="mt-3">
-									<VCardTitle> Today's checkin </VCardTitle>
-									<VCardText>
-										<VRow v-for="habit in todayList" :key="habit.id" dense>
-											<VCol>
-												<VCheckbox
-													v-model="habit.checked"
-													color="primary"
-													:label="habit.title"
-													hide-details
-													density="compact"
-													@update:model-value="handleCheckin(habit)"
-												/>
-											</VCol>
-										</VRow>
-									</VCardText>
-								</VCard>
-							</VCol>
-							<VCol cols="12" md="6">
+							<VCol cols="12" md="6" order-md="1" order="2">
 								<VCard variant="outlined" class="mt-3">
 									<VCardTitle>
 										<VRow justify="end">
+											<VCol cols="auto">
+												<VSwitch
+													v-model="showArchived"
+													label="Archive"
+													color="warning"
+													density="compact"
+												/>
+											</VCol>
 											<VCol cols="auto">
 												<VBtn
 													prepend-icon="fa-solid fa-plus"
@@ -47,7 +36,7 @@
 										</VRow>
 									</VCardTitle>
 									<VCardText>
-										<VDataTable :headers="headers" :items="habits" hide-default-footer>
+										<VDataTable :headers="headers" :items="filteredHabits" hide-default-footer>
 											<template #item.startDate="{ item }">
 												{{ dayjs(item.startDate).format("YYYY-MM-DD") }}
 											</template>
@@ -55,6 +44,12 @@
 												{{ dayjs(item.endDate).format("YYYY-MM-DD") }}
 											</template>
 											<template #item.action="{ item }">
+												<VBtn
+													icon="fa-solid fa-eye"
+													size="x-small"
+													variant="text"
+													@click="handleView(item)"
+												/>
 												<VBtn
 													icon="fa-solid fa-pencil"
 													color="primary"
@@ -74,6 +69,25 @@
 									</VCardText>
 								</VCard>
 							</VCol>
+							<VCol v-if="todayList.length" cols="12" md="6" order-md="2" order="1">
+								<VCard variant="outlined" class="mt-3">
+									<VCardTitle> Today's checkin </VCardTitle>
+									<VCardText>
+										<VRow v-for="habit in todayList" :key="habit.id" dense>
+											<VCol>
+												<VCheckbox
+													v-model="habit.checked"
+													color="primary"
+													:label="habit.title"
+													hide-details
+													density="compact"
+													@update:model-value="handleCheckin(habit)"
+												/>
+											</VCol>
+										</VRow>
+									</VCardText>
+								</VCard>
+							</VCol>
 						</VRow>
 					</VCardText>
 				</VCard>
@@ -87,58 +101,61 @@
 		:confirm-text="habitModal.action"
 		@confirm="handleConfirm"
 	>
-		<VCardText>
-			<VForm>
-				<VRow>
-					<VCol cols="12" md="6">
-						<VTextField v-model="habitModal.data.title" label="Title" variant="outlined" required />
-					</VCol>
-					<VCol cols="12" md="6">
-						<VTextField v-model="habitModal.data.description" label="Description" variant="outlined" />
-					</VCol>
-				</VRow>
-				<VRow>
-					<VCol cols="12" md="6">
-						<VTextField
-							v-model="habitModal.data.startDate"
-							label="Start Date"
-							type="date"
-							variant="outlined"
-							required
-						/>
-					</VCol>
-					<VCol cols="12" md="6">
-						<VTextField
-							v-model="habitModal.data.endDate"
-							label="End Date"
-							type="date"
-							variant="outlined"
-							required
-						/>
-					</VCol>
-				</VRow>
-				<VCard class="card fill-height mt-3" variant="tonal" elevation="4" rounded="lg" density="comfortable">
-					<VCardTitle>
-						<p class="title text-h6 font-weight-bold">Check-in Days</p>
-					</VCardTitle>
-					<VCardText>
-						<VRow>
-							<VCol v-for="day in weekdays" :key="day" cols="12" md="3" sm="4">
-								<VCheckbox
-									:model-value="habitModal.data.weekdays.includes(day.value)"
-									multiple
-									:label="day.title"
-									color="primary"
-									hide-details
-									density="compact"
-									@update:model-value="handleAddWeekday(day.value)"
-								/>
-							</VCol>
-						</VRow>
-					</VCardText>
-				</VCard>
-			</VForm>
-		</VCardText>
+		<VForm>
+			<VRow>
+				<VCol cols="12" md="6">
+					<VTextField v-model="habitModal.data.title" label="Title" variant="outlined" required />
+				</VCol>
+				<VCol cols="12" md="6">
+					<VTextField v-model="habitModal.data.description" label="Description" variant="outlined" />
+				</VCol>
+			</VRow>
+			<VRow>
+				<VCol cols="12" md="6">
+					<VTextField
+						v-model="habitModal.data.startDate"
+						label="Start Date"
+						type="date"
+						variant="outlined"
+						required
+					/>
+				</VCol>
+				<VCol cols="12" md="6">
+					<VTextField
+						v-model="habitModal.data.endDate"
+						label="End Date"
+						type="date"
+						variant="outlined"
+						required
+					/>
+				</VCol>
+			</VRow>
+			<VCard class="card fill-height mt-3" variant="tonal" elevation="4" rounded="lg" density="comfortable">
+				<VCardTitle>
+					<p class="title text-h6 font-weight-bold">Check-in Days</p>
+				</VCardTitle>
+				<VCardText>
+					<VRow>
+						<VCol v-for="day in weekdays" :key="day" cols="12" md="3" sm="4">
+							<VCheckbox
+								:model-value="habitModal.data.weekdays.includes(day.value)"
+								multiple
+								:label="day.title"
+								color="primary"
+								hide-details
+								density="compact"
+								@update:model-value="handleAddWeekday(day.value)"
+							/>
+						</VCol>
+					</VRow>
+				</VCardText>
+			</VCard>
+		</VForm>
+	</Modal>
+	<Modal v-model="viewModal.show" :title="viewModal.habit.title">
+		<VCard>
+			<VCardText> asdas </VCardText>
+		</VCard>
 	</Modal>
 </template>
 
@@ -161,19 +178,35 @@
 		{ title: "Title", key: "title" },
 		{ title: "Start Date", key: "startDate" },
 		{ title: "End Date", key: "endDate" },
-		{ title: "", key: "action", align: "end", width: "100px" },
+		{ title: "", key: "action", align: "end", width: "150px" },
 	];
 
+	const showArchived = ref(false);
 	const habits = ref([]);
 	const habitModal = ref({
 		show: false,
 		action: "Add",
 		data: habitObject(),
 	});
+	const viewModal = ref({
+		show: false,
+		habit: habitObject(),
+	});
+
+	const filteredHabits = computed(function () {
+		if (showArchived.value) {
+			return habits.value.filter((habit) => {
+				return now.value.isAfter(habit.endDate, "day");
+			});
+		}
+		return habits.value.filter((habit) => {
+			return now.value.isBetween(habit.startDate, habit.endDate, "day", "[]");
+		});
+	});
 
 	const todayList = computed(function () {
 		let list = [];
-		for (const item of habits.value) {
+		for (const item of filteredHabits.value) {
 			item.checked = item.checkIns.some((checkin) => {
 				return now.value.isSame(dayjs(checkin.date), "day");
 			});
@@ -254,9 +287,12 @@
 	}
 
 	async function handleCheckin(habit) {
-
-		if(!habit.checked){
-			const confirmed = await confirmation("Confirm", `Are you sure you want to check out of ${habit.title}?`, true);
+		if (!habit.checked) {
+			const confirmed = await confirmation(
+				"Confirm",
+				`Are you sure you want to check out of ${habit.title}?`,
+				true,
+			);
 			if (!confirmed) {
 				return;
 			}
@@ -324,6 +360,11 @@
 
 		reload();
 		habitModal.value.show = false;
+	}
+
+	async function handleView(habit) {
+		viewModal.value.habit = habit;
+		viewModal.value.show = true;
 	}
 
 	function habitObject() {

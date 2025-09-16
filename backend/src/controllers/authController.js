@@ -4,10 +4,9 @@ import jwt from "jsonwebtoken";
 
 const SECRET = process.env.JWT_SECRET || "secret_key";
 
-// Register user
 export const register = async (req, res) => {
   try {
-    const { name, username, password } = req.body;
+    const { name, username, password, role } = req.body;
 
     const existingUser = await User.findOne({ username });
     if (existingUser)
@@ -19,6 +18,7 @@ export const register = async (req, res) => {
       name,
       username,
       password: hashedPassword,
+      role: role,
     });
     res.status(201).json({ message: "User created", userId: user._id });
   } catch (err) {
@@ -32,7 +32,9 @@ export const login = async (req, res) => {
     const { username, password } = req.body;
 
     const user = await User.findOne({ username });
-    if (!user) return res.status(400).json({ message: "Invalid credentials" });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)

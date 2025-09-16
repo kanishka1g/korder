@@ -36,7 +36,12 @@
 										</VRow>
 									</VCardTitle>
 									<VCardText>
-										<VDataTable :headers="headers" :items="filteredHabits" hide-default-footer>
+										<VDataTable
+											v-if="$vuetify.display.mdAndUp"
+											:headers="headers"
+											:items="filteredHabits"
+											hide-default-footer
+										>
 											<template #item.startDate="{ item }">
 												{{ dayjs(item.startDate).format("YYYY-MM-DD") }}
 											</template>
@@ -66,6 +71,56 @@
 												/>
 											</template>
 										</VDataTable>
+										<!-- TODO:create mobile friendly view -->
+										<VRow v-for="habit in filteredHabits" v-else :key="habit.id" dense>
+											<VCol cols="12">
+												<VCard class="mb-2">
+													<VCardText>
+														<VRow dense>
+															<VCol> Title </VCol>
+															<VCol cols="auto">
+																{{ habit.title }}
+															</VCol>
+														</VRow>
+														<VRow dense>
+															<VCol> Start Date </VCol>
+															<VCol cols="auto">
+																{{ dayjs(habit.startDate).format("YYYY-MM-DD") }}
+															</VCol>
+														</VRow>
+														<VRow dense>
+															<VCol> End Date </VCol>
+															<VCol cols="auto">
+																{{ dayjs(habit.endDate).format("YYYY-MM-DD") }}
+															</VCol>
+														</VRow>
+													</VCardText>
+													<VCardActions>
+														<VRow justify="end" no-gutters>
+															<VCol cols="auto">
+																<VBtn
+																	prepend-icon="fa-solid fa-eye"
+																	@click="handleView(habit)"
+																>
+																</VBtn>
+																<VBtn
+																	prepend-icon="fa-solid fa-pencil"
+																	color="primary"
+																	@click="handleEdit(habit)"
+																>
+																</VBtn>
+																<VBtn
+																	prepend-icon="fa-solid fa-trash"
+																	color="error"
+																	@click="handleDelete(habit)"
+																>
+																</VBtn>
+															</VCol>
+														</VRow>
+													</VCardActions>
+												</VCard>
+											</VCol>
+										</VRow>
 									</VCardText>
 								</VCard>
 							</VCol>

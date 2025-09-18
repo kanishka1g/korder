@@ -3,13 +3,22 @@
 		<VCardTitle class="title"> App Links </VCardTitle>
 		<VCardText>
 			<VRow>
-				<VCol v-for="item in appLinks" :key="item.title" cols="12" md="6">
+				<VCol v-for="item in internalLinks" :key="item.title" cols="12" md="6">
+					<VCard variant="outlined" elevation="4" rounded="lg" :href="item.route" :prepend-icon="item.icon">
+						<VCardText class="subtitle text-body-1">
+							{{ item.title }}
+						</VCardText>
+					</VCard>
+				</VCol>
+			</VRow>
+			<VRow>
+				<VCol v-for="item in externalLinks" :key="item.title" cols="12" md="6">
 					<VCard
 						variant="outlined"
 						elevation="4"
 						rounded="lg"
 						:href="item.route"
-						:target="item.isExternalLink ? '_blank' : '_self'"
+						target="_blank"
 						:prepend-icon="item.icon"
 					>
 						<VCardText class="subtitle text-body-1">
@@ -23,7 +32,7 @@
 </template>
 
 <script setup>
-	import { appLinks } from "@/utils/helpers";
+	import { internalLinks, externalLinks } from "@/utils/helpers";
 </script>
 
 <style scoped lang="scss">

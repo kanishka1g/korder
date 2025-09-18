@@ -5,6 +5,7 @@ import {
   updateHabit,
   deleteHabit,
   dailyCheck,
+  getTodaysHabits,
 } from "../controllers/habitController.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 
@@ -14,6 +15,7 @@ router.use(authMiddleware); // all routes protected
 
 router.post("/", addHabit); // Add habit
 router.get("/", getHabits); // Get all habits
+router.get("/today", getTodaysHabits); // Add habit
 router.put("/:id", updateHabit); // Update habit
 router.delete("/:id", deleteHabit); // Delete habit
 router.post("/:id/check", dailyCheck); //Daily check

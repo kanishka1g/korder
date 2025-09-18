@@ -10,17 +10,29 @@
 			<VBtn icon="fas fa-sign-out" variant="text" @click="handleLogout"></VBtn>
 		</template>
 	</VAppBar>
-	<VNavigationDrawer v-model="drawer" :permanent="mdAndUp">
+	<VNavigationDrawer v-model="drawer" :permanent="mdAndUp" :temporary="!mdAndUp">
 		<VList>
-			<template v-for="item in appLinks" :key="item.title">
-				<VListItem
-					slim
-					:href="item.route"
-					:prepend-icon="item.icon"
-					:title="item.title"
-					:target="item.isExternalLink ? '_blank' : '_self'"
-				/>
-			</template>
+			<VListItem
+				v-for="item in internalLinks"
+				:key="item.title"
+				slim
+				:href="item.route"
+				:prepend-icon="item.icon"
+				:title="item.title"
+				target="_self"
+			/>
+		</VList>
+		<VDivider color="primary" />
+		<VList>
+			<VListItem
+				v-for="item in externalLinks"
+				:key="item.title"
+				slim
+				:href="item.route"
+				:prepend-icon="item.icon"
+				:title="item.title"
+				target="_blank"
+			/>
 		</VList>
 	</VNavigationDrawer>
 	<VMain>
@@ -35,7 +47,7 @@
 	import { ref } from "vue";
 	import { useAuthStore } from "@/stores/auth_store";
 	import { useRouter, useRoute } from "vue-router";
-	import { appLinks } from "@/utils/helpers";
+	import { internalLinks, externalLinks } from "@/utils/helpers";
 	import { useDisplay } from "vuetify";
 	import { useLoading } from "@/utils/loading";
 
@@ -44,7 +56,7 @@
 	const router = useRouter();
 	const authStore = useAuthStore();
 
-	const drawer = ref(false);
+	const drawer = ref(mdAndUp.value);
 
 	async function handleLogout() {
 		loading.start();

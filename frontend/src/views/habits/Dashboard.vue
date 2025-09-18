@@ -71,7 +71,6 @@
 												/>
 											</template>
 										</VDataTable>
-										<!-- TODO:create mobile friendly view -->
 										<VRow v-for="habit in filteredHabits" v-else :key="habit.id" dense>
 											<VCol cols="12">
 												<VCard class="mb-2">
@@ -139,6 +138,15 @@
 													@update:model-value="handleCheckin(habit)"
 												/>
 											</VCol>
+											<VCol v-if="!habit.checked" cols="auto">
+												<VBtn
+													icon="fas fa-note-sticky"
+													size="x-small"
+													variant="text"
+													color="primary"
+													@click="handleAddNote(habit)"
+												/>
+											</VCol>
 										</VRow>
 									</VCardText>
 								</VCard>
@@ -161,9 +169,9 @@
 				<VCol cols="12" md="6">
 					<VTextField v-model="habitModal.data.title" label="Title" variant="outlined" required />
 				</VCol>
-				<VCol cols="12" md="6">
+				<!-- <VCol cols="12" md="6">
 					<VTextField v-model="habitModal.data.description" label="Description" variant="outlined" />
-				</VCol>
+				</VCol> -->
 			</VRow>
 			<VRow>
 				<VCol cols="12" md="6">
@@ -238,6 +246,7 @@
 
 	const showArchived = ref(false);
 	const habits = ref([]);
+	const todayList = ref([]);
 	const habitModal = ref({
 		show: false,
 		action: "Add",
@@ -259,22 +268,22 @@
 		});
 	});
 
-	const todayList = computed(function () {
-		let list = [];
-		for (const item of filteredHabits.value) {
-			item.checked = item.checkIns.some((checkin) => {
-				return now.value.isSame(dayjs(checkin.date), "day");
-			});
+	// const todayList = computed(function () {
+	// 	let list = [];
+	// 	for (const item of filteredHabits.value) {
+	// 		item.checked = item.checkIns.some((checkin) => {
+	// 			return now.value.isSame(dayjs(checkin.date), "day");
+	// 		});
 
-			if (
-				now.value.isBetween(item.startDate, item.endDate, "day", "[]") &&
-				item.weekdays.includes(now.value.format("dddd").toLocaleLowerCase())
-			) {
-				list.push(item);
-			}
-		}
-		return list;
-	});
+	// 		if (
+	// 			now.value.isBetween(item.startDate, item.endDate, "day", "[]") &&
+	// 			item.weekdays.includes(now.value.format("dddd").toLocaleLowerCase())
+	// 		) {
+	// 			list.push(item);
+	// 		}
+	// 	}
+	// 	return list;
+	// });
 
 	const weekdays = computed(function () {
 		const days = [];
@@ -291,9 +300,18 @@
 	});
 
 	async function reload() {
-		const token = authStore.token;
-		const res = await request.get("habits", { headers: { Authorization: `Bearer ${token}` } });
-		habits.value = res.data;
+		const [habitsResponse, todayListResponse] = await Promise.all([
+			request.get("habits", { headers: { Authorization: `Bearer ${authStore.token}` } }),
+			request.get("habits/today", { headers: { Authorization: `Bearer ${authStore.token}` } }),
+		]);
+
+		habits.value = habitsResponse.data;
+		todayList.value = todayListResponse.data.map((item) => {
+			item.checked = item.checkIns.some((checkin) => {
+				return now.value.isSame(dayjs(checkin.date), "day");
+			});
+			return item;
+		});
 	}
 
 	reload();
@@ -308,7 +326,7 @@
 	function handleEdit(habit) {
 		habitModal.value.data = {
 			title: habit.title,
-			description: habit.description,
+			// description: habit.description,
 			startDate: dayjs(habit.startDate).format("YYYY-MM-DD"),
 			endDate: dayjs(habit.endDate).format("YYYY-MM-DD"),
 			weekdays: habit.weekdays,
@@ -343,12 +361,10 @@
 
 	async function handleCheckin(habit) {
 		if (!habit.checked) {
-			const confirmed = await confirmation(
-				"Confirm",
-				`Are you sure you want to check out of ${habit.title}?`,
-				true,
-			);
+			const confirmed = await confirmation("Confirm", `Are you sure you want to check out of ${habit.title}?`);
+
 			if (!confirmed) {
+				habit.checked = true;
 				return;
 			}
 		}
@@ -357,7 +373,9 @@
 		try {
 			const res = await request.post(
 				`habits/${habit._id}/check`,
-				{},
+				{
+					missedNote: habit.missedNote,
+				},
 				{
 					headers: { Authorization: `Bearer ${authStore.token}` },
 				},
@@ -365,7 +383,7 @@
 
 			snackbar.success(res.data.message);
 
-			reload();
+			await reload();
 		} catch (err) {
 			logger.error(err, "handleCheckin");
 		} finally {
@@ -384,7 +402,7 @@
 				"habits",
 				{
 					title: habitModal.value.data.title,
-					description: habitModal.value.data.description,
+					// description: habitModal.value.data.description,
 					startDate: habitModal.value.data.startDate,
 					endDate: habitModal.value.data.endDate,
 					weekdays: habitModal.value.data.weekdays,
@@ -400,7 +418,7 @@
 				`habits/${habitModal.value.data._id}`,
 				{
 					title: habitModal.value.data.title,
-					description: habitModal.value.data.description,
+					// description: habitModal.value.data.description,
 					startDate: habitModal.value.data.startDate,
 					endDate: habitModal.value.data.endDate,
 					weekdays: habitModal.value.data.weekdays,
@@ -425,7 +443,7 @@
 	function habitObject() {
 		return {
 			title: null,
-			description: null,
+			// description: null,
 			startDate: now.value.format("YYYY-MM-DD"),
 			endDate: now.value.add(7, "day").format("YYYY-MM-DD"),
 			weekdays: [],

@@ -5,7 +5,7 @@ import dayjs from "../plugins/dayjs.js";
 // Add new habit
 export const addHabit = async (req, res) => {
   try {
-    const { title, description, startDate, endDate, weekdays } = req.body;
+    const { title, startDate, endDate, weekdays } = req.body;
     debugger;
     const habit = await Habit.create({
       userId: req.user.userId,
@@ -31,6 +31,27 @@ export const getHabits = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+export const getTodaysHabits = async (req, res) => {
+  try {
+    const todayStart = dayjs().startOf("day").toDate();
+    const todayEnd = dayjs().endOf("day").toDate();
+    const todayWeekday = dayjs().format("dddd").toLowerCase(); // e.g., "thursday"
+debugger
+    const habits = await Habit.find({
+      userId: req.user.userId,
+      startDate: { $lte: todayEnd },  // habit started
+      endDate: { $gte: todayStart },  // habit not ended
+      weekdays: todayWeekday,          // scheduled for today
+    });
+
+    res.json(habits);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
 
 // Update habit
 export const updateHabit = async (req, res) => {
@@ -83,7 +104,7 @@ try {
       return res.json({ message: `Checked out of ${habit.title.toLowerCase()}` });
     }
 
-    habit.checkIns.push({ date: today.toDate() });
+    habit.checkIns.push({ date: today.toDate(), missedNote: req.params.missedNote });
     await habit.save();
     return res.json({ message: `Checked in to ${habit.title.toLowerCase()}` });
   } catch (error) {

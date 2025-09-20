@@ -1,15 +1,12 @@
 import Habit from "../models/Habit.js";
 import dayjs from "../plugins/dayjs.js";
-import clock from "../utils/now.js";
 
-// Add new habit
 export const addHabit = async (req, res) => {
   try {
     const { title, startDate, endDate, weekdays } = req.body;
     const habit = await Habit.create({
       userId: req.user.userId,
       title,
-      description,
       startDate,
       endDate,
       weekdays,
@@ -31,17 +28,19 @@ export const getHabits = async (req, res) => {
   }
 };
 
-export const getTodaysHabits = async (req, res) => {
+export const getDayList = async (req, res) => {
   try {
-    const todayStart = dayjs().startOf("day").toDate();
-    const todayEnd = dayjs().endOf("day").toDate();
-    const todayWeekday = dayjs().format("dddd").toLowerCase(); // e.g., "thursday"
+    const { date } = req.query;
+
+    const dayStart = dayjs(date).startOf("day").toDate();
+    const dayEnd = dayjs(date).endOf("day").toDate();
+    const dayWeekday = dayjs(date).format("dddd").toLowerCase();
 
     const habits = await Habit.find({
       userId: req.user.userId,
-      startDate: { $lte: todayEnd },
-      endDate: { $gte: todayStart },
-      weekdays: todayWeekday,
+      startDate: { $lte: dayEnd },
+      endDate: { $gte: dayStart },
+      weekdays: dayWeekday,
     });
 
     res.json(habits);

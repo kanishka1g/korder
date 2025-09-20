@@ -114,11 +114,18 @@
 							</VCardText>
 						</VCard>
 					</VCol>
-					<VCol v-if="todayList.length" cols="12" md="6" order-md="2" order="1">
+					<VCol cols="12" md="6" order-md="2" order="1">
 						<VCard variant="outlined" class="mt-3">
-							<VCardTitle> Today's checkin </VCardTitle>
-							<VCardText>
-								<VRow v-for="habit in todayList" :key="habit.id" dense>
+							<VCardTitle>
+								<VRow>
+									<VCol> Daily checkin </VCol>
+									<VCol>
+										<DateField v-model="filterDate" />
+									</VCol>
+								</VRow>
+							</VCardTitle>
+							<VCardText v-if="dayList.length">
+								<VRow v-for="habit in dayList" :key="habit.id" dense>
 									<VCol>
 										<VCheckbox
 											v-model="habit.checked"
@@ -126,7 +133,7 @@
 											:label="habit.title"
 											hide-details
 											density="compact"
-											@update:model-value="handleCheckin(habit)"
+											@update:model-value="handleDailyCheck(habit)"
 										/>
 									</VCol>
 									<VCol v-if="habit.showMissedNote" cols="12">
@@ -143,22 +150,14 @@
 													size="small"
 													variant="text"
 													color="success"
-													@click="handleCheckin(habit)"
+													@click="handleDailyCheck(habit)"
 												/>
 											</template>
 										</VTextField>
 									</VCol>
 									<VCol v-else-if="!habit.checked" cols="auto">
-										<VBtn
-											v-if="!missedNote(habit)"
-											icon="fas fa-note-sticky"
-											size="x-small"
-											variant="text"
-											color="primary"
-											@click="habit.showMissedNote = true"
-										/>
-										<div v-else>
-											{{ missedNote(habit) }}
+										<div v-if="foundMissedNote(habit)">
+											{{ foundMissedNote(habit) }}
 											<VBtn
 												icon="fas fa-pencil"
 												size="x-small"
@@ -167,8 +166,21 @@
 												@click="handleEditNote(habit)"
 											/>
 										</div>
+
+										<div v-else>
+											<VBtn
+												icon="fas fa-note-sticky"
+												size="x-small"
+												variant="text"
+												color="primary"
+												@click="habit.showMissedNote = true"
+											/>
+										</div>
 									</VCol>
 								</VRow>
+							</VCardText>
+							<VCardText v-else class="text-center text-medium-emphasis">
+								No habits for the day. Change the date or add a new habit.
 							</VCardText>
 						</VCard>
 					</VCol>
@@ -188,28 +200,27 @@
 				<VCol cols="12" md="6">
 					<VTextField v-model="habitModal.data.title" label="Title" variant="outlined" required />
 				</VCol>
-				<!-- <VCol cols="12" md="6">
-					<VTextField v-model="habitModal.data.description" label="Description" variant="outlined" />
-				</VCol> -->
 			</VRow>
 			<VRow>
 				<VCol cols="12" md="6">
-					<VTextField
+					<!-- <VTextField
 						v-model="habitModal.data.startDate"
 						label="Start Date"
 						type="date"
 						variant="outlined"
 						required
-					/>
+					/> -->
+					<DateField v-model="habitModal.data.startDate" label="Start Date" required />
 				</VCol>
 				<VCol cols="12" md="6">
-					<VTextField
+					<!-- <VTextField
 						v-model="habitModal.data.endDate"
 						label="End Date"
 						type="date"
 						variant="outlined"
 						required
-					/>
+					/> -->
+					<DateField v-model="habitModal.data.endDate" label="End Date" required />
 				</VCol>
 			</VRow>
 			<VCard class="card fill-height mt-3" variant="tonal" elevation="4" rounded="lg" density="comfortable">
@@ -242,7 +253,7 @@
 </template>
 
 <script setup>
-	import { ref, computed } from "vue";
+	import { ref, computed, watch } from "vue";
 	import { useNow } from "@/utils/now";
 	import dayjs from "@/plugins/dayjs";
 	import request from "@/utils/request";
@@ -250,6 +261,7 @@
 	import { useLogger } from "@/utils/useLogger";
 	import { useLoading } from "@/utils/loading";
 	import { snackbar, confirmation } from "@/utils/generic_modals";
+	import DateField from "@/components/common/DateField.vue";
 
 	const now = useNow();
 	const authStore = useAuthStore();
@@ -264,8 +276,9 @@
 	];
 
 	const showArchived = ref(false);
+	const filterDate = ref(now.value);
 	const habits = ref([]);
-	const todayList = ref([]);
+	const dayList = ref([]);
 	const habitModal = ref({
 		show: false,
 		action: "Add",
@@ -287,23 +300,6 @@
 		});
 	});
 
-	// const todayList = computed(function () {
-	// 	let list = [];
-	// 	for (const item of filteredHabits.value) {
-	// 		item.checked = item.checkIns.some((checkin) => {
-	// 			return now.value.isSame(dayjs(checkin.date), "day");
-	// 		});
-
-	// 		if (
-	// 			now.value.isBetween(item.startDate, item.endDate, "day", "[]") &&
-	// 			item.weekdays.includes(now.value.format("dddd").toLocaleLowerCase())
-	// 		) {
-	// 			list.push(item);
-	// 		}
-	// 	}
-	// 	return list;
-	// });
-
 	const weekdays = computed(function () {
 		const days = [];
 		for (let i = 0; i < 7; i++) {
@@ -319,15 +315,22 @@
 	});
 
 	async function reload() {
-		const [habitsResponse, todayListResponse] = await Promise.all([
+		const [habitsResponse, dayListResponse] = await Promise.all([
 			request.get("habits", { headers: { Authorization: `Bearer ${authStore.token}` } }),
-			request.get("habits/today", { headers: { Authorization: `Bearer ${authStore.token}` } }),
+			request.get(
+				`habits/day-list`,
+
+				{
+					params: { date: filterDate.value.toDate() },
+					headers: { Authorization: `Bearer ${authStore.token}` },
+				},
+			),
 		]);
 
 		habits.value = habitsResponse.data;
-		todayList.value = todayListResponse.data.map((item) => {
+		dayList.value = dayListResponse.data.map((item) => {
 			item.checked = item.checkIns.some((checkin) => {
-				return now.value.isSame(dayjs(checkin.date), "day") && checkin.checked;
+				return filterDate.value.isSame(dayjs(checkin.date), "day") && checkin.checked;
 			});
 
 			return item;
@@ -346,8 +349,8 @@
 	function handleEdit(habit) {
 		habitModal.value.data = {
 			title: habit.title,
-			startDate: dayjs(habit.startDate).format("YYYY-MM-DD"),
-			endDate: dayjs(habit.endDate).format("YYYY-MM-DD"),
+			startDate: dayjs(habit.startDate),
+			endDate: dayjs(habit.endDate),
 			weekdays: habit.weekdays,
 			_id: habit._id,
 		};
@@ -378,7 +381,7 @@
 		reload();
 	}
 
-	async function handleCheckin(habit) {
+	async function handleDailyCheck(habit) {
 		if (!habit.checked && !habit.missedNote) {
 			const confirmed = await confirmation("Confirm", `Are you sure you want to check out of ${habit.title}?`);
 
@@ -394,7 +397,7 @@
 				`habits/${habit._id}/check`,
 				{
 					habitId: habit._id,
-					date: now.value.toDate(),
+					date: filterDate.value.toDate(),
 					missedNote: habit.missedNote || null,
 					checked: habit.checked,
 				},
@@ -407,12 +410,13 @@
 			habit.showMissedNote = false;
 			await reload();
 		} catch (err) {
-			logger.error(err, "handleCheckin");
+			logger.error(err, "handleDailyCheck");
 		} finally {
 			loading.end();
 		}
 	}
 
+	//TODO: Probably clean up this function
 	async function handleConfirm() {
 		if (!habitModal.value.data.weekdays.length) {
 			snackbar.warning("Please select at least one weekday");
@@ -424,7 +428,6 @@
 				"habits",
 				{
 					title: habitModal.value.data.title,
-					// description: habitModal.value.data.description,
 					startDate: habitModal.value.data.startDate,
 					endDate: habitModal.value.data.endDate,
 					weekdays: habitModal.value.data.weekdays,
@@ -440,7 +443,6 @@
 				`habits/${habitModal.value.data._id}`,
 				{
 					title: habitModal.value.data.title,
-					// description: habitModal.value.data.description,
 					startDate: habitModal.value.data.startDate,
 					endDate: habitModal.value.data.endDate,
 					weekdays: habitModal.value.data.weekdays,
@@ -462,22 +464,24 @@
 		viewModal.value.show = true;
 	}
 
-	function missedNote(habit) {
-		return habit.checkIns.find((c) => dayjs(c.date).isSame(now.value, "day"))?.missedNote;
+	function foundMissedNote(habit) {
+		return habit.checkIns.find((c) => dayjs(c.date).isSame(filterDate.value, "day"))?.missedNote;
 	}
 
 	function handleEditNote(habit) {
-		habit.missedNote = habit.checkIns.find((c) => dayjs(c.date).isSame(now.value, "day"))?.missedNote || null;
+		habit.missedNote =
+			habit.checkIns.find((c) => dayjs(c.date).isSame(filterDate.value, "day"))?.missedNote || null;
 		habit.showMissedNote = true;
 	}
 
 	function habitObject() {
 		return {
 			title: null,
-			// description: null,
-			startDate: now.value.format("YYYY-MM-DD"),
-			endDate: now.value.add(7, "day").format("YYYY-MM-DD"),
+			startDate: now.value,
+			endDate: now.value.add(7, "day"),
 			weekdays: [],
 		};
 	}
+
+	watch(filterDate, reload);
 </script>

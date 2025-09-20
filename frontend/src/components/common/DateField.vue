@@ -1,14 +1,11 @@
 <template>
-	<VMenu v-model="open" :close-on-content-click="false">
+	<VMenu v-model="open">
 		<template #activator="{ props: menuProps }">
-			<VTextField
-				v-model="text"
-				:label="label"
-				placeholder="DD/MM/YYYY"
-				v-bind="menuProps"
-				variant="outlined"
-				prepend-inner-icon="fas fa-calendar"
-			/>
+			<VTextField v-model="text" :label="label" placeholder="DD/MM/YYYY" v-bind="menuProps" variant="outlined">
+				<template #append-inner>
+					<VIcon icon="fas fa-calendar" size="x-small" />
+				</template>
+			</VTextField>
 		</template>
 		<VCard>
 			<VDatePicker v-model="innerValue" show-adjacent-months color="main">
@@ -38,7 +35,7 @@
 			default: "Date",
 		},
 	});
-	w;
+
 	const innerValue = defineModel({
 		type: dayjs,
 		default: null,

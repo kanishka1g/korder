@@ -5,7 +5,7 @@ import {
   updateHabit,
   deleteHabit,
   checkHabitForDay,
-  getTodaysHabits,
+  getDayList,
 } from "../controllers/habitController.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 
@@ -15,7 +15,7 @@ router.use(authMiddleware);
 
 router.post("/", addHabit);
 router.get("/", getHabits);
-router.get("/today", getTodaysHabits);
+router.get("/day-list", getDayList);
 router.put("/:id", updateHabit);
 router.delete("/:id", deleteHabit);
 router.post("/:id/check", checkHabitForDay);

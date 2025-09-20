@@ -1,12 +1,11 @@
 import Habit from "../models/Habit.js";
 import dayjs from "../plugins/dayjs.js";
-	import clock  from "../utils/now.js";
+import clock from "../utils/now.js";
 
 // Add new habit
 export const addHabit = async (req, res) => {
   try {
     const { title, startDate, endDate, weekdays } = req.body;
-    debugger;
     const habit = await Habit.create({
       userId: req.user.userId,
       title,
@@ -37,12 +36,12 @@ export const getTodaysHabits = async (req, res) => {
     const todayStart = dayjs().startOf("day").toDate();
     const todayEnd = dayjs().endOf("day").toDate();
     const todayWeekday = dayjs().format("dddd").toLowerCase(); // e.g., "thursday"
-debugger
+
     const habits = await Habit.find({
       userId: req.user.userId,
-      startDate: { $lte: todayEnd },  // habit started
-      endDate: { $gte: todayStart },  // habit not ended
-      weekdays: todayWeekday,          // scheduled for today
+      startDate: { $lte: todayEnd },
+      endDate: { $gte: todayStart },
+      weekdays: todayWeekday,
     });
 
     res.json(habits);
@@ -50,8 +49,6 @@ debugger
     res.status(500).json({ message: err.message });
   }
 };
-
-
 
 // Update habit
 export const updateHabit = async (req, res) => {
@@ -84,30 +81,43 @@ export const deleteHabit = async (req, res) => {
   }
 };
 
-export const dailyCheck = async (req, res) => {
-try {
-    const habit = await Habit.findOne({ _id: req.params.id });
-    if (!habit) return res.status(404).json({ message: "Habit not found" });
+export const checkHabitForDay = async (req, res) => {
+  try {
+    const { habitId, checked, missedNote } = req.body;
+    const userId = req.user.userId;
+    const date = req.body.date;
 
-    const today = clock.now.startOf("day");
-    const todayTime = today.valueOf();
+    const habit = await Habit.findOne({ _id: habitId, userId });
 
-
-    const index = habit.checkIns.findIndex((ci) => {
-      const ciDate = dayjs(ci.date).startOf("day");
-      return ciDate.valueOf() === todayTime;
-    });
-
-    if (index >= 0) {
-      habit.checkIns.splice(index, 1);
-      await habit.save();
-      return res.json({ message: `Checked out of ${habit.title.toLowerCase()}` });
+    if (!habit) {
+      return res.status(404).json({ error: "Habit not found" });
     }
 
-    habit.checkIns.push({ date: today.toDate(), missedNote: req.params.missedNote });
+    let dateEntry = habit.checkIns.find((c) =>
+      dayjs(c.date).isSame(date, "day")
+    );
+    console.log(dateEntry);
+    if (dateEntry) {
+      dateEntry.checked = checked;
+      if (!checked) {
+        if (missedNote) {
+          dateEntry.missedNote = missedNote;
+        } else {
+          dateEntry.missedNote = null;
+        }
+      }
+    } else {
+      habit.checkIns.push({
+        date: today,
+        checked,
+        missedNote: checked ? null : missedNote || null,
+      });
+    }
+
     await habit.save();
-    return res.json({ message: `Checked in to ${habit.title.toLowerCase()}` });
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.json({ message: "Habit check-in updated", habit });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
   }
 };

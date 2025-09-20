@@ -1,161 +1,180 @@
 <template>
 	<VContainer fluid>
-		<VRow>
-			<VCol>
-				<VCard class="card fill-height mt-3" variant="tonal" elevation="4" rounded="lg" density="comfortable">
-					<VCardTitle>
-						<VRow justify="end">
-							<VCol>
-								<p class="title text-h5 font-weight-bold">Habits</p>
-							</VCol>
-						</VRow>
-					</VCardTitle>
-					<VCardText>
-						<VRow>
-							<VCol cols="12" md="6" order-md="1" order="2">
-								<VCard variant="outlined" class="mt-3">
-									<VCardTitle>
-										<VRow justify="end">
-											<VCol cols="auto">
-												<VSwitch
-													v-model="showArchived"
-													label="Archive"
-													color="warning"
-													density="compact"
-												/>
-											</VCol>
-											<VCol cols="auto">
-												<VBtn
-													prepend-icon="fa-solid fa-plus"
-													color="primary"
-													@click="handleAdd"
-												>
-													Add Habit
-												</VBtn>
-											</VCol>
-										</VRow>
-									</VCardTitle>
-									<VCardText>
-										<VDataTable
-											v-if="$vuetify.display.mdAndUp"
-											:headers="headers"
-											:items="filteredHabits"
-											hide-default-footer
+		<VCard class="card fill-height mt-3" variant="tonal" elevation="4" rounded="lg" density="comfortable">
+			<VCardTitle>
+				<VRow justify="end">
+					<VCol>
+						<p class="title text-h5 font-weight-bold">Habits</p>
+					</VCol>
+				</VRow>
+			</VCardTitle>
+			<VCardText>
+				<VRow>
+					<VCol cols="12" md="6" order-md="1" order="2">
+						<VCard variant="outlined" class="mt-3">
+							<VCardTitle>
+								<VRow justify="end">
+									<VCol cols="auto">
+										<VSwitch
+											v-model="showArchived"
+											label="Archive"
+											color="warning"
+											density="compact"
+										/>
+									</VCol>
+									<VCol cols="auto">
+										<VBtn prepend-icon="fa-solid fa-plus" color="primary" @click="handleAdd">
+											Add Habit
+										</VBtn>
+									</VCol>
+								</VRow>
+							</VCardTitle>
+							<VCardText>
+								<VDataTable
+									v-if="$vuetify.display.mdAndUp"
+									:headers="headers"
+									:items="filteredHabits"
+									hide-default-footer
+								>
+									<template #item.startDate="{ item }">
+										{{ dayjs(item.startDate).format("YYYY-MM-DD") }}
+									</template>
+									<template #item.endDate="{ item }">
+										{{ dayjs(item.endDate).format("YYYY-MM-DD") }}
+									</template>
+									<template #item.action="{ item }">
+										<VBtn
+											icon="fa-solid fa-eye"
+											size="x-small"
+											variant="text"
+											@click="handleView(item)"
+										/>
+										<VBtn
+											icon="fa-solid fa-pencil"
+											color="primary"
+											size="x-small"
+											variant="text"
+											@click="handleEdit(item)"
+										/>
+										<VBtn
+											icon="fa-solid fa-trash"
+											color="error"
+											size="x-small"
+											variant="text"
+											@click="handleDelete(item)"
+										/>
+									</template>
+								</VDataTable>
+								<VRow v-for="habit in filteredHabits" v-else :key="habit.id" dense>
+									<VCol cols="12">
+										<VCard class="mb-2">
+											<VCardText>
+												<VRow dense>
+													<VCol> Title </VCol>
+													<VCol cols="auto">
+														{{ habit.title }}
+													</VCol>
+												</VRow>
+												<VRow dense>
+													<VCol> Start Date </VCol>
+													<VCol cols="auto">
+														{{ dayjs(habit.startDate).format("YYYY-MM-DD") }}
+													</VCol>
+												</VRow>
+												<VRow dense>
+													<VCol> End Date </VCol>
+													<VCol cols="auto">
+														{{ dayjs(habit.endDate).format("YYYY-MM-DD") }}
+													</VCol>
+												</VRow>
+											</VCardText>
+											<VCardActions>
+												<VRow justify="end" no-gutters>
+													<VCol cols="auto">
+														<VBtn prepend-icon="fa-solid fa-eye" @click="handleView(habit)">
+														</VBtn>
+														<VBtn
+															prepend-icon="fa-solid fa-pencil"
+															color="primary"
+															@click="handleEdit(habit)"
+														>
+														</VBtn>
+														<VBtn
+															prepend-icon="fa-solid fa-trash"
+															color="error"
+															@click="handleDelete(habit)"
+														>
+														</VBtn>
+													</VCol>
+												</VRow>
+											</VCardActions>
+										</VCard>
+									</VCol>
+								</VRow>
+							</VCardText>
+						</VCard>
+					</VCol>
+					<VCol v-if="todayList.length" cols="12" md="6" order-md="2" order="1">
+						<VCard variant="outlined" class="mt-3">
+							<VCardTitle> Today's checkin </VCardTitle>
+							<VCardText>
+								<VRow v-for="habit in todayList" :key="habit.id" dense>
+									<VCol>
+										<VCheckbox
+											v-model="habit.checked"
+											color="primary"
+											:label="habit.title"
+											hide-details
+											density="compact"
+											@update:model-value="handleCheckin(habit)"
+										/>
+									</VCol>
+									<VCol v-if="habit.showMissedNote" cols="12">
+										<VTextField
+											v-model="habit.missedNote"
+											label="Missed Note"
+											variant="outlined"
+											density="compact"
+											hide-details
 										>
-											<template #item.startDate="{ item }">
-												{{ dayjs(item.startDate).format("YYYY-MM-DD") }}
-											</template>
-											<template #item.endDate="{ item }">
-												{{ dayjs(item.endDate).format("YYYY-MM-DD") }}
-											</template>
-											<template #item.action="{ item }">
+											<template #append-inner>
 												<VBtn
-													icon="fa-solid fa-eye"
-													size="x-small"
+													icon="fas fa-floppy-disk"
+													size="small"
 													variant="text"
-													@click="handleView(item)"
-												/>
-												<VBtn
-													icon="fa-solid fa-pencil"
-													color="primary"
-													size="x-small"
-													variant="text"
-													@click="handleEdit(item)"
-												/>
-												<VBtn
-													icon="fa-solid fa-trash"
-													color="error"
-													size="x-small"
-													variant="text"
-													@click="handleDelete(item)"
+													color="success"
+													@click="handleCheckin(habit)"
 												/>
 											</template>
-										</VDataTable>
-										<VRow v-for="habit in filteredHabits" v-else :key="habit.id" dense>
-											<VCol cols="12">
-												<VCard class="mb-2">
-													<VCardText>
-														<VRow dense>
-															<VCol> Title </VCol>
-															<VCol cols="auto">
-																{{ habit.title }}
-															</VCol>
-														</VRow>
-														<VRow dense>
-															<VCol> Start Date </VCol>
-															<VCol cols="auto">
-																{{ dayjs(habit.startDate).format("YYYY-MM-DD") }}
-															</VCol>
-														</VRow>
-														<VRow dense>
-															<VCol> End Date </VCol>
-															<VCol cols="auto">
-																{{ dayjs(habit.endDate).format("YYYY-MM-DD") }}
-															</VCol>
-														</VRow>
-													</VCardText>
-													<VCardActions>
-														<VRow justify="end" no-gutters>
-															<VCol cols="auto">
-																<VBtn
-																	prepend-icon="fa-solid fa-eye"
-																	@click="handleView(habit)"
-																>
-																</VBtn>
-																<VBtn
-																	prepend-icon="fa-solid fa-pencil"
-																	color="primary"
-																	@click="handleEdit(habit)"
-																>
-																</VBtn>
-																<VBtn
-																	prepend-icon="fa-solid fa-trash"
-																	color="error"
-																	@click="handleDelete(habit)"
-																>
-																</VBtn>
-															</VCol>
-														</VRow>
-													</VCardActions>
-												</VCard>
-											</VCol>
-										</VRow>
-									</VCardText>
-								</VCard>
-							</VCol>
-							<VCol v-if="todayList.length" cols="12" md="6" order-md="2" order="1">
-								<VCard variant="outlined" class="mt-3">
-									<VCardTitle> Today's checkin </VCardTitle>
-									<VCardText>
-										<VRow v-for="habit in todayList" :key="habit.id" dense>
-											<VCol>
-												<VCheckbox
-													v-model="habit.checked"
-													color="primary"
-													:label="habit.title"
-													hide-details
-													density="compact"
-													@update:model-value="handleCheckin(habit)"
-												/>
-											</VCol>
-											<VCol v-if="!habit.checked" cols="auto">
-												<VBtn
-													icon="fas fa-note-sticky"
-													size="x-small"
-													variant="text"
-													color="primary"
-													@click="handleAddNote(habit)"
-												/>
-											</VCol>
-										</VRow>
-									</VCardText>
-								</VCard>
-							</VCol>
-						</VRow>
-					</VCardText>
-				</VCard>
-			</VCol>
-		</VRow>
+										</VTextField>
+									</VCol>
+									<VCol v-else-if="!habit.checked" cols="auto">
+										<VBtn
+											v-if="!missedNote(habit)"
+											icon="fas fa-note-sticky"
+											size="x-small"
+											variant="text"
+											color="primary"
+											@click="habit.showMissedNote = true"
+										/>
+										<div v-else>
+											{{ missedNote(habit) }}
+											<VBtn
+												icon="fas fa-pencil"
+												size="x-small"
+												variant="text"
+												color="primary"
+												@click="handleEditNote(habit)"
+											/>
+										</div>
+									</VCol>
+								</VRow>
+							</VCardText>
+						</VCard>
+					</VCol>
+				</VRow>
+			</VCardText>
+		</VCard>
 	</VContainer>
 	<Modal
 		v-model="habitModal.show"
@@ -308,8 +327,9 @@
 		habits.value = habitsResponse.data;
 		todayList.value = todayListResponse.data.map((item) => {
 			item.checked = item.checkIns.some((checkin) => {
-				return now.value.isSame(dayjs(checkin.date), "day");
+				return now.value.isSame(dayjs(checkin.date), "day") && checkin.checked;
 			});
+
 			return item;
 		});
 	}
@@ -326,7 +346,6 @@
 	function handleEdit(habit) {
 		habitModal.value.data = {
 			title: habit.title,
-			// description: habit.description,
 			startDate: dayjs(habit.startDate).format("YYYY-MM-DD"),
 			endDate: dayjs(habit.endDate).format("YYYY-MM-DD"),
 			weekdays: habit.weekdays,
@@ -360,7 +379,7 @@
 	}
 
 	async function handleCheckin(habit) {
-		if (!habit.checked) {
+		if (!habit.checked && !habit.missedNote) {
 			const confirmed = await confirmation("Confirm", `Are you sure you want to check out of ${habit.title}?`);
 
 			if (!confirmed) {
@@ -374,7 +393,10 @@
 			const res = await request.post(
 				`habits/${habit._id}/check`,
 				{
-					missedNote: habit.missedNote,
+					habitId: habit._id,
+					date: now.value.toDate(),
+					missedNote: habit.checked ? null : habit.missedNote || null,
+					checked: habit.checked,
 				},
 				{
 					headers: { Authorization: `Bearer ${authStore.token}` },
@@ -382,7 +404,7 @@
 			);
 
 			snackbar.success(res.data.message);
-
+			habit.showMissedNote = false;
 			await reload();
 		} catch (err) {
 			logger.error(err, "handleCheckin");
@@ -438,6 +460,15 @@
 	async function handleView(habit) {
 		viewModal.value.habit = habit;
 		viewModal.value.show = true;
+	}
+
+	function missedNote(habit) {
+		return habit.checkIns.find((c) => dayjs(c.date).isSame(now.value, "day"))?.missedNote;
+	}
+
+	function handleEditNote(habit) {
+		habit.missedNote = habit.checkIns.find((c) => dayjs(c.date).isSame(now.value, "day"))?.missedNote || null;
+		habit.showMissedNote = true;
 	}
 
 	function habitObject() {

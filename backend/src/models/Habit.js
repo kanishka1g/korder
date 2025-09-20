@@ -8,7 +8,6 @@ const habitSchema = new mongoose.Schema(
       required: true,
     },
     title: { type: String, required: true, unique: true },
-    // description: { type: String },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
     weekdays: [
@@ -29,7 +28,8 @@ const habitSchema = new mongoose.Schema(
     checkIns: [
       {
         date: { type: Date, required: true },
-        missedNote: { type: String },
+        missedNote: { type: String, default: null },
+        checked: { type: Boolean, default: true },
       },
     ],
   },

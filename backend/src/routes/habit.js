@@ -4,20 +4,20 @@ import {
   getHabits,
   updateHabit,
   deleteHabit,
-  dailyCheck,
+  checkHabitForDay,
   getTodaysHabits,
 } from "../controllers/habitController.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.use(authMiddleware); // all routes protected
+router.use(authMiddleware);
 
-router.post("/", addHabit); // Add habit
-router.get("/", getHabits); // Get all habits
-router.get("/today", getTodaysHabits); // Add habit
-router.put("/:id", updateHabit); // Update habit
-router.delete("/:id", deleteHabit); // Delete habit
-router.post("/:id/check", dailyCheck); //Daily check
+router.post("/", addHabit);
+router.get("/", getHabits);
+router.get("/today", getTodaysHabits);
+router.put("/:id", updateHabit);
+router.delete("/:id", deleteHabit);
+router.post("/:id/check", checkHabitForDay);
 
 export default router;

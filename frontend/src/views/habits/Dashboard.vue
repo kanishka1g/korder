@@ -395,7 +395,7 @@
 				{
 					habitId: habit._id,
 					date: now.value.toDate(),
-					missedNote: habit.checked ? null : habit.missedNote || null,
+					missedNote: habit.missedNote || null,
 					checked: habit.checked,
 				},
 				{

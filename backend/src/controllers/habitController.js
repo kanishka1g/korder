@@ -82,6 +82,7 @@ export const deleteHabit = async (req, res) => {
 };
 
 export const checkHabitForDay = async (req, res) => {
+  debugger;
   try {
     const { habitId, checked, missedNote } = req.body;
     const userId = req.user.userId;
@@ -108,7 +109,7 @@ export const checkHabitForDay = async (req, res) => {
       }
     } else {
       habit.checkIns.push({
-        date: today,
+        date: date,
         checked,
         missedNote: checked ? null : missedNote || null,
       });

@@ -9,6 +9,7 @@
 				</VRow>
 			</VCardTitle>
 			<VCardText>
+				<!-- TODO: Add stat cards one is for upcoming habits  -->
 				<VRow>
 					<VCol cols="12" md="6" order-md="1" order="2">
 						<VCard variant="outlined" class="mt-3">

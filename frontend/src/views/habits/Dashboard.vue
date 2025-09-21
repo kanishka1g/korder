@@ -245,9 +245,52 @@
 			</VCard>
 		</VForm>
 	</Modal>
-	<Modal v-model="viewModal.show" :title="viewModal.habit.title">
+	<Modal v-model="viewModal.show" :title="viewModal.habit.title" size="small">
 		<VCard>
-			<VCardText> asdas </VCardText>
+			<VCardText>
+				<VCard class="mb-3" variant="tonal">
+					<VCardTitle class="text-body-1">Habit Details</VCardTitle>
+					<VCardText>
+						<VRow>
+							<VCol>
+								Date Range:
+								<span class="text-medium-emphasis">
+									{{ dayjs(viewModal.habit.startDate).format("DD-MM-YYYY") }} to
+									{{ dayjs(viewModal.habit.endDate).format("DD-MM-YYYY") }}
+								</span>
+								Weekdays:
+								<!-- TODO: create a util for text that can make first letter capital and make weekday capital -->
+								<span class="text-medium-emphasis">{{ viewModal.habit.weekdays.join(", ") }}</span>
+							</VCol>
+						</VRow>
+					</VCardText>
+				</VCard>
+				<VRow v-if="viewModal.habit.checkIns.length" justify="end" class="mb-3">
+					<VCol cols="auto">
+						Total missed:
+						<span class="text-warning">
+							{{ viewModal.habit.checkIns.filter((c) => !c.checked).length }}
+						</span>
+					</VCol>
+				</VRow>
+				<VRow v-for="check in viewModal.habit.checkIns" :key="check.id" justify="space-between" dense>
+					<VCol>
+						{{ dayjs(check.date).format("dddd, DD-MMM YYYY") }}
+						<div v-if="check.missedNote" class="text-medium-emphasis text-caption text-warning">
+							Note: {{ check.missedNote }}
+						</div>
+					</VCol>
+					<VCol cols="auto">
+						<VIcon
+							:icon="check.checked ? 'fas fa-check-circle' : 'fas fa-circle-xmark'"
+							size="small"
+							:color="check.checked ? 'success' : 'error'"
+						/>
+					</VCol>
+					<VDivider class="my-2" color="info" opacity="100" />
+				</VRow>
+				<div v-if="!viewModal.habit.checkIns.length">No check-ins</div>
+			</VCardText>
 		</VCard>
 	</Modal>
 </template>

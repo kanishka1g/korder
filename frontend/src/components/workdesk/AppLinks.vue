@@ -2,8 +2,8 @@
 	<VCard class="card fill-height" variant="tonal" elevation="4" rounded="lg" density="comfortable">
 		<VCardTitle class="title"> App Links </VCardTitle>
 		<VCardText>
-			<VRow>
-				<VCol v-for="item in internalLinks" :key="item.title" cols="12" md="6">
+			<VRow v-for="item in internalLinks" :key="item.title">
+				<VCol>
 					<VCard variant="outlined" elevation="4" rounded="lg" :href="item.route" :prepend-icon="item.icon">
 						<VCardText class="subtitle text-body-1">
 							{{ item.title }}

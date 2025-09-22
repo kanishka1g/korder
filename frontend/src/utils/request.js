@@ -34,6 +34,10 @@ api.interceptors.response.use(
 		return response;
 	},
 	(error) => {
+		if (error.response.status === 401) {
+			authStore.logOut();
+		}
+
 		loading.end();
 		logger.error(error, "API Response");
 		return Promise.reject(error);

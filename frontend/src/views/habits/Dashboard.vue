@@ -38,6 +38,7 @@
 									hide-default-footer
 								>
 									<template #item.startDate="{ item }">
+										<!-- TODO: create display datetime component -->
 										{{ dayjs(item.startDate).format("YYYY-MM-DD") }}
 									</template>
 									<template #item.endDate="{ item }">
@@ -255,13 +256,13 @@
 						<VRow>
 							<VCol>
 								Date Range:
-								<span class="text-medium-emphasis">
+								<div class="text-medium-emphasis">
 									{{ dayjs(viewModal.habit.startDate).format("DD-MM-YYYY") }} to
 									{{ dayjs(viewModal.habit.endDate).format("DD-MM-YYYY") }}
-								</span>
+								</div>
 								Weekdays:
 								<!-- TODO: create a util for text that can make first letter capital and make weekday capital -->
-								<span class="text-medium-emphasis">{{ viewModal.habit.weekdays.join(", ") }}</span>
+								<div class="text-medium-emphasis">{{ viewModal.habit.weekdays.join(", ") }}</div>
 							</VCol>
 						</VRow>
 					</VCardText>
@@ -360,15 +361,10 @@
 
 	async function reload() {
 		const [habitsResponse, dayListResponse] = await Promise.all([
-			request.get("habits", { headers: { Authorization: `Bearer ${authStore.token}` } }),
-			request.get(
-				`habits/day-list`,
-
-				{
-					params: { date: filterDate.value.toDate() },
-					headers: { Authorization: `Bearer ${authStore.token}` },
-				},
-			),
+			request.get("habits"),
+			request.get(`habits/day-list`, {
+				params: { date: filterDate.value.toDate() },
+			}),
 		]);
 
 		habits.value = habitsResponse.data;
@@ -417,9 +413,7 @@
 			return;
 		}
 
-		const res = await request.delete(`habits/${habit._id}`, {
-			headers: { Authorization: `Bearer ${authStore.token}` },
-		});
+		const res = await request.delete(`habits/${habit._id}`);
 
 		snackbar.success(res.data.message);
 		reload();
@@ -437,18 +431,12 @@
 
 		loading.start();
 		try {
-			const res = await request.post(
-				`habits/${habit._id}/check`,
-				{
-					habitId: habit._id,
-					date: filterDate.value.toDate(),
-					missedNote: habit.missedNote || null,
-					checked: habit.checked,
-				},
-				{
-					headers: { Authorization: `Bearer ${authStore.token}` },
-				},
-			);
+			const res = await request.post(`habits/${habit._id}/check`, {
+				habitId: habit._id,
+				date: filterDate.value.toDate(),
+				missedNote: habit.missedNote || null,
+				checked: habit.checked,
+			});
 
 			snackbar.success(res.data.message);
 			habit.showMissedNote = false;
@@ -468,33 +456,21 @@
 		}
 
 		if (habitModal.value.action === "Add") {
-			const res = await request.post(
-				"habits",
-				{
-					title: habitModal.value.data.title,
-					startDate: habitModal.value.data.startDate,
-					endDate: habitModal.value.data.endDate,
-					weekdays: habitModal.value.data.weekdays,
-				},
-				{
-					headers: { Authorization: `Bearer ${authStore.token}` },
-				},
-			);
+			const res = await request.post("habits", {
+				title: habitModal.value.data.title,
+				startDate: habitModal.value.data.startDate,
+				endDate: habitModal.value.data.endDate,
+				weekdays: habitModal.value.data.weekdays,
+			});
 
 			snackbar.success(`${res.data.title} added`);
 		} else if (habitModal.value.action === "Edit") {
-			const res = await request.put(
-				`habits/${habitModal.value.data._id}`,
-				{
-					title: habitModal.value.data.title,
-					startDate: habitModal.value.data.startDate,
-					endDate: habitModal.value.data.endDate,
-					weekdays: habitModal.value.data.weekdays,
-				},
-				{
-					headers: { Authorization: `Bearer ${authStore.token}` },
-				},
-			);
+			const res = await request.put(`habits/${habitModal.value.data._id}`, {
+				title: habitModal.value.data.title,
+				startDate: habitModal.value.data.startDate,
+				endDate: habitModal.value.data.endDate,
+				weekdays: habitModal.value.data.weekdays,
+			});
 
 			snackbar.success(`${res.data.title} edited`);
 		}

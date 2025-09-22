@@ -1,7 +1,13 @@
 <template>
 	<VMenu v-model="open">
 		<template #activator="{ props: menuProps }">
-			<VTextField v-model="text" :label="label" placeholder="DD/MM/YYYY" v-bind="menuProps" variant="outlined">
+			<VTextField
+				v-model="text"
+				:label="label"
+				:placeholder="displayDateFormat"
+				v-bind="menuProps"
+				variant="outlined"
+			>
 				<template #append-inner>
 					<VIcon icon="fas fa-calendar" size="x-small" />
 				</template>
@@ -26,7 +32,7 @@
 
 <script setup>
 	import { ref, watch } from "vue";
-	import { parseDate } from "@/utils/time";
+	import { parseDate, displayDateFormat } from "@/utils/time";
 	import dayjs from "@/plugins/dayjs";
 
 	const props = defineProps({

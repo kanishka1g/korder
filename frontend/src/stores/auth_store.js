@@ -1,5 +1,6 @@
-// stores/auth.js
 import { defineStore } from "pinia";
+import { updateUser } from "@/utils/user.js";
+import router from "@/router";
 
 export const useAuthStore = defineStore("auth", {
 	state: () => ({
@@ -14,6 +15,8 @@ export const useAuthStore = defineStore("auth", {
 		logOut() {
 			this.isLoggedIn = false;
 			this.token = null;
+			updateUser(null);
+			router.push("/");
 		},
 	},
 	persist: true,

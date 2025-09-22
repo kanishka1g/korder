@@ -74,8 +74,8 @@
 				password: password.value,
 			});
 
-			if (res.data.token) {
-				authStore.logIn(res.data.token);
+			if (res.data) {
+				authStore.logIn(res.data);
 				router.push(route.query.redirect || "/workdesk");
 			}
 		} finally {

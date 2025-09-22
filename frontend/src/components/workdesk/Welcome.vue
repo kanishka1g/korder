@@ -5,7 +5,7 @@
 				<img src="https://i.pravatar.cc/48" />
 			</VAvatar>
 			<div class="d-flex flex-column">
-				<div class="text-h6 font-weight-bold title">Welcome, Korder Test</div>
+				<div class="text-h6 font-weight-bold title">Welcome, {{ user.name }} ({{ user.role }})</div>
 				<div class="text-body-1 subtitle">{{ quote }}</div>
 			</div>
 		</VCardTitle>
@@ -36,7 +36,7 @@
 				</VCol>
 				<VDivider class="border-opacity-50 mx-2" vertical inset></VDivider>
 				<VCol cols="auto">
-					<VIcon icon="fa-solid fa-temperature-half" color="#e91e63" size="small"></VIcon>
+					<VIcon icon="fa-solid fa-temperature-half" :color="temperatureColour" size="small"></VIcon>
 				</VCol>
 				<VCol cols="auto">
 					<span>{{ temperature }}</span>
@@ -48,17 +48,31 @@
 
 <script setup>
 	import { ref, computed } from "vue";
-	import { VCard, VCardTitle, VCardText } from "vuetify/components";
 	import { useNow } from "@/utils/now";
 	import { displayTimeFormat, displayLongDateTimeFormat } from "@/utils/time";
+	import { useUser } from "@/utils/user";
 
 	const now = useNow();
+	const user = useUser();
+
 	const temperature = ref();
 	const city = ref();
 	const quote = ref();
 
 	const formattedDate = computed(() => {
 		return now.value.format(displayLongDateTimeFormat);
+	});
+
+	const temperatureColour = computed(() => {
+		const temp = parseInt(temperature.value);
+
+		if (temp < 18) {
+			return "info";
+		} else if (temp < 30) {
+			return "orange";
+		} else {
+			return "red";
+		}
 	});
 
 	async function fetchTemperatureAndCity(position) {

@@ -96,7 +96,7 @@ export const checkHabitForDay = async (req, res) => {
     let dateEntry = habit.checkIns.find((c) =>
       dayjs(c.date).isSame(date, "day")
     );
-    console.log(dateEntry);
+
     if (dateEntry) {
       dateEntry.checked = checked;
       if (!checked) {

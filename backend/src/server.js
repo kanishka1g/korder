@@ -4,6 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import habitRoutes from "./routes/habit.js";
+import userRoutes from "./routes/user.js";
 import { authMiddleware } from "./middleware/authMiddleware.js";
 
 dotenv.config();
@@ -19,10 +20,8 @@ mongoose
 
 app.use("/api/auth", authRoutes);
 app.use("/api/habits", habitRoutes);
+app.use("/api/users", userRoutes);
 
-app.get("/api/protected", authMiddleware, (req, res) => {
-  res.json({ message: "Protected route", user: req.user });
-});
 
 app.get("/", (req, res) => {
   res.send("API is running");

@@ -1,7 +1,7 @@
-// src/middleware/authMiddleware.js
 import jwt from "jsonwebtoken";
 
 const SECRET = process.env.JWT_SECRET || "secret_key";
+//TODO: update JWT_SECRET key
 
 export const authMiddleware = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];

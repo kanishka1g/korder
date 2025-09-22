@@ -2,27 +2,31 @@
 	<VCard class="card fill-height" variant="tonal" elevation="4" rounded="lg" density="comfortable">
 		<VCardTitle class="title"> App Links </VCardTitle>
 		<VCardText>
-			<VRow v-for="item in internalLinks" :key="item.title">
-				<VCol>
-					<VCard variant="outlined" elevation="4" rounded="lg" :href="item.route" :prepend-icon="item.icon">
+			<VRow>
+				<VCol v-for="link in internalLinks" :key="link.title" cols="12" md="4">
+					<VCard variant="outlined" elevation="4" rounded="lg" :href="link.route" :prepend-icon="link.icon">
 						<VCardText class="subtitle text-body-1">
-							{{ item.title }}
+							<VRow>
+								<VCol>
+									{{ link.title }}
+								</VCol>
+							</VRow>
 						</VCardText>
 					</VCard>
 				</VCol>
 			</VRow>
 			<VRow>
-				<VCol v-for="item in externalLinks" :key="item.title" cols="12" md="6">
+				<VCol v-for="link in externalLinks" :key="link.title" cols="12" md="6">
 					<VCard
 						variant="outlined"
 						elevation="4"
 						rounded="lg"
-						:href="item.route"
+						:href="link.route"
 						target="_blank"
-						:prepend-icon="item.icon"
+						:prepend-icon="link.icon"
 					>
 						<VCardText class="subtitle text-body-1">
-							{{ item.title }}
+							{{ link.title }}
 						</VCardText>
 					</VCard>
 				</VCol>

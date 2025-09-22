@@ -2,11 +2,13 @@ export const domain = "korder.cloud";
 
 export const internalLinks = [
 	{
+		code: "workdesk",
 		title: "Weight Wave",
 		icon: "fas fa-weight-hanging",
 		route: `/weight-wave`,
 	},
 	{
+		code: "habits",
 		title: "Habits",
 		icon: "fas fa-circle-check",
 		route: `/habits`,

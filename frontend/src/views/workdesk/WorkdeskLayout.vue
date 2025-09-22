@@ -46,7 +46,6 @@
 <script setup>
 	import { ref } from "vue";
 	import { useAuthStore } from "@/stores/auth_store";
-	import { useRouter } from "vue-router";
 	import { internalLinks, externalLinks } from "@/utils/helpers";
 	import { useDisplay } from "vuetify";
 	import { useLoading } from "@/utils/loading";
@@ -55,14 +54,19 @@
 
 	const { mdAndUp } = useDisplay();
 	const loading = useLoading();
-	const router = useRouter();
 	const authStore = useAuthStore();
 
 	const drawer = ref(mdAndUp.value);
 
 	async function reload() {
-		const response = await request.get("users/me");
-		updateUser(response.data);
+		try {
+			const response = await request.get("users/me");
+			updateUser(response.data);
+		} catch (error) {
+			if (error.response?.status === 404) {
+				authStore.logOut();
+			}
+		}
 	}
 
 	reload();
@@ -71,7 +75,6 @@
 		loading.start();
 		setTimeout(() => {
 			authStore.logOut();
-			// router.push("/");
 			loading.end();
 		}, 1000);
 	}

@@ -1,5 +1,5 @@
 <template>
-	<VCard class="welcome-card pb-3 fill-height" variant="tonal" elevation="4" rounded="lg" density="comfortable">
+	<VCard class="welcome-card pb-3" variant="tonal" elevation="4" rounded="lg" density="comfortable">
 		<VCardTitle class="d-flex align-center mb-3 text-wrap">
 			<VAvatar variant="outlined" size="48" class="me-3">
 				<img src="https://i.pravatar.cc/48" />

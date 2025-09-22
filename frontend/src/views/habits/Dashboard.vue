@@ -1,13 +1,6 @@
 <template>
-	<VContainer fluid>
+	<Page title="Habits" :error="error">
 		<VCard class="card fill-height mt-3" variant="tonal" elevation="4" rounded="lg" density="comfortable">
-			<VCardTitle>
-				<VRow justify="end">
-					<VCol>
-						<p class="title text-h5 font-weight-bold">Habits</p>
-					</VCol>
-				</VRow>
-			</VCardTitle>
 			<VCardText>
 				<!-- TODO: Add stat cards one is for upcoming habits  -->
 				<VRow>
@@ -189,7 +182,7 @@
 				</VRow>
 			</VCardText>
 		</VCard>
-	</VContainer>
+	</Page>
 	<Modal
 		v-model="habitModal.show"
 		:title="`${habitModal.action} Habit`"
@@ -302,14 +295,12 @@
 	import { useNow } from "@/utils/now";
 	import dayjs from "@/plugins/dayjs";
 	import request from "@/utils/request";
-	import { useAuthStore } from "@/stores/auth_store";
 	import { useLogger } from "@/utils/useLogger";
 	import { useLoading } from "@/utils/loading";
 	import { snackbar, confirmation } from "@/utils/generic_modals";
 	import DateField from "@/components/common/DateField.vue";
 
 	const now = useNow();
-	const authStore = useAuthStore();
 	const loading = useLoading();
 	const logger = useLogger();
 
@@ -320,6 +311,7 @@
 		{ title: "", key: "action", align: "end", width: "150px" },
 	];
 
+	const error = ref();
 	const showArchived = ref(false);
 	const filterDate = ref(now.value);
 	const habits = ref([]);
@@ -360,21 +352,25 @@
 	});
 
 	async function reload() {
-		const [habitsResponse, dayListResponse] = await Promise.all([
-			request.get("habits"),
-			request.get(`habits/day-list`, {
-				params: { date: filterDate.value.toDate() },
-			}),
-		]);
+		try {
+			const [habitsResponse, dayListResponse] = await Promise.all([
+				request.get("habits"),
+				request.get(`habits/day-list`, {
+					params: { date: filterDate.value.toDate() },
+				}),
+			]);
 
-		habits.value = habitsResponse.data;
-		dayList.value = dayListResponse.data.map((item) => {
-			item.checked = item.checkIns.some((checkin) => {
-				return filterDate.value.isSame(dayjs(checkin.date), "day") && checkin.checked;
+			habits.value = habitsResponse.data;
+			dayList.value = dayListResponse.data.map((item) => {
+				item.checked = item.checkIns.some((checkin) => {
+					return filterDate.value.isSame(dayjs(checkin.date), "day") && checkin.checked;
+				});
+
+				return item;
 			});
-
-			return item;
-		});
+		} catch (e) {
+			error.value = e;
+		}
 	}
 
 	reload();

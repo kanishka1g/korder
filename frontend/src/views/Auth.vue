@@ -69,15 +69,17 @@
 		loading.start();
 
 		try {
-			const res = await request.post("auth/login", {
+			const res = await request.post("auth/register", {
 				username: username.value,
 				password: password.value,
+				name: "Kanishka",
+				role: "Admin",
 			});
 
-			if (res.data) {
-				authStore.logIn(res.data);
-				router.push(route.query.redirect || "/workdesk");
-			}
+			// if (res.data) {
+			// 	authStore.logIn(res.data);
+			// 	router.push(route.query.redirect || "/workdesk");
+			// }
 		} finally {
 			loading.end();
 		}

@@ -128,6 +128,7 @@
 											:label="habit.title"
 											hide-details
 											density="compact"
+											:disabled="foundMissedNote(habit)"
 											@update:model-value="handleDailyCheck(habit)"
 										/>
 									</VCol>

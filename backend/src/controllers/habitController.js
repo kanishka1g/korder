@@ -18,10 +18,11 @@ export const addHabit = async (req, res) => {
   }
 };
 
-// Get all habits for a user
 export const getHabits = async (req, res) => {
   try {
-    const habits = await Habit.find({ userId: req.user.userId });
+    const habits = await Habit.find({ userId: req.user.userId }).sort({
+      title: 1,
+    });
     res.json(habits);
   } catch (err) {
     res.status(500).json({ message: err.message });

@@ -1,5 +1,5 @@
 <template>
-	<VContainer>
+	<Page title="Health">
 		<VCard class="card fill-height mt-3" variant="tonal" elevation="4" rounded="lg" density="comfortable">
 			<VCardTitle>
 				<VRow justify="end">
@@ -74,7 +74,7 @@
 				</VCardActions>
 			</VCard>
 		</VDialog>
-	</VContainer>
+	</Page>
 </template>
 
 <script setup>
@@ -83,6 +83,7 @@
 
 	import DateField from "@/components/common/DateField.vue";
 	import { VCol } from "vuetify/lib/components/index.mjs";
+	import Page from "@/components/global/Page.vue";
 
 	const now = useNow();
 

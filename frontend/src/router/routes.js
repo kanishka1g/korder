@@ -10,8 +10,8 @@ export default [
 		children: [
 			{ path: "workdesk", component: () => import("@/views/workdesk/Dashboard.vue") },
 			{
-				path: "weight-wave",
-				component: () => import("@/views/weight-wave/Dashboard.vue"),
+				path: "health",
+				component: () => import("@/views/health/Dashboard.vue"),
 			},
 			{
 				path: "habits",

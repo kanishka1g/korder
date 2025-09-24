@@ -3,7 +3,11 @@ import { mongoDbName } from "../config/db_check.js";
 
 const router = express.Router();
 
-router.get("/db-info", (req, res) => {
+router.get("/verify", (req, res) => {
+  if (mongoDbName === "korderDB") {
+    res.json("you are connected to the archive database");
+  }
+
   if (process.env.NODE_ENV) {
     if (process.env.NODE_ENV === "production") {
       if (mongoDbName === "korder_dev") {

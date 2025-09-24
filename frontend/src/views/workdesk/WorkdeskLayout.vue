@@ -66,9 +66,8 @@
 		try {
 			const [responseMe, responseDbAlertMessage] = await Promise.all([
 				request.get("users/me"),
-				request.get("/meta/db-info"),
+				request.get("/meta/verify"),
 			]);
-
 			alertMessage.value = responseDbAlertMessage.data;
 			updateUser(responseMe.data);
 		} catch (error) {

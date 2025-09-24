@@ -22,8 +22,13 @@
 										/>
 									</VCol>
 									<VCol cols="auto">
-										<VBtn prepend-icon="fa-solid fa-plus" color="primary" @click="handleAdd">
-											Add Habit
+										<VBtn
+											size="small"
+											prepend-icon="fa-solid fa-plus"
+											color="primary"
+											@click="handleAdd"
+										>
+											Add
 										</VBtn>
 									</VCol>
 								</VRow>
@@ -391,11 +396,9 @@
 
 	function handleEdit(habit) {
 		habitModal.value.data = {
-			title: habit.title,
+			...habit,
 			startDate: dayjs(habit.startDate),
 			endDate: dayjs(habit.endDate),
-			weekdays: habit.weekdays,
-			_id: habit._id,
 		};
 		habitModal.value.action = "Edit";
 		habitModal.value.show = true;
@@ -461,8 +464,8 @@
 		if (habitModal.value.action === "Add") {
 			const res = await request.post("habits", {
 				title: habitModal.value.data.title,
-				startDate: habitModal.value.data.startDate,
-				endDate: habitModal.value.data.endDate,
+				startDate: habitModal.value.data.startDate.format("YYYY-MM-DD"),
+				endDate: habitModal.value.data.endDate.format("YYYY-MM-DD"),
 				weekdays: habitModal.value.data.weekdays,
 			});
 
@@ -470,8 +473,8 @@
 		} else if (habitModal.value.action === "Edit") {
 			const res = await request.put(`habits/${habitModal.value.data._id}`, {
 				title: habitModal.value.data.title,
-				startDate: habitModal.value.data.startDate,
-				endDate: habitModal.value.data.endDate,
+				startDate: habitModal.value.data.startDate.format("YYYY-MM-DD"),
+				endDate: habitModal.value.data.endDate.format("YYYY-MM-DD"),
 				weekdays: habitModal.value.data.weekdays,
 			});
 

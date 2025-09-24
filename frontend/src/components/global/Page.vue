@@ -37,3 +37,15 @@
 		},
 	});
 </script>
+
+<style scoped lang="scss">
+	@use "@/assets/styles/variables";
+
+	.title {
+		font-family: variables.$title-font;
+	}
+
+	.subtitle {
+		font-family: variables.$subtitle-font;
+	}
+</style>

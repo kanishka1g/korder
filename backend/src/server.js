@@ -4,6 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import habitRoutes from "./routes/habit.js";
+import weightRoutes from "./routes/weight.js";
 import userRoutes from "./routes/user.js";
 import meta from "./routes/meta.js";
 import { authMiddleware } from "./middleware/authMiddleware.js";
@@ -21,6 +22,7 @@ mongoose
 
 app.use("/api/auth", authRoutes);
 app.use("/api/habits", habitRoutes);
+app.use("/api/weights", weightRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/meta", meta);
 

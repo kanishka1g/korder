@@ -66,7 +66,7 @@
 		try {
 			const [responseMe, responseDbAlertMessage] = await Promise.all([
 				request.get("users/me"),
-				request.get("/meta/check-db"),
+				request.get("/meta/db-info"),
 			]);
 
 			alertMessage.value = responseDbAlertMessage.data;

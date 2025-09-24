@@ -4,12 +4,16 @@ import clock from "../utils/now.js";
 
 const router = express.Router();
 
-router.get("/db-info", (req, res) => {
-  res.json({
-    dbName: mongoDbName,
-    env: process.env.NODE_ENV || "development",
-    now: clock.now,
-  });
+router.get("/check-db", (req, res) => {
+  if (process.env.NODE_ENV) {
+    if (process.env.NODE_ENV === "production") {
+      if (mongoDbName === "korder_dev") {
+        res.json("you are connected to the development database");
+      }
+    }
+  } else if (mongoDbName === "korder_prod") {
+    res.json("you are connected to the production database");
+  }
 });
 
 export default router;

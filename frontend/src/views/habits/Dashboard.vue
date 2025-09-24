@@ -189,6 +189,7 @@
 		:title="`${habitModal.action} Habit`"
 		confirm-icon="fas fa-floppy-disk"
 		:confirm-text="habitModal.action"
+		persistent
 		@confirm="handleConfirm"
 	>
 		<VForm>
@@ -199,23 +200,9 @@
 			</VRow>
 			<VRow>
 				<VCol cols="12" md="6">
-					<!-- <VTextField
-						v-model="habitModal.data.startDate"
-						label="Start Date"
-						type="date"
-						variant="outlined"
-						required
-					/> -->
 					<DateField v-model="habitModal.data.startDate" label="Start Date" required />
 				</VCol>
 				<VCol cols="12" md="6">
-					<!-- <VTextField
-						v-model="habitModal.data.endDate"
-						label="End Date"
-						type="date"
-						variant="outlined"
-						required
-					/> -->
 					<DateField v-model="habitModal.data.endDate" label="End Date" required />
 				</VCol>
 			</VRow>

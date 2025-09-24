@@ -64,15 +64,12 @@
 
 	async function reload() {
 		try {
-			const [responseMe, responseDb] = await Promise.all([request.get("users/me"), request.get("/meta/db-info")]);
-			if (responseDb.data.env === "development" && responseDb.data.dbName === "korder_prod") {
-				alertMessage.value = "You are in DEV but connected to the PRODUCTION database!";
-			} else if (responseDb.data.env === "production" && responseDb.data.dbName === "korder_dev") {
-				alertMessage.value = `You are in PROD but connected to the DEVELOPMENT database!`;
-			} else {
-				alertMessage.value = null;
-			}
+			const [responseMe, responseDbAlertMessage] = await Promise.all([
+				request.get("users/me"),
+				request.get("/meta/check-db"),
+			]);
 
+			alertMessage.value = responseDbAlertMessage.data;
 			updateUser(responseMe.data);
 		} catch (error) {
 			if (error.response?.status === 404) {

@@ -439,7 +439,7 @@
 		try {
 			const res = await request.post(`habits/${habit._id}/check`, {
 				habitId: habit._id,
-				date: filterDate.value.toDate(),
+				date: filterDate.value.format("YYYY-MM-DD"),
 				missedNote: habit.missedNote || null,
 				checked: habit.checked,
 			});

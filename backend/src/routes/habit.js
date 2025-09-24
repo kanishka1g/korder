@@ -6,6 +6,7 @@ import {
   deleteHabit,
   checkHabitForDay,
   getDayList,
+  getStats,
 } from "../controllers/habitController.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 
@@ -19,5 +20,5 @@ router.get("/day-list", getDayList);
 router.put("/:id", updateHabit);
 router.delete("/:id", deleteHabit);
 router.post("/:id/check", checkHabitForDay);
-
+router.get("/stats", getStats);
 export default router;

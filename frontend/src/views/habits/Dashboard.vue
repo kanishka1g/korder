@@ -4,6 +4,11 @@
 			<VCardText>
 				<!-- TODO: Add stat cards one is for upcoming habits  -->
 				<VRow>
+					<VCol v-for="stat in stats" :key="stat.title" cols="12" md="4">
+						<StatCard :title="stat.title" :value="stat.value" />
+					</VCol>
+				</VRow>
+				<VRow>
 					<VCol cols="12" md="6" order-md="1" order="2">
 						<VCard variant="outlined" class="mt-3">
 							<VCardTitle>
@@ -295,7 +300,9 @@
 	import { useLogger } from "@/utils/useLogger";
 	import { useLoading } from "@/utils/loading";
 	import { snackbar, confirmation } from "@/utils/generic_modals";
+
 	import DateField from "@/components/common/DateField.vue";
+	import StatCard from "@/components/common/StatCard.vue";
 
 	const now = useNow();
 	const loading = useLoading();
@@ -313,6 +320,7 @@
 	const filterDate = ref(now.value);
 	const habits = ref([]);
 	const dayList = ref([]);
+	const stats = ref([]);
 	const habitModal = ref({
 		show: false,
 		action: "Add",
@@ -350,13 +358,15 @@
 
 	async function reload() {
 		try {
-			const [habitsResponse, dayListResponse] = await Promise.all([
+			const [statsResponse, habitsResponse, dayListResponse] = await Promise.all([
+				request.get("habits/stats"),
 				request.get("habits"),
 				request.get(`habits/day-list`, {
 					params: { date: filterDate.value.toDate() },
 				}),
 			]);
 
+			stats.value = statsResponse.data;
 			habits.value = habitsResponse.data;
 			dayList.value = dayListResponse.data.map((item) => {
 				item.checked = item.checkIns.some((checkin) => {

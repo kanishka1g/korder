@@ -123,3 +123,30 @@ export const checkHabitForDay = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+
+export const getStats = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const habits = await Habit.find({ userId });
+    const stats = [
+      {
+        title: "Total Habits",
+        value: habits.length,
+      },
+      {
+        title: "Upcoming Habits",
+        value: habits.filter((habit) => dayjs(habit.startDate).isAfter(dayjs()))
+          .length,
+      },
+      {
+        title: "Completed Habits",
+        value: habits.filter((habit) => dayjs(habit.endDate).isBefore(dayjs()))
+          .length,
+      },
+    ];
+    res.json(stats);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+};

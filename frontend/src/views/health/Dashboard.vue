@@ -1,7 +1,7 @@
 <template>
 	<Page title="Health">
 		<VCard class="card fill-height mt-3" variant="tonal" elevation="4" rounded="lg" density="comfortable">
-			<VCardTitle>
+			<!-- <VCardTitle>
 				<VRow justify="end">
 					<VCol>
 						<p class="title text-h5 font-weight-bold">Weight Wave</p>
@@ -12,7 +12,7 @@
 						</VBtn>
 					</VCol>
 				</VRow>
-			</VCardTitle>
+			</VCardTitle> -->
 			<VCardText>
 				<VDataTable :headers="headers" :items="data" hide-default-footer>
 					<template #item.action="{ item }">

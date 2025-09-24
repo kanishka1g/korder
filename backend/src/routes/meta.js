@@ -1,8 +1,6 @@
 import express from "express";
 import { mongoDbName } from "../config/db_check.js";
-import clock from "../utils/now";
-
-const now = useNow();
+import clock from "../utils/now.js";
 
 const router = express.Router();
 

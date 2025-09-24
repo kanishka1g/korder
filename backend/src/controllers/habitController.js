@@ -42,6 +42,8 @@ export const getDayList = async (req, res) => {
       startDate: { $lte: dayEnd },
       endDate: { $gte: dayStart },
       weekdays: dayWeekday,
+    }).sort({
+      title: 1,
     });
 
     res.json(habits);

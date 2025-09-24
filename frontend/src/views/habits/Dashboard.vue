@@ -84,17 +84,26 @@
 												</VRow>
 											</VCardText>
 											<VCardActions>
-												<VRow justify="end" no-gutters>
+												<VRow justify="end" dense>
 													<VCol cols="auto">
-														<VBtn prepend-icon="fa-solid fa-eye" @click="handleView(habit)">
+														<VBtn
+															class="mx-n2"
+															size="small"
+															prepend-icon="fa-solid fa-eye"
+															@click="handleView(habit)"
+														>
 														</VBtn>
 														<VBtn
+															class="mx-n2"
+															size="small"
 															prepend-icon="fa-solid fa-pencil"
 															color="primary"
 															@click="handleEdit(habit)"
 														>
 														</VBtn>
 														<VBtn
+															class="mx-n2"
+															size="small"
 															prepend-icon="fa-solid fa-trash"
 															color="error"
 															@click="handleDelete(habit)"

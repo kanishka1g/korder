@@ -36,6 +36,9 @@
 		</VList>
 	</VNavigationDrawer>
 	<VMain>
+		<VAlert v-if="alertMessage" type="error" size="small">
+			{{ alertMessage }}
+		</VAlert>
 		<RouterView />
 	</VMain>
 	<VOverlay v-model="loading.isLoading.value" class="align-center justify-center" persistent>
@@ -57,11 +60,20 @@
 	const authStore = useAuthStore();
 
 	const drawer = ref(mdAndUp.value);
+	const alertMessage = ref(false);
 
 	async function reload() {
 		try {
-			const response = await request.get("users/me");
-			updateUser(response.data);
+			const [responseMe, responseDb] = await Promise.all([request.get("users/me"), request.get("/meta/db-info")]);
+			if (responseDb.data.env === "development" && responseDb.data.dbName === "korder_prod") {
+				alertMessage.value = "You are in DEV but connected to the PRODUCTION database!";
+			} else if (responseDb.data.env === "production" && responseDb.data.dbName === "korder_dev") {
+				alertMessage.value = "You are in PROD but connected to the DEVELOPMENT database!";
+			} else {
+				alertMessage.value = null;
+			}
+
+			updateUser(responseMe.data);
 		} catch (error) {
 			if (error.response?.status === 404) {
 				authStore.logOut();

@@ -36,7 +36,7 @@ export const getDayList = async (req, res) => {
     const dayStart = dayjs(date).startOf("day").toDate();
     const dayEnd = dayjs(date).endOf("day").toDate();
     const dayWeekday = dayjs(date).format("dddd").toLowerCase();
-
+    debugger;
     const habits = await Habit.find({
       userId: req.user.userId,
       startDate: { $lte: dayEnd },

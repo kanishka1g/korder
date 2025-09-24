@@ -5,6 +5,7 @@ import clock from "../utils/now.js";
 const router = express.Router();
 
 router.get("/check-db", (req, res) => {
+  debugger;
   if (process.env.NODE_ENV) {
     if (process.env.NODE_ENV === "production") {
       if (mongoDbName === "korder_dev") {

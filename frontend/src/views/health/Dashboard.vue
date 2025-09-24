@@ -191,7 +191,7 @@
 	async function handleConfirm() {
 		if (weightModal.value.action === "Add") {
 			const res = await request.post("weights", {
-				date: weightModal.value.form.date,
+				date: weightModal.value.form.date.format("YYYY-MM-DD"),
 				weight: weightModal.value.form.weight,
 				calories: weightModal.value.form.calories,
 			});
@@ -199,7 +199,7 @@
 			snackbar.success("successfully added");
 		} else if (weightModal.value.action === "Edit") {
 			const res = await request.put(`weights/${weightModal.value.form._id}`, {
-				date: weightModal.value.form.date,
+				date: weightModal.value.form.date.format("YYYY-MM-DD"),
 				weight: weightModal.value.form.weight,
 				calories: weightModal.value.form.calories,
 			});

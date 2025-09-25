@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+
 import authRoutes from "./routes/auth.js";
 import habitRoutes from "./routes/habit.js";
 import weightRoutes from "./routes/weight.js";
@@ -15,16 +16,17 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.use("/api/auth", authRoutes);
+
+app.use("/api/habits", authMiddleware, habitRoutes);
+app.use("/api/weights", authMiddleware, weightRoutes);
+app.use("/api/users", authMiddleware, userRoutes);
+app.use("/api/meta", authMiddleware, meta);
+
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err));
-
-app.use("/api/auth", authRoutes);
-app.use("/api/habits", habitRoutes);
-app.use("/api/weights", weightRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/meta", meta);
 
 app.get("/", (req, res) => {
   res.send("API is running");

@@ -68,6 +68,8 @@
 				request.get("users/me"),
 				request.get("/meta/verify"),
 			]);
+
+			console.log(responseMe);
 			alertMessage.value = responseDbAlertMessage.data;
 			updateUser(responseMe.data);
 		} catch (error) {

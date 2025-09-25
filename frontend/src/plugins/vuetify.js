@@ -42,7 +42,7 @@ const vuetifyOptions = {
 					error: "#D27F7F",
 					success: "#7FD27F",
 					info: "#7F9FD2",
-					warning: "#D2A87F",
+					warning: "#ebcc67ff",
 				},
 			},
 		},

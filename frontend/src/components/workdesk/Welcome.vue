@@ -1,5 +1,5 @@
 <template>
-	<VCard color="primary" class="pb-3" variant="tonal" rounded="lg">
+	<VCard variant="tonal" rounded="lg">
 		<VCardTitle class="d-flex align-center mb-3 text-wrap">
 			<VAvatar variant="outlined" size="48" class="me-3">
 				<img src="https://i.pravatar.cc/48" />
@@ -34,7 +34,7 @@
 				<VCol cols="auto">
 					<span>{{ city }}</span>
 				</VCol>
-				<VDivider class="border-opacity-50 mx-2" vertical inset></VDivider>
+				<VDivider class="mx-2" vertical inset opacity="100"></VDivider>
 				<VCol cols="auto">
 					<VIcon icon="fa-solid fa-temperature-half" :color="temperatureColour" size="small"></VIcon>
 				</VCol>
@@ -51,9 +51,12 @@
 	import { useNow } from "@/utils/now";
 	import { displayTimeFormat, displayLongDateTimeFormat } from "@/utils/time";
 	import { useUser } from "@/utils/user";
+	import { useLogger } from "@/utils/useLogger";
+	import { snackbar } from "@/utils/generic_modals";
 
 	const now = useNow();
 	const user = useUser();
+	const logger = useLogger();
 
 	const temperature = ref();
 	const city = ref();
@@ -101,14 +104,15 @@
 	function reload() {
 		if (!("geolocation" in navigator)) {
 			console.warn("Geolocation is not supported.");
+			snackbar.warning("Request setup");
 			return;
 		}
 
 		navigator.geolocation.getCurrentPosition(
 			(position) => fetchTemperatureAndCity(position),
 			(error) => {
-				// TODO: snackbar
-				console.warn("Location access denied.", error);
+				console.log(error.message);
+				logger.warning(error.message, error);
 			},
 		);
 	}
@@ -121,6 +125,7 @@
 
 	.title {
 		font-family: variables.$title-font;
+		font-size: 21px;
 	}
 
 	.subtitle {

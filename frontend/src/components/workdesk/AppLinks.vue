@@ -1,10 +1,10 @@
 <template>
-	<VCard color="primary" class="fill-height" variant="tonal" elevation="4" rounded="lg" density="comfortable">
+	<VCard variant="tonal" rounded="lg">
 		<VCardTitle class="title"> App Links </VCardTitle>
 		<VCardText>
 			<VRow>
-				<VCol v-for="link in internalLinks" :key="link.title" cols="12" md="4">
-					<VCard variant="outlined" elevation="4" rounded="lg" :href="link.route" :prepend-icon="link.icon">
+				<VCol v-for="link in internalLinks" :key="link.title" cols="12" md="6">
+					<VCard variant="outlined" rounded="lg" :href="link.route" :prepend-icon="link.icon">
 						<VCardText class="subtitle text-body-1">
 							<VRow>
 								<VCol>
@@ -19,11 +19,11 @@
 				<VCol v-for="link in externalLinks" :key="link.title" cols="12" md="6">
 					<VCard
 						variant="outlined"
-						elevation="4"
 						rounded="lg"
 						:href="link.route"
 						target="_blank"
 						:prepend-icon="link.icon"
+						append-icon="fa-solid fa-arrow-up-right-from-square"
 					>
 						<VCardText class="subtitle text-body-1">
 							{{ link.title }}
@@ -44,6 +44,7 @@
 
 	.title {
 		font-family: variables.$title-font;
+		font-size: 21px;
 	}
 
 	.subtitle {

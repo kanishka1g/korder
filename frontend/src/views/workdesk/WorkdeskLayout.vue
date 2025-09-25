@@ -11,7 +11,7 @@
 		</template>
 	</VAppBar>
 	<VNavigationDrawer v-model="drawer" :permanent="mdAndUp" :temporary="!mdAndUp">
-		<VList>
+		<VList density="compact" class="mb-4">
 			<VListItem
 				v-for="item in internalLinks"
 				:key="item.title"
@@ -22,8 +22,8 @@
 				target="_self"
 			/>
 		</VList>
-		<VDivider color="primary" />
-		<VList>
+		<VDivider color="warning" opacity="100" />
+		<VList density="compact">
 			<VListItem
 				v-for="item in externalLinks"
 				:key="item.title"
@@ -32,7 +32,11 @@
 				:prepend-icon="item.icon"
 				:title="item.title"
 				target="_blank"
-			/>
+			>
+				<template #append>
+					<VIcon icon="fas fa-arrow-up-right-from-square" size="x-small"></VIcon>
+				</template>
+			</VListItem>
 		</VList>
 	</VNavigationDrawer>
 	<VMain>

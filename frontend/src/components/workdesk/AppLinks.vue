@@ -1,5 +1,5 @@
 <template>
-	<VCard class="card fill-height" variant="tonal" elevation="4" rounded="lg" density="comfortable">
+	<VCard color="primary" class="fill-height" variant="tonal" elevation="4" rounded="lg" density="comfortable">
 		<VCardTitle class="title"> App Links </VCardTitle>
 		<VCardText>
 			<VRow>
@@ -41,10 +41,6 @@
 
 <style scoped lang="scss">
 	@use "@/assets/styles/variables";
-
-	.card {
-		background: variables.$card-color;
-	}
 
 	.title {
 		font-family: variables.$title-font;

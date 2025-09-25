@@ -30,6 +30,27 @@ const vuetifyOptions = {
 			en: enAU,
 		},
 	},
+	theme: {
+		defaultTheme: "dark",
+		themes: {
+			dark: {
+				dark: true,
+				colors: {
+					primary: "#7fa6d2ff",
+					secondary: "#D2B87F",
+					accent: "#B87FD2",
+					error: "#D27F7F",
+					success: "#7FD27F",
+					info: "#7F9FD2",
+					warning: "#D2A87F",
+
+					sidebar: "#2C2C2C",
+					cardBg: "#1F1F1F",
+					highlight: "#A88FD2",
+				},
+			},
+		},
+	},
 };
 
 const vuetify = createVuetify(vuetifyOptions);

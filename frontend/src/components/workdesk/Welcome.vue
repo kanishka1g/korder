@@ -1,5 +1,5 @@
 <template>
-	<VCard class="welcome-card pb-3" variant="tonal" elevation="4" rounded="lg" density="comfortable">
+	<VCard color="primary" class="pb-3" variant="tonal" rounded="lg">
 		<VCardTitle class="d-flex align-center mb-3 text-wrap">
 			<VAvatar variant="outlined" size="48" class="me-3">
 				<img src="https://i.pravatar.cc/48" />
@@ -13,7 +13,7 @@
 		<VCardText>
 			<VRow dense>
 				<VCol cols="auto">
-					<VIcon icon="fas fa-clock" color="#fbc02d" size="small"></VIcon>
+					<VIcon icon="fas fa-clock" color="warning" size="small"></VIcon>
 				</VCol>
 				<VCol cols="auto">
 					<span class="time-text">{{ now.format(displayTimeFormat) }}</span>
@@ -21,7 +21,7 @@
 			</VRow>
 			<VRow dense>
 				<VCol cols="auto">
-					<VIcon icon="fas fa-calendar-day" color="#8bc34a" size="small"></VIcon>
+					<VIcon icon="fas fa-calendar-day" color="success" size="small"></VIcon>
 				</VCol>
 				<VCol cols="auto">
 					<span>{{ formattedDate }}</span>
@@ -29,7 +29,7 @@
 			</VRow>
 			<VRow v-if="temperature && city" dense>
 				<VCol cols="auto">
-					<VIcon icon="fa-solid fa-location-dot" color="#ffeb3b" size="small"></VIcon>
+					<VIcon icon="fa-solid fa-location-dot" color="warning" size="small"></VIcon>
 				</VCol>
 				<VCol cols="auto">
 					<span>{{ city }}</span>
@@ -118,9 +118,6 @@
 
 <style scoped lang="scss">
 	@use "@/assets/styles/variables";
-	.welcome-card {
-		background: variables.$card-color;
-	}
 
 	.title {
 		font-family: variables.$title-font;

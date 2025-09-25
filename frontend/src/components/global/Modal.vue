@@ -88,7 +88,7 @@
 		/** The color to use for the modal */
 		color: {
 			type: String,
-			default: "success",
+			default: "primary",
 		},
 		/** Show a loading spinner, prevent clicks */
 		loading: {

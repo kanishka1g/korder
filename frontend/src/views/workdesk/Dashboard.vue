@@ -3,6 +3,7 @@
 		<VRow>
 			<VCol cols="12" md="6">
 				<Welcome />
+				<!-- TODO: Add google calender and todoist integration in here -->
 			</VCol>
 			<VCol cols="12" md="6">
 				<AppLinks />

@@ -4,6 +4,11 @@
 			<VCardText>
 				<!-- TODO: Add stat cards one is for upcoming habits  -->
 				<VRow>
+					<VCol v-for="stat in stats" :key="stat.title" cols="12" md="4">
+						<StatCard :title="stat.title" :value="stat.value" />
+					</VCol>
+				</VRow>
+				<VRow>
 					<VCol cols="12" md="6" order-md="1" order="2">
 						<VCard variant="outlined" class="mt-3">
 							<VCardTitle>
@@ -17,8 +22,13 @@
 										/>
 									</VCol>
 									<VCol cols="auto">
-										<VBtn prepend-icon="fa-solid fa-plus" color="primary" @click="handleAdd">
-											Add Habit
+										<VBtn
+											size="small"
+											prepend-icon="fa-solid fa-plus"
+											color="primary"
+											@click="handleAdd"
+										>
+											Add
 										</VBtn>
 									</VCol>
 								</VRow>
@@ -84,17 +94,26 @@
 												</VRow>
 											</VCardText>
 											<VCardActions>
-												<VRow justify="end" no-gutters>
+												<VRow justify="end" dense>
 													<VCol cols="auto">
-														<VBtn prepend-icon="fa-solid fa-eye" @click="handleView(habit)">
+														<VBtn
+															class="mx-n2"
+															size="small"
+															prepend-icon="fa-solid fa-eye"
+															@click="handleView(habit)"
+														>
 														</VBtn>
 														<VBtn
+															class="mx-n2"
+															size="small"
 															prepend-icon="fa-solid fa-pencil"
 															color="primary"
 															@click="handleEdit(habit)"
 														>
 														</VBtn>
 														<VBtn
+															class="mx-n2"
+															size="small"
 															prepend-icon="fa-solid fa-trash"
 															color="error"
 															@click="handleDelete(habit)"
@@ -128,6 +147,7 @@
 											:label="habit.title"
 											hide-details
 											density="compact"
+											:disabled="foundMissedNote(habit)"
 											@update:model-value="handleDailyCheck(habit)"
 										/>
 									</VCol>
@@ -188,6 +208,7 @@
 		:title="`${habitModal.action} Habit`"
 		confirm-icon="fas fa-floppy-disk"
 		:confirm-text="habitModal.action"
+		persistent
 		@confirm="handleConfirm"
 	>
 		<VForm>
@@ -198,23 +219,9 @@
 			</VRow>
 			<VRow>
 				<VCol cols="12" md="6">
-					<!-- <VTextField
-						v-model="habitModal.data.startDate"
-						label="Start Date"
-						type="date"
-						variant="outlined"
-						required
-					/> -->
 					<DateField v-model="habitModal.data.startDate" label="Start Date" required />
 				</VCol>
 				<VCol cols="12" md="6">
-					<!-- <VTextField
-						v-model="habitModal.data.endDate"
-						label="End Date"
-						type="date"
-						variant="outlined"
-						required
-					/> -->
 					<DateField v-model="habitModal.data.endDate" label="End Date" required />
 				</VCol>
 			</VRow>
@@ -298,7 +305,9 @@
 	import { useLogger } from "@/utils/useLogger";
 	import { useLoading } from "@/utils/loading";
 	import { snackbar, confirmation } from "@/utils/generic_modals";
+
 	import DateField from "@/components/common/DateField.vue";
+	import StatCard from "@/components/common/StatCard.vue";
 
 	const now = useNow();
 	const loading = useLoading();
@@ -316,6 +325,7 @@
 	const filterDate = ref(now.value);
 	const habits = ref([]);
 	const dayList = ref([]);
+	const stats = ref([]);
 	const habitModal = ref({
 		show: false,
 		action: "Add",
@@ -353,13 +363,15 @@
 
 	async function reload() {
 		try {
-			const [habitsResponse, dayListResponse] = await Promise.all([
+			const [statsResponse, habitsResponse, dayListResponse] = await Promise.all([
+				request.get("habits/stats"),
 				request.get("habits"),
 				request.get(`habits/day-list`, {
 					params: { date: filterDate.value.toDate() },
 				}),
 			]);
 
+			stats.value = statsResponse.data;
 			habits.value = habitsResponse.data;
 			dayList.value = dayListResponse.data.map((item) => {
 				item.checked = item.checkIns.some((checkin) => {
@@ -384,11 +396,9 @@
 
 	function handleEdit(habit) {
 		habitModal.value.data = {
-			title: habit.title,
+			...habit,
 			startDate: dayjs(habit.startDate),
 			endDate: dayjs(habit.endDate),
-			weekdays: habit.weekdays,
-			_id: habit._id,
 		};
 		habitModal.value.action = "Edit";
 		habitModal.value.show = true;
@@ -429,7 +439,7 @@
 		try {
 			const res = await request.post(`habits/${habit._id}/check`, {
 				habitId: habit._id,
-				date: filterDate.value.toDate(),
+				date: filterDate.value.format("YYYY-MM-DD"),
 				missedNote: habit.missedNote || null,
 				checked: habit.checked,
 			});
@@ -454,8 +464,8 @@
 		if (habitModal.value.action === "Add") {
 			const res = await request.post("habits", {
 				title: habitModal.value.data.title,
-				startDate: habitModal.value.data.startDate,
-				endDate: habitModal.value.data.endDate,
+				startDate: habitModal.value.data.startDate.format("YYYY-MM-DD"),
+				endDate: habitModal.value.data.endDate.format("YYYY-MM-DD"),
 				weekdays: habitModal.value.data.weekdays,
 			});
 
@@ -463,8 +473,8 @@
 		} else if (habitModal.value.action === "Edit") {
 			const res = await request.put(`habits/${habitModal.value.data._id}`, {
 				title: habitModal.value.data.title,
-				startDate: habitModal.value.data.startDate,
-				endDate: habitModal.value.data.endDate,
+				startDate: habitModal.value.data.startDate.format("YYYY-MM-DD"),
+				endDate: habitModal.value.data.endDate.format("YYYY-MM-DD"),
 				weekdays: habitModal.value.data.weekdays,
 			});
 

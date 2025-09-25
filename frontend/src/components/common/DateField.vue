@@ -1,5 +1,5 @@
 <template>
-	<VMenu v-model="open">
+	<VMenu v-model="open" :close-on-content-click="false">
 		<template #activator="{ props: menuProps }">
 			<VTextField
 				v-model="text"

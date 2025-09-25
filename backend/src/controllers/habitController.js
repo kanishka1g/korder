@@ -18,10 +18,11 @@ export const addHabit = async (req, res) => {
   }
 };
 
-// Get all habits for a user
 export const getHabits = async (req, res) => {
   try {
-    const habits = await Habit.find({ userId: req.user.userId });
+    const habits = await Habit.find({ userId: req.user.userId }).sort({
+      title: 1,
+    });
     res.json(habits);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -41,6 +42,8 @@ export const getDayList = async (req, res) => {
       startDate: { $lte: dayEnd },
       endDate: { $gte: dayStart },
       weekdays: dayWeekday,
+    }).sort({
+      title: 1,
     });
 
     res.json(habits);
@@ -81,7 +84,6 @@ export const deleteHabit = async (req, res) => {
 };
 
 export const checkHabitForDay = async (req, res) => {
-  debugger;
   try {
     const { habitId, checked, missedNote } = req.body;
     const userId = req.user.userId;
@@ -116,6 +118,33 @@ export const checkHabitForDay = async (req, res) => {
 
     await habit.save();
     res.json({ message: "Habit check-in updated", habit });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+export const getStats = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const habits = await Habit.find({ userId });
+    const stats = [
+      {
+        title: "Total Habits",
+        value: habits.length,
+      },
+      {
+        title: "Upcoming Habits",
+        value: habits.filter((habit) => dayjs(habit.startDate).isAfter(dayjs()))
+          .length,
+      },
+      {
+        title: "Completed Habits",
+        value: habits.filter((habit) => dayjs(habit.endDate).isBefore(dayjs()))
+          .length,
+      },
+    ];
+    res.json(stats);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" });

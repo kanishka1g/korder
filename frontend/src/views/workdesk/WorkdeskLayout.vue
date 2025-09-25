@@ -36,6 +36,9 @@
 		</VList>
 	</VNavigationDrawer>
 	<VMain>
+		<VAlert v-if="alertMessage" type="error" size="small">
+			{{ alertMessage }}
+		</VAlert>
 		<RouterView />
 	</VMain>
 	<VOverlay v-model="loading.isLoading.value" class="align-center justify-center" persistent>
@@ -57,11 +60,16 @@
 	const authStore = useAuthStore();
 
 	const drawer = ref(mdAndUp.value);
+	const alertMessage = ref(false);
 
 	async function reload() {
 		try {
-			const response = await request.get("users/me");
-			updateUser(response.data);
+			const [responseMe, responseDbAlertMessage] = await Promise.all([
+				request.get("users/me"),
+				request.get("/meta/verify"),
+			]);
+			alertMessage.value = responseDbAlertMessage.data;
+			updateUser(responseMe.data);
 		} catch (error) {
 			if (error.response?.status === 404) {
 				authStore.logOut();

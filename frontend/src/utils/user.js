@@ -23,8 +23,7 @@ class User {
 	}
 
 	get id() {
-		// TODO: Check userId or _id
-		return this._user.value.userId;
+		return this._user.value._id;
 	}
 
 	get name() {

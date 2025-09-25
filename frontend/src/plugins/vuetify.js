@@ -36,13 +36,14 @@ const vuetifyOptions = {
 			dark: {
 				dark: true,
 				colors: {
-					primary: "#7fa6d2ff",
-					secondary: "#474747ff",
-					accent: "#B87FD2",
-					error: "#D27F7F",
-					success: "#7FD27F",
-					info: "#7F9FD2",
-					warning: "#ebcc67ff",
+					primary: "#4A90E2",
+					secondary: "#403f3eff",
+					accent: "#BD93F9",
+
+					error: "#E57373",
+					success: "#81C784",
+					warning: "#FFB74D",
+					info: "#64B5F6",
 				},
 			},
 		},

@@ -57,8 +57,8 @@
 	const route = useRoute();
 	const loading = useLoading();
 
-	const username = ref("kanishka1g");
-	const password = ref("tGoJh^epq2uH^M`");
+	const username = ref();
+	const password = ref();
 	const error = ref(null);
 
 	async function handleLogin() {

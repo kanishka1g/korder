@@ -111,7 +111,7 @@
 		size="small"
 		@confirm="handleConfirm"
 	>
-		<VForm>
+		<VForm ref="weightForm">
 			<VRow>
 				<VCol cols="12">
 					<DateField v-model="weightModal.form.date" label="Date" />
@@ -119,12 +119,24 @@
 			</VRow>
 			<VRow>
 				<VCol cols="12">
-					<VTextField v-model="weightModal.form.weight" label="Weight" variant="outlined" type="number" />
+					<VTextField
+						v-model="weightModal.form.weight"
+						label="Weight"
+						variant="outlined"
+						type="number"
+						:rules="weightRules"
+					/>
 				</VCol>
 			</VRow>
 			<VRow>
 				<VCol>
-					<VTextField v-model="weightModal.form.calories" label="Calorie" variant="outlined" type="number" />
+					<VTextField
+						v-model="weightModal.form.calories"
+						label="Calorie"
+						variant="outlined"
+						type="number"
+						:rules="calorieRules"
+					/>
 				</VCol>
 			</VRow>
 		</VForm>
@@ -151,13 +163,25 @@
 		{ title: "", key: "action" },
 	];
 
+	const weightRules = [
+		(v) => !!v || "Weight is required",
+		(v) => v > 50 || "Weight must be greater than 50",
+		(v) => v < 100 || "Weight must be less than 100",
+	];
+
+	const calorieRules = [
+		(v) => !!v || "Calorie is required",
+		(v) => v > 150 || "Calorie must be greater than 0",
+		(v) => v < 1000 || "Calorie must be less than 1000",
+	];
+
 	const error = ref();
 	const weightModal = ref({
 		show: false,
 		action: "Add",
 		form: weightObject(),
 	});
-
+	const weightForm = ref(null);
 	const weights = ref([]);
 
 	function handleAdd() {
@@ -168,8 +192,10 @@
 
 	function handleEdit(item) {
 		weightModal.value.form = {
+			_id: item._id,
 			date: dayjs(item.date),
-			...item,
+			weight: item.weight.toString(),
+			calories: item.calories.toString(),
 		};
 		weightModal.value.action = "Edit";
 		weightModal.value.show = true;
@@ -189,6 +215,12 @@
 	}
 
 	async function handleConfirm() {
+		const { valid } = await weightForm.value.validate();
+		if (!valid) {
+			snackbar.warning("Please fix the highlighted fields.");
+			return;
+		}
+
 		if (weightModal.value.action === "Add") {
 			const res = await request.post("weights", {
 				date: weightModal.value.form.date.format("YYYY-MM-DD"),

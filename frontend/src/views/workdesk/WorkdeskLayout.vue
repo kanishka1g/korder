@@ -1,5 +1,5 @@
 <template>
-	<VAppBar density="compact" elevation="1">
+	<VAppBar density="compact" elevation="2" color="secondary">
 		<VAppBarNavIcon>
 			<VAppBarNavIcon @click="drawer = !drawer" />
 		</VAppBarNavIcon>
@@ -10,7 +10,7 @@
 			<VBtn icon="fas fa-sign-out" variant="text" @click="handleLogout"></VBtn>
 		</template>
 	</VAppBar>
-	<VNavigationDrawer v-model="drawer" :permanent="mdAndUp" :temporary="!mdAndUp">
+	<VNavigationDrawer v-model="drawer" :permanent="mdAndUp" :temporary="!mdAndUp" color="secondary">
 		<VList density="compact" class="mb-4">
 			<VListItem
 				v-for="item in internalLinks"
@@ -73,7 +73,6 @@
 				request.get("/meta/verify"),
 			]);
 
-			console.log(responseMe);
 			alertMessage.value = responseDbAlertMessage.data;
 			updateUser(responseMe.data);
 		} catch (error) {

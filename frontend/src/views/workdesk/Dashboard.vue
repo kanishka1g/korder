@@ -3,7 +3,13 @@
 		<VRow>
 			<VCol cols="12" md="6">
 				<Welcome />
-				<!-- TODO: Add google calender and todoist integration in here -->
+				<!-- TODO: calender or todoist component -->
+				<VCard class="card mt-3 fill-height" variant="tonal" elevation="4" rounded="lg" density="comfortable">
+					<VCardTitle>
+						<p class="title text-h6 font-weight-bold">calender or todoist comes here</p>
+					</VCardTitle>
+					<VCardText> </VCardText>
+				</VCard>
 			</VCol>
 			<VCol cols="12" md="6">
 				<AppLinks />

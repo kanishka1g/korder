@@ -53,10 +53,12 @@
 	import { useUser } from "@/utils/user";
 	import { useLogger } from "@/utils/useLogger";
 	import { snackbar } from "@/utils/generic_modals";
+	import { useLoading } from "@/utils/loading";
 
 	const now = useNow();
 	const user = useUser();
 	const logger = useLogger();
+	const loading = useLoading();
 
 	const temperature = ref();
 	const city = ref();
@@ -79,6 +81,7 @@
 	});
 
 	async function fetchTemperatureAndCity(position) {
+		loading.start();
 		const { latitude, longitude } = position.coords;
 		try {
 			const [weatherResponse, cityResponse, quoteResponse] = await Promise.all([
@@ -96,22 +99,21 @@
 			const quoteData = await quoteResponse.json();
 			quote.value = quoteData.text;
 		} catch (error) {
-			console.error(error); // TODO: snackbar error
-			throw error;
+			logger.error(error);
+		} finally {
+			loading.end();
 		}
 	}
 
 	function reload() {
 		if (!("geolocation" in navigator)) {
-			console.warn("Geolocation is not supported.");
-			snackbar.warning("Request setup");
+			snackbar.warning("Geolocation is not supported.");
 			return;
 		}
 
 		navigator.geolocation.getCurrentPosition(
 			(position) => fetchTemperatureAndCity(position),
 			(error) => {
-				console.log(error.message);
 				logger.warning(error.message, error);
 			},
 		);

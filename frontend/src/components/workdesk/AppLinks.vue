@@ -1,5 +1,6 @@
 <template>
 	<VCard variant="tonal" rounded="lg">
+		<!-- TODO: rename it to QuickLinks ?? if yes file name change -->
 		<VCardTitle class="title"> App Links </VCardTitle>
 		<VCardText>
 			<VRow>

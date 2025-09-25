@@ -2,7 +2,6 @@
 	<Page title="Habits" :error="error">
 		<VCard class="card fill-height mt-3" variant="tonal" elevation="4" rounded="lg" density="comfortable">
 			<VCardText>
-				<!-- TODO: Add stat cards one is for upcoming habits  -->
 				<VRow>
 					<VCol v-for="stat in stats" :key="stat.title" cols="12" md="4">
 						<StatCard :title="stat.title" :value="stat.value" />

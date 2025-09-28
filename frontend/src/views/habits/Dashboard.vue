@@ -146,7 +146,7 @@
 											:label="habit.title"
 											hide-details
 											density="compact"
-											:disabled="foundMissedNote(habit)"
+											:disabled="Boolean(foundMissedNote(habit))"
 											@update:model-value="handleDailyCheck(habit)"
 										/>
 									</VCol>
@@ -169,27 +169,29 @@
 											</template>
 										</VTextField>
 									</VCol>
-									<VCol v-else-if="!habit.checked" cols="auto">
-										<div v-if="foundMissedNote(habit)">
-											{{ foundMissedNote(habit) }}
-											<VBtn
-												icon="fas fa-pencil"
-												size="x-small"
-												variant="text"
-												color="primary"
-												@click="handleEditNote(habit)"
-											/>
-										</div>
-
-										<div v-else>
-											<VBtn
-												icon="fas fa-note-sticky"
-												size="x-small"
-												variant="text"
-												color="primary"
-												@click="habit.showMissedNote = true"
-											/>
-										</div>
+									<VCol
+										v-else-if="!habit.checked && foundMissedNote(habit)"
+										cols="12"
+										class="mt-n5 ml-4"
+									>
+										<span class="text-warning"> Note: </span>
+										{{ foundMissedNote(habit) }}
+										<VBtn
+											icon="fas fa-pencil"
+											size="x-small"
+											variant="text"
+											color="primary"
+											@click="handleEditNote(habit)"
+										/>
+									</VCol>
+									<VCol v-else cols="auto">
+										<VBtn
+											icon="fas fa-note-sticky"
+											size="x-small"
+											variant="text"
+											color="primary"
+											@click="habit.showMissedNote = true"
+										/>
 									</VCol>
 								</VRow>
 							</VCardText>

@@ -124,6 +124,11 @@
 										</VCard>
 									</VCol>
 								</VRow>
+								<VRow v-if="!filteredHabits.length">
+									<VCol>
+										<div class="text-medium-emphasis text-caption">No habits</div>
+									</VCol>
+								</VRow>
 							</VCardText>
 						</VCard>
 					</VCol>
@@ -137,7 +142,7 @@
 									</VCol>
 								</VRow>
 							</VCardTitle>
-							<VCardText v-if="dayList.length">
+							<VCardText>
 								<VRow v-for="habit in dayList" :key="habit.id" dense>
 									<VCol>
 										<VCheckbox
@@ -169,6 +174,7 @@
 											</template>
 										</VTextField>
 									</VCol>
+									<!-- TODO: make this note bit nicer -->
 									<VCol
 										v-else-if="!habit.checked && foundMissedNote(habit)"
 										cols="12"
@@ -194,9 +200,9 @@
 										/>
 									</VCol>
 								</VRow>
-							</VCardText>
-							<VCardText v-else class="text-center text-medium-emphasis">
-								No habits for the day. Change the date or add a new habit.
+								<VRow v-if="!dayList.length" class="text-center text-medium-emphasis">
+									<VCol> No habits for the day. Change the date or add a new habit. </VCol>
+								</VRow>
 							</VCardText>
 						</VCard>
 					</VCol>

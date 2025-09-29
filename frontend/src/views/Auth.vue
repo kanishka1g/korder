@@ -14,7 +14,6 @@
 							<VTextField
 								v-model="username"
 								label="Username"
-								variant="outlined"
 								required
 								prepend-inner-icon="fa-solid fa-user"
 								:rules="[(v) => !!v || 'Username is required']"
@@ -27,7 +26,6 @@
 								v-model="password"
 								label="Password"
 								type="password"
-								variant="outlined"
 								required
 								prepend-inner-icon="fa-solid fa-lock"
 								:rules="[(v) => !!v || 'Password is required']"

@@ -140,9 +140,9 @@
 					<VCol cols="12" md="6" order-md="2" order="1">
 						<VCard variant="outlined" class="mt-3">
 							<VCardTitle>
-								<VRow>
-									<VCol> Daily checkin </VCol>
-									<VCol>
+								<VRow justify="space-between">
+									<VCol cols="4"> Daily checkin </VCol>
+									<VCol cols="8">
 										<DateField v-model="filterDate" past-only show-day />
 									</VCol>
 								</VRow>
@@ -226,7 +226,7 @@
 		<VForm>
 			<VRow>
 				<VCol cols="12" md="6">
-					<VTextField v-model="habitModal.data.title" label="Title" variant="outlined" required />
+					<VTextField v-model="habitModal.data.title" label="Title" required />
 				</VCol>
 			</VRow>
 			<VRow>

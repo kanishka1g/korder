@@ -6,7 +6,6 @@
 				:label="label"
 				:placeholder="displayDateFormat"
 				v-bind="menuProps"
-				variant="outlined"
 				:rules="computedRules"
 			>
 				<template #append-inner>

@@ -119,13 +119,7 @@
 			</VRow>
 			<VRow>
 				<VCol cols="12">
-					<VTextField
-						v-model="weightModal.form.weight"
-						label="Weight"
-						variant="outlined"
-						type="number"
-						:rules="weightRules"
-					/>
+					<VTextField v-model="weightModal.form.weight" label="Weight" type="number" :rules="weightRules" />
 				</VCol>
 			</VRow>
 			<VRow>
@@ -133,7 +127,6 @@
 					<VTextField
 						v-model="weightModal.form.calories"
 						label="Calorie"
-						variant="outlined"
 						type="number"
 						:rules="calorieRules"
 					/>

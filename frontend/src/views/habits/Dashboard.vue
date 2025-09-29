@@ -4,7 +4,12 @@
 			<VCardText>
 				<VRow>
 					<VCol v-for="stat in stats" :key="stat.title" cols="12" md="4">
-						<StatCard :title="stat.title" :value="stat.value" />
+						<StatCard
+							:title="stat.title"
+							:value="stat.items.length"
+							:hide-view="stat.hideView"
+							@view="handleViewStats(stat)"
+						/>
 					</VCol>
 				</VRow>
 				<VRow>
@@ -138,7 +143,7 @@
 								<VRow>
 									<VCol> Daily checkin </VCol>
 									<VCol>
-										<DateField v-model="filterDate" />
+										<DateField v-model="filterDate" past-only required />
 									</VCol>
 								</VRow>
 							</VCardTitle>
@@ -302,6 +307,88 @@
 			</VCardText>
 		</VCard>
 	</Modal>
+	<Modal v-model="statsModal.show" :title="statsModal.title">
+		<VDataTable v-if="$vuetify.display.mdAndUp" :headers="headers" :items="statsModal.items" hide-default-footer>
+			<template #item.startDate="{ item }">
+				<!-- TODO: create display datetime component -->
+				{{ dayjs(item.startDate).format("YYYY-MM-DD") }}
+			</template>
+			<template #item.endDate="{ item }">
+				{{ dayjs(item.endDate).format("YYYY-MM-DD") }}
+			</template>
+			<template #item.action="{ item }">
+				<VBtn
+					icon="fa-solid fa-pencil"
+					color="primary"
+					size="x-small"
+					variant="text"
+					@click="handleEdit(item)"
+				/>
+				<VBtn
+					icon="fa-solid fa-trash"
+					color="error"
+					size="x-small"
+					variant="text"
+					@click="handleDelete(item)"
+				/>
+			</template>
+		</VDataTable>
+		<VRow v-for="habit in statsModal.items" v-else :key="habit.id" dense>
+			<VCol cols="12">
+				<VCard class="mb-2">
+					<VCardText>
+						<VRow dense>
+							<VCol> Title </VCol>
+							<VCol cols="auto">
+								{{ habit.title }}
+							</VCol>
+						</VRow>
+						<VRow dense>
+							<VCol> Start Date </VCol>
+							<VCol cols="auto">
+								{{ dayjs(habit.startDate).format("YYYY-MM-DD") }}
+							</VCol>
+						</VRow>
+						<VRow dense>
+							<VCol> End Date </VCol>
+							<VCol cols="auto">
+								{{ dayjs(habit.endDate).format("YYYY-MM-DD") }}
+							</VCol>
+						</VRow>
+					</VCardText>
+					<VCardActions>
+						<VRow justify="end" dense>
+							<VCol cols="auto">
+								<VBtn
+									class="mx-n2"
+									size="small"
+									prepend-icon="fa-solid fa-eye"
+									@click="handleView(habit)"
+								>
+								</VBtn>
+								<VBtn
+									class="mx-n2"
+									size="small"
+									prepend-icon="fa-solid fa-pencil"
+									color="primary"
+									@click="handleEdit(habit)"
+								>
+								</VBtn>
+								<VBtn
+									class="mx-n2"
+									size="small"
+									prepend-icon="fa-solid fa-trash"
+									color="error"
+									@click="handleDelete(habit)"
+								>
+								</VBtn>
+							</VCol>
+						</VRow>
+					</VCardActions>
+				</VCard>
+			</VCol>
+		</VRow>
+	</Modal>
 </template>
 
 <script setup>
@@ -341,6 +428,11 @@
 	const viewModal = ref({
 		show: false,
 		habit: habitObject(),
+	});
+	const statsModal = ref({
+		show: false,
+		items: [],
+		title: "",
 	});
 
 	const filteredHabits = computed(function () {
@@ -507,6 +599,12 @@
 		habit.showMissedNote = true;
 	}
 
+	function handleViewStats(stat) {
+		statsModal.value.items = stat.items;
+		statsModal.value.title = stat.title;
+		statsModal.value.show = true;
+	}
+
 	function habitObject() {
 		return {
 			title: null,
@@ -516,5 +614,11 @@
 		};
 	}
 
-	watch(filterDate, reload);
+	watch(filterDate, function (value) {
+		if (value) {
+			reload();
+		} else {
+			dayList.value = [];
+		}
+	});
 </script>

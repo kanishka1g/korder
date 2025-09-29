@@ -1,5 +1,5 @@
 <template>
-	<VCard>
+	<VCard class="fill-height">
 		<!-- TODO: make this stat card nicer -->
 		<VCardText>
 			<VRow dense>
@@ -11,7 +11,7 @@
 				<VCol class="text-body-1"> {{ title }} </VCol>
 				<VCol cols="auto" class="text-h5 font-weight-bold"> {{ value }} </VCol>
 			</VRow>
-			<VRow dense>
+			<VRow v-if="!hideView" justify="end" dense>
 				<VCol>
 					<VBtn
 						color="primary"
@@ -41,6 +41,9 @@
 		icon: {
 			type: String,
 			default: "fas fa-chart-line",
+		},
+		hideView: {
+			type: Boolean,
 		},
 	});
 

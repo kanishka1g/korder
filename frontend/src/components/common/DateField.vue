@@ -7,38 +7,55 @@
 				:placeholder="displayDateFormat"
 				v-bind="menuProps"
 				variant="outlined"
+				:rules="computedRules"
 			>
 				<template #append-inner>
 					<VIcon icon="fas fa-calendar" size="x-small" />
 				</template>
 			</VTextField>
 		</template>
-		<VCard>
-			<VDatePicker v-model="innerValue" show-adjacent-months color="main">
-				<template #actions>
-					<VRow justify="space-around" no-gutters>
-						<VCol class="flex-grow-0">
-							<VBtn primary @click="innerValue = dayjs()">Today</VBtn>
-						</VCol>
-						<VCol class="flex-grow-0">
-							<VBtn type="cancel" @click="open = false">Close</VBtn>
-						</VCol>
-					</VRow>
-				</template>
-			</VDatePicker>
-		</VCard>
+		<VDatePicker
+			v-model="innerValue"
+			show-adjacent-months
+			color="primary"
+			:allowed-dates="allowedDates"
+			:first-day-of-week="1"
+		>
+			<template #actions>
+				<VRow justify="space-around" no-gutters>
+					<VCol class="flex-grow-0">
+						<VBtn color="primary" @click="innerValue = now">Today</VBtn>
+					</VCol>
+					<VCol class="flex-grow-0">
+						<VBtn type="cancel" @click="open = false">Close</VBtn>
+					</VCol>
+				</VRow>
+			</template>
+		</VDatePicker>
 	</VMenu>
 </template>
 
 <script setup>
-	import { ref, watch } from "vue";
+	import { computed, ref, watch } from "vue";
 	import { parseDate, displayDateFormat } from "@/utils/time";
 	import dayjs from "@/plugins/dayjs";
+	import { useNow } from "@/utils/now";
+
+	const now = useNow();
 
 	const props = defineProps({
 		label: {
 			type: String,
 			default: "Date",
+		},
+		required: {
+			type: Boolean,
+		},
+		futureOnly: {
+			type: Boolean,
+		},
+		pastOnly: {
+			type: Boolean,
 		},
 	});
 
@@ -50,6 +67,59 @@
 	const text = ref(null);
 	const open = ref(false);
 
+	const allowedDates = computed(function () {
+		if (props.futureOnly) {
+			return function (date) {
+				return date.isAfter(now.value);
+			};
+		}
+
+		if (props.pastOnly) {
+			return function (date) {
+				return date.isBefore(now.value);
+			};
+		}
+
+		return null;
+	});
+
+	const computedRules = computed(() => {
+		const rules = [];
+
+		if (props.required) {
+			rules.push((v) => !!v || "Date is required");
+		}
+
+		rules.push((v) => {
+			if (!v) {
+				return true;
+			}
+			return parseDate(v) !== null || "Invalid date format";
+		});
+
+		if (props.futureOnly) {
+			rules.push((v) => {
+				if (!v) {
+					return true;
+				}
+				const parsed = parseDate(v);
+				return (parsed && parsed.isSameOrAfter(now.value, "day")) || "Date must be in the future";
+			});
+		}
+
+		if (props.pastOnly) {
+			rules.push((v) => {
+				if (!v) {
+					return true;
+				}
+				const parsed = parseDate(v);
+				return (parsed && parsed.isSameOrBefore(now.value, "day")) || "Date must be in the past";
+			});
+		}
+
+		return rules;
+	});
+
 	function onChange() {
 		if (!text.value) {
 			innerValue.value = null;
@@ -60,8 +130,7 @@
 			innerValue.value = result;
 			return;
 		}
-
-		text.value = props.modelValue?.toString("date");
+		text.value = innerValue.value?.toString("date");
 	}
 
 	watch(text, function (value) {

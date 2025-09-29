@@ -74,9 +74,9 @@
 		if (temp < 18) {
 			return "info";
 		} else if (temp < 30) {
-			return "orange";
+			return "warning";
 		} else {
-			return "red";
+			return "error";
 		}
 	});
 

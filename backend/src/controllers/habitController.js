@@ -128,22 +128,38 @@ export const getStats = async (req, res) => {
   try {
     const userId = req.user.userId;
     const habits = await Habit.find({ userId });
-    const stats = [
-      {
+    const stats = [];
+    const upcomingHabits = habits.filter((habit) =>
+      dayjs(habit.startDate).isAfter(dayjs())
+    );
+    const completedHabits = habits.filter((habit) =>
+      dayjs(habit.endDate).isBefore(dayjs())
+    ).length;
+
+    if (habits.length) {
+      stats.push({
         title: "Total Habits",
-        value: habits.length,
-      },
-      {
+        items: habits,
+        hideView: true,
+      });
+    }
+
+    if (upcomingHabits.length) {
+      stats.push({
         title: "Upcoming Habits",
-        value: habits.filter((habit) => dayjs(habit.startDate).isAfter(dayjs()))
-          .length,
-      },
-      {
+        items: upcomingHabits,
+        hideView: false,
+      });
+    }
+
+    if (completedHabits.length) {
+      stats.push({
         title: "Completed Habits",
-        value: habits.filter((habit) => dayjs(habit.endDate).isBefore(dayjs()))
-          .length,
-      },
-    ];
+        items: completedHabits,
+        hideView: false,
+      });
+    }
+
     res.json(stats);
   } catch (err) {
     console.error(err);

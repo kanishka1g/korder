@@ -37,7 +37,7 @@ export const displayLongDateTimeFormat = "dddd, D MMMM YYYY";
 
 export const displayLongMonthDayFormat = "DD MMM";
 export const displayLongFullDateFormat = "DD MMM, YYYY";
-export const displayDayNameFormat = "ddd DD/M";
+export const displayDayNameFormat = "ddd";
 
 export const epochRegex = /\/Date\(-?(\d+)\)/;
 

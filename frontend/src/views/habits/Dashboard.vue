@@ -143,7 +143,7 @@
 								<VRow>
 									<VCol> Daily checkin </VCol>
 									<VCol>
-										<DateField v-model="filterDate" past-only required />
+										<DateField v-model="filterDate" past-only show-day />
 									</VCol>
 								</VRow>
 							</VCardTitle>
@@ -234,7 +234,12 @@
 					<DateField v-model="habitModal.data.startDate" label="Start Date" required />
 				</VCol>
 				<VCol cols="12" md="6">
-					<DateField v-model="habitModal.data.endDate" label="End Date" required />
+					<DateField
+						v-model="habitModal.data.endDate"
+						label="End Date"
+						required
+						:min-date="habitModal.data.startDate.format(displayDateFormat)"
+					/>
 				</VCol>
 			</VRow>
 			<VCard class="card fill-height mt-3" variant="tonal" elevation="4" rounded="lg" density="comfortable">
@@ -399,6 +404,7 @@
 	import { useLogger } from "@/utils/useLogger";
 	import { useLoading } from "@/utils/loading";
 	import { snackbar, confirmation } from "@/utils/generic_modals";
+	import { displayDateFormat } from "@/utils/time";
 
 	import DateField from "@/components/common/DateField.vue";
 	import StatCard from "@/components/common/StatCard.vue";
@@ -538,7 +544,7 @@
 		try {
 			const res = await request.post(`habits/${habit._id}/check`, {
 				habitId: habit._id,
-				date: filterDate.value.format("YYYY-MM-DD"),
+				date: filterDate.value.format(displayDateFormat),
 				missedNote: habit.missedNote || null,
 				checked: habit.checked,
 			});
@@ -563,8 +569,8 @@
 		if (habitModal.value.action === "Add") {
 			const res = await request.post("habits", {
 				title: habitModal.value.data.title,
-				startDate: habitModal.value.data.startDate.format("YYYY-MM-DD"),
-				endDate: habitModal.value.data.endDate.format("YYYY-MM-DD"),
+				startDate: habitModal.value.data.startDate.format(displayDateFormat),
+				endDate: habitModal.value.data.endDate.format(displayDateFormat),
 				weekdays: habitModal.value.data.weekdays,
 			});
 
@@ -572,8 +578,8 @@
 		} else if (habitModal.value.action === "Edit") {
 			const res = await request.put(`habits/${habitModal.value.data._id}`, {
 				title: habitModal.value.data.title,
-				startDate: habitModal.value.data.startDate.format("YYYY-MM-DD"),
-				endDate: habitModal.value.data.endDate.format("YYYY-MM-DD"),
+				startDate: habitModal.value.data.startDate.format(displayDateFormat),
+				endDate: habitModal.value.data.endDate.format(displayDateFormat),
 				weekdays: habitModal.value.data.weekdays,
 			});
 

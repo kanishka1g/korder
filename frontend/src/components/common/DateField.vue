@@ -12,6 +12,9 @@
 				<template #append-inner>
 					<VIcon icon="fas fa-calendar" size="x-small" />
 				</template>
+				<template v-if="showDay" #prepend-inner>
+					{{ innerValue.format(displayDayNameFormat) }}
+				</template>
 			</VTextField>
 		</template>
 		<VDatePicker
@@ -37,9 +40,10 @@
 
 <script setup>
 	import { computed, ref, watch } from "vue";
-	import { parseDate, displayDateFormat } from "@/utils/time";
+	import { parseDate, displayDateFormat, displayDayNameFormat } from "@/utils/time";
 	import dayjs from "@/plugins/dayjs";
 	import { useNow } from "@/utils/now";
+	// import { displayDateFormat, displayLongFullDateFormat } from "@/utils/time";
 
 	const now = useNow();
 
@@ -57,6 +61,21 @@
 		pastOnly: {
 			type: Boolean,
 		},
+		minDate: {
+			type: String,
+			default: null,
+		},
+		maxDate: {
+			type: String,
+			default: null,
+		},
+		rules: {
+			type: Array,
+			default: () => [],
+		},
+		showDay: {
+			type: Boolean,
+		},
 	});
 
 	const innerValue = defineModel({
@@ -70,13 +89,25 @@
 	const allowedDates = computed(function () {
 		if (props.futureOnly) {
 			return function (date) {
-				return date.isAfter(now.value);
+				return date.isSameOrAfter(now.value, "day");
 			};
 		}
 
 		if (props.pastOnly) {
 			return function (date) {
-				return date.isBefore(now.value);
+				return date.isSameOrBefore(now.value, "day");
+			};
+		}
+
+		if (props.minDate) {
+			return function (date) {
+				return date.isSameOrAfter(parseDate(props.minDate), "day");
+			};
+		}
+
+		if (props.maxDate) {
+			return function (date) {
+				return date.isSameOrBefore(parseDate(props.maxDate), "day");
 			};
 		}
 
@@ -117,26 +148,47 @@
 			});
 		}
 
-		return rules;
+		if (props.minDate) {
+			rules.push((v) => {
+				if (!v) {
+					return true;
+				}
+				const parsed = parseDate(v);
+				return (
+					(parsed && parsed.isSameOrAfter(parseDate(props.minDate), "day")) ||
+					"Date must be after " + props.minDate
+				);
+			});
+		}
+
+		if (props.maxDate) {
+			rules.push((v) => {
+				if (!v) {
+					return true;
+				}
+				const parsed = parseDate(v);
+				return (
+					(parsed && parsed.isSameOrBefore(parseDate(props.maxDate), "day")) ||
+					"Date must be before " + props.maxDate
+				);
+			});
+		}
+
+		return [...rules, ...props.rules];
 	});
 
-	function onChange() {
+	watch(text, function (value) {
 		if (!text.value) {
 			innerValue.value = null;
 			return;
 		}
+
 		const result = parseDate(text.value);
 		if (result) {
 			innerValue.value = result;
 			return;
 		}
-		text.value = innerValue.value?.toString("date");
-	}
-
-	watch(text, function (value) {
-		if (!value) {
-			onChange();
-		}
+		text.value = innerValue.value?.format(displayDateFormat);
 	});
 
 	watch(
@@ -146,7 +198,7 @@
 				text.value = null;
 				return;
 			}
-			text.value = value.toString("date");
+			text.value = value.format(displayDateFormat);
 		},
 		{ immediate: true },
 	);

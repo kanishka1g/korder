@@ -404,7 +404,7 @@
 	import { useLogger } from "@/utils/useLogger";
 	import { useLoading } from "@/utils/loading";
 	import { snackbar, confirmation } from "@/utils/generic_modals";
-	import { displayDateFormat } from "@/utils/time";
+	import { displayDateFormat, dataDateFormat } from "@/utils/time";
 
 	import DateField from "@/components/common/DateField.vue";
 	import StatCard from "@/components/common/StatCard.vue";
@@ -544,7 +544,7 @@
 		try {
 			const res = await request.post(`habits/${habit._id}/check`, {
 				habitId: habit._id,
-				date: filterDate.value.format(displayDateFormat),
+				date: filterDate.value.format(dataDateFormat),
 				missedNote: habit.missedNote || null,
 				checked: habit.checked,
 			});
@@ -569,8 +569,8 @@
 		if (habitModal.value.action === "Add") {
 			const res = await request.post("habits", {
 				title: habitModal.value.data.title,
-				startDate: habitModal.value.data.startDate.format(displayDateFormat),
-				endDate: habitModal.value.data.endDate.format(displayDateFormat),
+				startDate: habitModal.value.data.startDate.format(dataDateFormat),
+				endDate: habitModal.value.data.endDate.format(dataDateFormat),
 				weekdays: habitModal.value.data.weekdays,
 			});
 
@@ -578,8 +578,8 @@
 		} else if (habitModal.value.action === "Edit") {
 			const res = await request.put(`habits/${habitModal.value.data._id}`, {
 				title: habitModal.value.data.title,
-				startDate: habitModal.value.data.startDate.format(displayDateFormat),
-				endDate: habitModal.value.data.endDate.format(displayDateFormat),
+				startDate: habitModal.value.data.startDate.format(dataDateFormat),
+				endDate: habitModal.value.data.endDate.format(dataDateFormat),
 				weekdays: habitModal.value.data.weekdays,
 			});
 

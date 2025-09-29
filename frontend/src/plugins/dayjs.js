@@ -19,6 +19,11 @@ import weekday from "dayjs/plugin/weekday";
 dayjs.extend(weekday);
 import weekOfYear from "dayjs/plugin/weekOfYear";
 dayjs.extend(weekOfYear);
+import localeData from "dayjs/plugin/localeData";
+import "dayjs/locale/en-au";
+
+dayjs.extend(localeData);
+dayjs.locale("en-au");
 
 const defaultDisplayFormat = "D/M/YYYY h:mm a"; // Same as displayDateTimeFormat
 dayjs.prototype.toString = function (style) {

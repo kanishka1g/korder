@@ -15,30 +15,14 @@
 				<VRow>
 					<VCol cols="12" md="6" order-md="1" order="2">
 						<VCard variant="outlined" class="mt-3">
-							<VCardTitle>
-								<VRow justify="end">
-									<VCol cols="auto">
-										<VSwitch
-											v-model="showArchived"
-											label="Archive"
-											color="warning"
-											density="compact"
-										/>
-									</VCol>
-									<VCol cols="auto">
-										<VBtn
-											size="small"
-											prepend-icon="fa-solid fa-plus"
-											color="primary"
-											@click="handleAdd"
-										>
-											Add
-										</VBtn>
-									</VCol>
-								</VRow>
-							</VCardTitle>
 							<VCardText>
-								<TableView :headers="headers" :items="filteredHabits">
+								<TableView
+									v-model:active="showArchived"
+									:headers="headers"
+									:items="filteredHabits"
+									active-label="Archive"
+									@add="handleAdd"
+								>
 									<template #item.startDate="{ item }">
 										<DisplayDateTime :value="parseDateTime(item.startDate)" date-only />
 									</template>
@@ -68,12 +52,6 @@
 										/>
 									</template>
 								</TableView>
-
-								<VRow v-if="!filteredHabits.length">
-									<VCol>
-										<div class="text-medium-emphasis text-caption">No habits</div>
-									</VCol>
-								</VRow>
 							</VCardText>
 						</VCard>
 					</VCol>
@@ -254,7 +232,7 @@
 		</VCard>
 	</Modal>
 	<Modal v-model="statsModal.show" :title="statsModal.title">
-		<TableView :headers="headers" :items="statsModal.items">
+		<TableView :headers="headers" :items="statsModal.items" hide-active-toggle="">
 			<template #item.startDate="{ item }">
 				<DisplayDateTime :value="parseDateTime(item.startDate)" date-only />
 			</template>

@@ -5,22 +5,8 @@
 				<VRow>
 					<VCol cols="12" md="6" order-md="1" order="2">
 						<VCard variant="outlined" class="mt-3">
-							<VCardTitle>
-								<VRow justify="end">
-									<VCol cols="auto">
-										<VBtn
-											size="small"
-											prepend-icon="fa-solid fa-plus"
-											color="primary"
-											@click="handleAdd"
-										>
-											Add
-										</VBtn>
-									</VCol>
-								</VRow>
-							</VCardTitle>
 							<VCardText>
-								<TableView :headers="headers" :items="weights">
+								<TableView :headers="headers" :items="weights" hide-active-toggle @add="handleAdd">
 									<template #item.date="{ item }">
 										<DisplayDateTime :value="parseDateTime(item.date)" date-only />
 									</template>

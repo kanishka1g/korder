@@ -1,4 +1,14 @@
 <template>
+	<VRow justify="end">
+		<VCol v-if="!hideActiveToggle" cols="auto">
+			<VSwitch v-model="showActiveToggle" :label="activeLabel" color="warning" density="compact" />
+		</VCol>
+		<VCol v-if="!hideAdd && (addHref || onAdd)" cols="auto">
+			<VBtn :href="addHref" size="small" prepend-icon="fa-solid fa-plus" color="primary" @click="emit('add')">
+				{{ addText }}
+			</VBtn>
+		</VCol>
+	</VRow>
 	<VDataTable v-if="$vuetify.display.mdAndUp" :headers="computedHeaders" :items="items" hide-default-footer>
 		<template #item.actions="{ item }">
 			<slot name="actions" :item="item"></slot>
@@ -41,8 +51,12 @@
 </template>
 
 <script setup>
-	import { computed, useSlots } from "vue";
+	import { computed, ref, useSlots } from "vue";
+
 	const slots = useSlots();
+
+	const emit = defineEmits(["add"]);
+
 	const props = defineProps({
 		items: {
 			type: Array,
@@ -56,7 +70,31 @@
 			type: String,
 			default: "No items found in table",
 		},
+		activeLabel: {
+			type: String,
+			default: "Show inactive",
+		},
+		hideActiveToggle: {
+			type: Boolean,
+		},
+		hideAdd: {
+			type: Boolean,
+		},
+		addText: {
+			type: String,
+			default: "Add",
+		},
+		addHref: {
+			type: String,
+			default: null,
+		},
+		onAdd: {
+			type: Function,
+			default: null,
+		},
 	});
+
+	const showActiveToggle = defineModel("active", false);
 
 	const itemSlots = computed(() =>
 		Object.keys(slots).filter((name) => name.startsWith("item.") && name !== "actions"),

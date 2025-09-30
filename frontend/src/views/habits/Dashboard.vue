@@ -38,20 +38,14 @@
 								</VRow>
 							</VCardTitle>
 							<VCardText>
-								<VDataTable
-									v-if="$vuetify.display.mdAndUp"
-									:headers="headers"
-									:items="filteredHabits"
-									hide-default-footer
-								>
+								<TableView :headers="headers" :items="filteredHabits">
 									<template #item.startDate="{ item }">
-										<!-- TODO: create display datetime component -->
-										{{ dayjs(item.startDate).format("YYYY-MM-DD") }}
+										<DisplayDateTime :value="parseDateTime(item.startDate)" date-only />
 									</template>
 									<template #item.endDate="{ item }">
-										{{ dayjs(item.endDate).format("YYYY-MM-DD") }}
+										<DisplayDateTime :value="parseDateTime(item.endDate)" date-only />
 									</template>
-									<template #item.action="{ item }">
+									<template #actions="{ item }">
 										<VBtn
 											icon="fa-solid fa-eye"
 											size="x-small"
@@ -73,62 +67,8 @@
 											@click="handleDelete(item)"
 										/>
 									</template>
-								</VDataTable>
-								<VRow v-for="habit in filteredHabits" v-else :key="habit.id" dense>
-									<VCol cols="12">
-										<VCard class="mb-2">
-											<VCardText>
-												<VRow dense>
-													<VCol> Title </VCol>
-													<VCol cols="auto">
-														{{ habit.title }}
-													</VCol>
-												</VRow>
-												<VRow dense>
-													<VCol> Start Date </VCol>
-													<VCol cols="auto">
-														{{ dayjs(habit.startDate).format("YYYY-MM-DD") }}
-													</VCol>
-												</VRow>
-												<VRow dense>
-													<VCol> End Date </VCol>
-													<VCol cols="auto">
-														{{ dayjs(habit.endDate).format("YYYY-MM-DD") }}
-													</VCol>
-												</VRow>
-											</VCardText>
-											<VCardActions>
-												<VRow justify="end" dense>
-													<VCol cols="auto">
-														<VBtn
-															class="mx-n2"
-															size="small"
-															prepend-icon="fa-solid fa-eye"
-															@click="handleView(habit)"
-														>
-														</VBtn>
-														<VBtn
-															class="mx-n2"
-															size="small"
-															prepend-icon="fa-solid fa-pencil"
-															color="primary"
-															@click="handleEdit(habit)"
-														>
-														</VBtn>
-														<VBtn
-															class="mx-n2"
-															size="small"
-															prepend-icon="fa-solid fa-trash"
-															color="error"
-															@click="handleDelete(habit)"
-														>
-														</VBtn>
-													</VCol>
-												</VRow>
-											</VCardActions>
-										</VCard>
-									</VCol>
-								</VRow>
+								</TableView>
+
 								<VRow v-if="!filteredHabits.length">
 									<VCol>
 										<div class="text-medium-emphasis text-caption">No habits</div>
@@ -274,8 +214,9 @@
 							<VCol>
 								Date Range:
 								<div class="text-medium-emphasis">
-									{{ dayjs(viewModal.habit.startDate).format("DD-MM-YYYY") }} to
-									{{ dayjs(viewModal.habit.endDate).format("DD-MM-YYYY") }}
+									<DisplayDateTime :value="parseDateTime(viewModal.habit.startDate)" date-only />
+									to
+									<DisplayDateTime :value="parseDateTime(viewModal.habit.endDate)" date-only />
 								</div>
 								Weekdays:
 								<!-- TODO: create a util for text that can make first letter capital and make weekday capital -->
@@ -313,15 +254,14 @@
 		</VCard>
 	</Modal>
 	<Modal v-model="statsModal.show" :title="statsModal.title">
-		<VDataTable v-if="$vuetify.display.mdAndUp" :headers="headers" :items="statsModal.items" hide-default-footer>
+		<TableView :headers="headers" :items="statsModal.items">
 			<template #item.startDate="{ item }">
-				<!-- TODO: create display datetime component -->
-				{{ dayjs(item.startDate).format("YYYY-MM-DD") }}
+				<DisplayDateTime :value="parseDateTime(item.startDate)" date-only />
 			</template>
 			<template #item.endDate="{ item }">
-				{{ dayjs(item.endDate).format("YYYY-MM-DD") }}
+				<DisplayDateTime :value="parseDateTime(item.endDate)" date-only />
 			</template>
-			<template #item.action="{ item }">
+			<template #actions="{ item }">
 				<VBtn
 					icon="fa-solid fa-pencil"
 					color="primary"
@@ -337,62 +277,7 @@
 					@click="handleDelete(item)"
 				/>
 			</template>
-		</VDataTable>
-		<VRow v-for="habit in statsModal.items" v-else :key="habit.id" dense>
-			<VCol cols="12">
-				<VCard class="mb-2">
-					<VCardText>
-						<VRow dense>
-							<VCol> Title </VCol>
-							<VCol cols="auto">
-								{{ habit.title }}
-							</VCol>
-						</VRow>
-						<VRow dense>
-							<VCol> Start Date </VCol>
-							<VCol cols="auto">
-								{{ dayjs(habit.startDate).format("YYYY-MM-DD") }}
-							</VCol>
-						</VRow>
-						<VRow dense>
-							<VCol> End Date </VCol>
-							<VCol cols="auto">
-								{{ dayjs(habit.endDate).format("YYYY-MM-DD") }}
-							</VCol>
-						</VRow>
-					</VCardText>
-					<VCardActions>
-						<VRow justify="end" dense>
-							<VCol cols="auto">
-								<VBtn
-									class="mx-n2"
-									size="small"
-									prepend-icon="fa-solid fa-eye"
-									@click="handleView(habit)"
-								>
-								</VBtn>
-								<VBtn
-									class="mx-n2"
-									size="small"
-									prepend-icon="fa-solid fa-pencil"
-									color="primary"
-									@click="handleEdit(habit)"
-								>
-								</VBtn>
-								<VBtn
-									class="mx-n2"
-									size="small"
-									prepend-icon="fa-solid fa-trash"
-									color="error"
-									@click="handleDelete(habit)"
-								>
-								</VBtn>
-							</VCol>
-						</VRow>
-					</VCardActions>
-				</VCard>
-			</VCol>
-		</VRow>
+		</TableView>
 	</Modal>
 </template>
 
@@ -404,10 +289,12 @@
 	import { useLogger } from "@/utils/useLogger";
 	import { useLoading } from "@/utils/loading";
 	import { snackbar, confirmation } from "@/utils/generic_modals";
-	import { displayDateFormat, dataDateFormat } from "@/utils/time";
+	import { displayDateFormat, dataDateFormat, parseDateTime } from "@/utils/time";
 
 	import DateField from "@/components/common/DateField.vue";
 	import StatCard from "@/components/common/StatCard.vue";
+	import TableView from "@/components/common/TableView.vue";
+	import DisplayDateTime from "@/components/common/DisplayDateTime.vue";
 
 	const now = useNow();
 	const loading = useLoading();
@@ -417,7 +304,6 @@
 		{ title: "Title", key: "title" },
 		{ title: "Start Date", key: "startDate" },
 		{ title: "End Date", key: "endDate" },
-		{ title: "", key: "action", align: "end", width: "150px" },
 	];
 
 	const error = ref();

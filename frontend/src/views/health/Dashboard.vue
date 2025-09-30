@@ -20,17 +20,11 @@
 								</VRow>
 							</VCardTitle>
 							<VCardText>
-								<VDataTable
-									v-if="$vuetify.display.mdAndUp"
-									:headers="headers"
-									:items="weights"
-									hide-default-footer
-								>
+								<TableView :headers="headers" :items="weights">
 									<template #item.date="{ item }">
-										<!-- TODO: create display datetime component -->
-										{{ dayjs(item.date).format("YYYY-MM-DD") }}
+										<DisplayDateTime :value="parseDateTime(item.date)" date-only />
 									</template>
-									<template #item.action="{ item }">
+									<template #actions="{ item }">
 										<VBtn
 											icon="fa-solid fa-pencil"
 											color="primary"
@@ -46,55 +40,7 @@
 											@click="handleDelete(item)"
 										/>
 									</template>
-								</VDataTable>
-								<VRow v-for="item in weights" v-else :key="item.id" dense>
-									<VCol cols="12">
-										<VCard class="mb-2">
-											<VCardText>
-												<VRow dense>
-													<VCol> Date </VCol>
-													<VCol cols="auto">
-														{{ dayjs(item.date).format("YYYY-MM-DD") }}
-													</VCol>
-												</VRow>
-												<VRow dense>
-													<VCol> Weight </VCol>
-													<VCol cols="auto">
-														{{ item.weight }}
-													</VCol>
-												</VRow>
-												<VRow dense>
-													<VCol> Calories </VCol>
-													<VCol cols="auto">
-														{{ item.calories }}
-													</VCol>
-												</VRow>
-											</VCardText>
-											<VCardActions>
-												<VRow justify="end" dense>
-													<VCol cols="auto">
-														<VBtn
-															class="mx-n2"
-															size="small"
-															prepend-icon="fa-solid fa-pencil"
-															color="primary"
-															@click="handleEdit(item)"
-														>
-														</VBtn>
-														<VBtn
-															class="mx-n2"
-															size="small"
-															prepend-icon="fa-solid fa-trash"
-															color="error"
-															@click="handleDelete(item)"
-														>
-														</VBtn>
-													</VCol>
-												</VRow>
-											</VCardActions>
-										</VCard>
-									</VCol>
-								</VRow>
+								</TableView>
 							</VCardText>
 						</VCard>
 					</VCol>
@@ -144,8 +90,11 @@
 	import { useLogger } from "@/utils/useLogger";
 	import { useLoading } from "@/utils/loading";
 	import { snackbar, confirmation } from "@/utils/generic_modals";
+	import { parseDateTime } from "@/utils/time";
 
 	import DateField from "@/components/common/DateField.vue";
+	import TableView from "@/components/common/TableView.vue";
+	import DisplayDateTime from "@/components/common/DisplayDateTime.vue";
 
 	const now = useNow();
 

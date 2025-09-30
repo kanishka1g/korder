@@ -22,30 +22,30 @@ dayjs.extend(weekOfYear);
 
 const defaultDisplayFormat = "D/M/YYYY h:mm a"; // Same as displayDateTimeFormat
 dayjs.prototype.toString = function (style) {
-	let format = defaultDisplayFormat;
-	switch (style) {
-		case "date":
-			format = "D/M/YYYY"; // Same as displayDateFormat
-			break;
-		case "date-iso":
-			format = "YYYY-MM-DD"; // Same as dataDateFormat
-			break;
-		case "time": // Same as displayTimeFormat
-			format = "h:mm a";
-			break;
-		case undefined:
-			// No argument supplied - use default.
-			break;
-		default:
-			console.warn("Attempted to toString with invalid style", style);
-			break;
-	}
-	return this.format(format);
+  let format = defaultDisplayFormat;
+  switch (style) {
+    case "date":
+      format = "D/M/YYYY"; // Same as displayDateFormat
+      break;
+    case "date-iso":
+      format = "YYYY-MM-DD"; // Same as dataDateFormat
+      break;
+    case "time": // Same as displayTimeFormat
+      format = "h:mm a";
+      break;
+    case undefined:
+      // No argument supplied - use default.
+      break;
+    default:
+      console.warn("Attempted to toString with invalid style", style);
+      break;
+  }
+  return this.format(format);
 };
 dayjs.prototype.isStartOfDay = function () {
-	return this.minute() === 0 && this.hour() === 0;
+  return this.minute() === 0 && this.hour() === 0;
 };
 dayjs.prototype.isEndOfDay = function () {
-	return this.minute() === 59 && this.hour() === 23;
+  return this.minute() === 59 && this.hour() === 23;
 };
 export default dayjs;

@@ -15,6 +15,7 @@
 				<VRow>
 					<VCol cols="12" md="6" order-md="1" order="2">
 						<VCard variant="outlined" class="mt-3">
+							<VCardTitle> Active Habits </VCardTitle>
 							<VCardText>
 								<TableView
 									v-model:active="showArchived"
@@ -57,15 +58,13 @@
 					</VCol>
 					<VCol cols="12" md="6" order-md="2" order="1">
 						<VCard variant="outlined" class="mt-3">
-							<VCardTitle>
-								<VRow justify="space-between">
-									<VCol cols="4"> Daily checkin </VCol>
-									<VCol cols="8">
+							<VCardTitle> Daily checkin </VCardTitle>
+							<VCardText class="pa-3">
+								<VRow>
+									<VCol cols="6">
 										<DateField v-model="filterDate" past-only show-day />
 									</VCol>
 								</VRow>
-							</VCardTitle>
-							<VCardText>
 								<VRow v-for="habit in dayList" :key="habit.id" dense>
 									<VCol>
 										<VCheckbox
@@ -132,6 +131,30 @@
 				</VRow>
 			</VCardText>
 		</VCard>
+		<VCard v-if="badData.length" class="mt-3" variant="tonal">
+			<VCardTitle> Bad Habits Data </VCardTitle>
+			<VCardText>
+				<TableView :headers="badDataHeaders" :items="badData">
+					<template #actions="{ item }">
+						<!-- TODO: implement edit -->
+						<!-- <VBtn
+							icon="fa-solid fa-pencil"
+							color="primary"
+							size="x-small"
+							variant="text"
+							@click="handleEditBadData(item)"
+						/> -->
+						<VBtn
+							icon="fa-solid fa-trash"
+							color="error"
+							size="x-small"
+							variant="text"
+							@click="handleDeleteBadData(item)"
+						/>
+					</template>
+				</TableView>
+			</VCardText>
+		</VCard>
 	</Page>
 	<Modal
 		v-model="habitModal.show"
@@ -186,19 +209,23 @@
 		<VCard>
 			<VCardText>
 				<VCard class="mb-3" variant="tonal">
-					<VCardTitle class="text-body-1">Habit Details</VCardTitle>
 					<VCardText>
-						<VRow>
-							<VCol>
-								Date Range:
-								<div class="text-medium-emphasis">
-									<DisplayDateTime :value="parseDateTime(viewModal.habit.startDate)" date-only />
-									to
-									<DisplayDateTime :value="parseDateTime(viewModal.habit.endDate)" date-only />
-								</div>
-								Weekdays:
-								<!-- TODO: create a util for text that can make first letter capital and make weekday capital -->
-								<div class="text-medium-emphasis">{{ viewModal.habit.weekdays.join(", ") }}</div>
+						<VRow dense justify="space-between">
+							<VCol cols="auto"> Title: </VCol>
+							<VCol cols="auto"> {{ viewModal.habit.title }} </VCol>
+						</VRow>
+						<VRow dense justify="space-between">
+							<VCol cols="auto"> Date Range: </VCol>
+							<VCol cols="auto">
+								<DisplayDateTime :value="parseDateTime(viewModal.habit.startDate)" date-only />
+								to
+								<DisplayDateTime :value="parseDateTime(viewModal.habit.endDate)" date-only />
+							</VCol>
+						</VRow>
+						<VRow dense justify="space-between">
+							<VCol cols="auto"> Check-in Days: </VCol>
+							<VCol cols="auto">
+								<DisplayWeekdays :selected-days="viewModal.habit.weekdays" />
 							</VCol>
 						</VRow>
 					</VCardText>
@@ -273,6 +300,7 @@
 	import StatCard from "@/components/common/StatCard.vue";
 	import TableView from "@/components/common/TableView.vue";
 	import DisplayDateTime from "@/components/common/DisplayDateTime.vue";
+	import DisplayWeekdays from "@/components/common/DisplayWeekdays.vue";
 
 	const now = useNow();
 	const loading = useLoading();
@@ -284,10 +312,16 @@
 		{ title: "End Date", key: "endDate" },
 	];
 
+	const badDataHeaders = [
+		{ title: "Habit", key: "habitTitle" },
+		{ title: "Type", key: "type" },
+	];
+
 	const error = ref();
 	const showArchived = ref(false);
 	const filterDate = ref(now.value);
 	const habits = ref([]);
+	const badData = ref([]);
 	const dayList = ref([]);
 	const stats = ref([]);
 	const habitModal = ref({
@@ -332,7 +366,8 @@
 
 	async function reload() {
 		try {
-			const [statsResponse, habitsResponse, dayListResponse] = await Promise.all([
+			const [badDataResponse, statsResponse, habitsResponse, dayListResponse] = await Promise.all([
+				request.get("habits/bad-data"),
 				request.get("habits/stats"),
 				request.get("habits"),
 				request.get(`habits/day-list`, {
@@ -340,6 +375,7 @@
 				}),
 			]);
 
+			badData.value = badDataResponse.data;
 			stats.value = statsResponse.data;
 			habits.value = habitsResponse.data;
 			dayList.value = dayListResponse.data.map((item) => {
@@ -454,7 +490,7 @@
 		habitModal.value.show = false;
 	}
 
-	async function handleView(habit) {
+	function handleView(habit) {
 		viewModal.value.habit = habit;
 		viewModal.value.show = true;
 	}
@@ -473,6 +509,20 @@
 		statsModal.value.items = stat.items;
 		statsModal.value.title = stat.title;
 		statsModal.value.show = true;
+	}
+
+	async function handleDeleteBadData(item) {
+		console.log(item);
+		const confirmed = await confirmation("Delete", `Are you sure you want to delete ${item.habitTitle}?`, true);
+
+		if (!confirmed) {
+			return;
+		}
+
+		const res = await request.delete(`habits/bad-data/${item.checkedId}`);
+
+		snackbar.success(res.data.message);
+		reload();
 	}
 
 	function habitObject() {

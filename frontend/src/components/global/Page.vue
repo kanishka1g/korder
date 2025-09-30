@@ -4,6 +4,9 @@
 			<VCol>
 				<p class="title text-h5 font-weight-bold">{{ title }}</p>
 			</VCol>
+			<VCol cols="auto">
+				<slot name="actions" />
+			</VCol>
 		</VRow>
 		<VScrollXTransition mode="out-in">
 			<div v-if="error" key="error">

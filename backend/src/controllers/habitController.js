@@ -96,9 +96,9 @@ export const checkHabitForDay = async (req, res) => {
     if (!habit) {
       return res.status(404).json({ error: "Habit not found" });
     }
-
+    debugger;
     let dateEntry = habit.checkIns.find((c) =>
-      parseDate(c.date).isSame(date, "day")
+      dayjs(c.date).isSame(parseDate(date), "day")
     );
 
     if (dateEntry) {

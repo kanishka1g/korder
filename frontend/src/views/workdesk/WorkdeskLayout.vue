@@ -40,8 +40,10 @@
 		</VList>
 	</VNavigationDrawer>
 	<VMain>
-		<VAlert v-if="alertMessage" type="error" size="small">
-			{{ alertMessage }}
+		<VAlert v-if="connectedDB" type="warning" size="small">
+			you are connected to the
+			<span class="font-weight-black"> {{ connectedDB }} </span>
+			database
 		</VAlert>
 		<RouterView />
 	</VMain>
@@ -64,16 +66,16 @@
 	const authStore = useAuthStore();
 
 	const drawer = ref(mdAndUp.value);
-	const alertMessage = ref(false);
+	const connectedDB = ref();
 
 	async function reload() {
 		try {
-			const [responseMe, responseDbAlertMessage] = await Promise.all([
+			const [responseMe, responseConnectedDB] = await Promise.all([
 				request.get("users/me"),
 				request.get("/meta/verify"),
 			]);
 
-			alertMessage.value = responseDbAlertMessage.data;
+			connectedDB.value = responseConnectedDB.data;
 			updateUser(responseMe.data);
 		} catch (error) {
 			if (error.response?.status === 404) {

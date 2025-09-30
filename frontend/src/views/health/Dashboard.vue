@@ -8,7 +8,7 @@
 							<VCardText>
 								<TableView :headers="headers" :items="weights" hide-active-toggle @add="handleAdd">
 									<template #item.date="{ item }">
-										<DisplayDateTime :value="parseDateTime(item.date)" date-only />
+										<DisplayDateTime :value="item.date" date-only />
 									</template>
 									<template #actions="{ item }">
 										<VBtn
@@ -76,7 +76,6 @@
 	import { useLogger } from "@/utils/useLogger";
 	import { useLoading } from "@/utils/loading";
 	import { snackbar, confirmation } from "@/utils/generic_modals";
-	import { parseDateTime } from "@/utils/time";
 
 	import DateField from "@/components/common/DateField.vue";
 	import TableView from "@/components/common/TableView.vue";
@@ -151,7 +150,7 @@
 
 		if (weightModal.value.action === "Add") {
 			const res = await request.post("weights", {
-				date: weightModal.value.form.date.format("YYYY-MM-DD"),
+				date: weightModal.value.form.date,
 				weight: weightModal.value.form.weight,
 				calories: weightModal.value.form.calories,
 			});
@@ -159,7 +158,7 @@
 			snackbar.success("successfully added");
 		} else if (weightModal.value.action === "Edit") {
 			const res = await request.put(`weights/${weightModal.value.form._id}`, {
-				date: weightModal.value.form.date.format("YYYY-MM-DD"),
+				date: weightModal.value.form.date,
 				weight: weightModal.value.form.weight,
 				calories: weightModal.value.form.calories,
 			});

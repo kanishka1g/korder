@@ -25,10 +25,10 @@
 									@add="handleAdd"
 								>
 									<template #item.startDate="{ item }">
-										<DisplayDateTime :value="parseDateTime(item.startDate)" date-only />
+										<DisplayDateTime :value="item.startDate" date-only />
 									</template>
 									<template #item.endDate="{ item }">
-										<DisplayDateTime :value="parseDateTime(item.endDate)" date-only />
+										<DisplayDateTime :value="item.endDate" date-only />
 									</template>
 									<template #actions="{ item }">
 										<VBtn
@@ -179,7 +179,7 @@
 						v-model="habitModal.data.endDate"
 						label="End Date"
 						required
-						:min-date="habitModal.data.startDate.format(displayDateFormat)"
+						:min-date="habitModal.data.startDate"
 					/>
 				</VCol>
 			</VRow>
@@ -217,9 +217,9 @@
 						<VRow dense justify="space-between">
 							<VCol cols="auto"> Date Range: </VCol>
 							<VCol cols="auto">
-								<DisplayDateTime :value="parseDateTime(viewModal.habit.startDate)" date-only />
+								<DisplayDateTime :value="viewModal.habit.startDate" date-only />
 								to
-								<DisplayDateTime :value="parseDateTime(viewModal.habit.endDate)" date-only />
+								<DisplayDateTime :value="viewModal.habit.endDate" date-only />
 							</VCol>
 						</VRow>
 						<VRow dense justify="space-between">
@@ -261,10 +261,10 @@
 	<Modal v-model="statsModal.show" :title="statsModal.title">
 		<TableView :headers="headers" :items="statsModal.items" hide-active-toggle="">
 			<template #item.startDate="{ item }">
-				<DisplayDateTime :value="parseDateTime(item.startDate)" date-only />
+				<DisplayDateTime :value="item.startDate" date-only />
 			</template>
 			<template #item.endDate="{ item }">
-				<DisplayDateTime :value="parseDateTime(item.endDate)" date-only />
+				<DisplayDateTime :value="item.endDate" date-only />
 			</template>
 			<template #actions="{ item }">
 				<VBtn
@@ -294,7 +294,6 @@
 	import { useLogger } from "@/utils/useLogger";
 	import { useLoading } from "@/utils/loading";
 	import { snackbar, confirmation } from "@/utils/generic_modals";
-	import { displayDateFormat, dataDateFormat, parseDateTime } from "@/utils/time";
 
 	import DateField from "@/components/common/DateField.vue";
 	import StatCard from "@/components/common/StatCard.vue";
@@ -371,7 +370,7 @@
 				request.get("habits/stats"),
 				request.get("habits"),
 				request.get(`habits/day-list`, {
-					params: { date: filterDate.value.toDate() },
+					params: { date: filterDate.value },
 				}),
 			]);
 
@@ -444,7 +443,7 @@
 		try {
 			const res = await request.post(`habits/${habit._id}/check`, {
 				habitId: habit._id,
-				date: filterDate.value.format(dataDateFormat),
+				date: filterDate.value,
 				missedNote: habit.missedNote || null,
 				checked: habit.checked,
 			});
@@ -469,8 +468,8 @@
 		if (habitModal.value.action === "Add") {
 			const res = await request.post("habits", {
 				title: habitModal.value.data.title,
-				startDate: habitModal.value.data.startDate.format(dataDateFormat),
-				endDate: habitModal.value.data.endDate.format(dataDateFormat),
+				startDate: habitModal.value.data.startDate,
+				endDate: habitModal.value.data.endDate,
 				weekdays: habitModal.value.data.weekdays,
 			});
 
@@ -478,8 +477,8 @@
 		} else if (habitModal.value.action === "Edit") {
 			const res = await request.put(`habits/${habitModal.value.data._id}`, {
 				title: habitModal.value.data.title,
-				startDate: habitModal.value.data.startDate.format(dataDateFormat),
-				endDate: habitModal.value.data.endDate.format(dataDateFormat),
+				startDate: habitModal.value.data.startDate,
+				endDate: habitModal.value.data.endDate,
 				weekdays: habitModal.value.data.weekdays,
 			});
 

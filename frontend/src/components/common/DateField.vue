@@ -42,7 +42,6 @@
 	import { parseDate, displayDateFormat, displayDayNameFormat } from "@/utils/time";
 	import dayjs from "@/plugins/dayjs";
 	import { useNow } from "@/utils/now";
-	// import { displayDateFormat, displayLongFullDateFormat } from "@/utils/time";
 
 	const now = useNow();
 
@@ -61,11 +60,11 @@
 			type: Boolean,
 		},
 		minDate: {
-			type: String,
+			type: dayjs,
 			default: null,
 		},
 		maxDate: {
-			type: String,
+			type: dayjs,
 			default: null,
 		},
 		rules: {
@@ -100,13 +99,13 @@
 
 		if (props.minDate) {
 			return function (date) {
-				return date.isSameOrAfter(parseDate(props.minDate), "day");
+				return date.isSameOrAfter(props.minDate, "day");
 			};
 		}
 
 		if (props.maxDate) {
 			return function (date) {
-				return date.isSameOrBefore(parseDate(props.maxDate), "day");
+				return date.isSameOrBefore(props.maxDate, "day");
 			};
 		}
 
@@ -154,8 +153,8 @@
 				}
 				const parsed = parseDate(v);
 				return (
-					(parsed && parsed.isSameOrAfter(parseDate(props.minDate), "day")) ||
-					"Date must be after " + props.minDate
+					(parsed && parsed.isSameOrAfter(props.minDate, "day")) ||
+					"Date must be after " + props.minDate.format(displayDateFormat)
 				);
 			});
 		}
@@ -167,8 +166,8 @@
 				}
 				const parsed = parseDate(v);
 				return (
-					(parsed && parsed.isSameOrBefore(parseDate(props.maxDate), "day")) ||
-					"Date must be before " + props.maxDate
+					(parsed && parsed.isSameOrBefore(props.maxDate, "day")) ||
+					"Date must be before " + props.maxDate.format(displayDateFormat)
 				);
 			});
 		}

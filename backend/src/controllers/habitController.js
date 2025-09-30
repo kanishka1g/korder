@@ -1,7 +1,5 @@
 import Habit from "../models/Habit.js";
-import dayjs from "../plugins/dayjs.js";
-import { parseDate } from "../utils/time.js";
-import clock from "../utils/now.js";
+import clock, { Clock as ClockUtil } from "../utils/clock.js";
 
 export const addHabit = async (req, res) => {
   try {
@@ -33,20 +31,19 @@ export const getHabits = async (req, res) => {
 
 export const getDayList = async (req, res) => {
   try {
-    const { date } = req.query;
+    const date = new Date(req.query.date);
 
-    const dayStart = parseDate(date).startOf("day").toDate();
-    const dayEnd = parseDate(date).endOf("day").toDate();
-    const dayWeekday = parseDate(date).format("dddd").toLowerCase();
+    const dayStart = ClockUtil.startOfDayUTC(date);
+    const dayEnd = ClockUtil.endOfDayUTC(date);
+
+    const dayWeekday = ClockUtil.weekdayNameUTC(date);
 
     const habits = await Habit.find({
       userId: req.user.userId,
       startDate: { $lte: dayEnd },
       endDate: { $gte: dayStart },
       weekdays: dayWeekday,
-    }).sort({
-      title: 1,
-    });
+    }).sort({ title: 1 });
 
     res.json(habits);
   } catch (err) {
@@ -54,7 +51,6 @@ export const getDayList = async (req, res) => {
   }
 };
 
-// Update habit
 export const updateHabit = async (req, res) => {
   try {
     const { id } = req.params;
@@ -70,7 +66,6 @@ export const updateHabit = async (req, res) => {
   }
 };
 
-// Delete habit
 export const deleteHabit = async (req, res) => {
   try {
     const { id } = req.params;
@@ -87,32 +82,24 @@ export const deleteHabit = async (req, res) => {
 
 export const checkHabitForDay = async (req, res) => {
   try {
-    const { habitId, checked, missedNote } = req.body;
+    const { habitId, checked, missedNote, date } = req.body;
     const userId = req.user.userId;
-    const date = req.body.date;
 
     const habit = await Habit.findOne({ _id: habitId, userId });
+    if (!habit) return res.status(404).json({ error: "Habit not found" });
 
-    if (!habit) {
-      return res.status(404).json({ error: "Habit not found" });
-    }
-    debugger;
-    let dateEntry = habit.checkIns.find((c) =>
-      dayjs(c.date).isSame(parseDate(date), "day")
+    const targetDate = ClockUtil.startOfDayUTC(new Date(date));
+
+    const dateEntry = habit.checkIns.find((c) =>
+      ClockUtil.isSameDayUTC(c.date, targetDate)
     );
 
     if (dateEntry) {
       dateEntry.checked = checked;
-      if (!checked) {
-        if (missedNote) {
-          dateEntry.missedNote = missedNote;
-        } else {
-          dateEntry.missedNote = null;
-        }
-      }
+      dateEntry.missedNote = checked ? null : missedNote || null;
     } else {
       habit.checkIns.push({
-        date: date,
+        date: targetDate,
         checked,
         missedNote: checked ? null : missedNote || null,
       });
@@ -131,36 +118,31 @@ export const getStats = async (req, res) => {
     const userId = req.user.userId;
     const habits = await Habit.find({ userId });
     const stats = [];
+
+    const today = ClockUtil.startOfDayUTC(clock.now);
+
     const upcomingHabits = habits.filter((habit) =>
-      dayjs(habit.startDate).isAfter(clock.now, "day")
+      ClockUtil.isAfterDayUTC(habit.startDate, today)
     );
+
     const completedHabits = habits.filter((habit) =>
-      dayjs(habit.endDate).isBefore(clock.now, "day")
+      ClockUtil.isBeforeDayUTC(habit.endDate, today)
     ).length;
 
-    if (habits.length) {
-      stats.push({
-        title: "Total Habits",
-        items: habits,
-        hideView: true,
-      });
-    }
-
-    if (upcomingHabits.length) {
+    if (habits.length)
+      stats.push({ title: "Total Habits", items: habits, hideView: true });
+    if (upcomingHabits.length)
       stats.push({
         title: "Upcoming Habits",
         items: upcomingHabits,
         hideView: false,
       });
-    }
-
-    if (completedHabits.length) {
+    if (completedHabits)
       stats.push({
         title: "Completed Habits",
         items: completedHabits,
         hideView: false,
       });
-    }
 
     res.json(stats);
   } catch (err) {
@@ -169,9 +151,7 @@ export const getStats = async (req, res) => {
   }
 };
 
-const badDataTypes = {
-  outOfScheduleCheck: "Out of Schedule Check",
-};
+const badDataTypes = { outOfScheduleCheck: "Out of Schedule Check" };
 
 export const findBadHabitData = async (req, res) => {
   try {
@@ -182,7 +162,8 @@ export const findBadHabitData = async (req, res) => {
 
     habits.forEach((habit) => {
       habit.checkIns.forEach((check) => {
-        const dayName = dayjs(check.date).format("dddd").toLowerCase();
+        const dayName = ClockUtil.weekdayNameUTC(check.date);
+
         if (!habit.weekdays.includes(dayName)) {
           badEntries.push({
             habitTitle: habit.title,

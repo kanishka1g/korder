@@ -105,7 +105,7 @@
 			return;
 		}
 
-		await request.post("/meta/update");
+		await request.post("/meta/deploy");
 		handleLogout();
 	}
 </script>

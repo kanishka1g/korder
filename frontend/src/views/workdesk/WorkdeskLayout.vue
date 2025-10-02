@@ -7,6 +7,7 @@
 			<VAppBarTitle>Korder</VAppBarTitle>
 		</RouterLink>
 		<template #append>
+			<VBtn v-if="isProd" icon="fas fa-download" variant="text" @click="handleUpdate" class="mr-2"></VBtn>
 			<VBtn icon="fas fa-sign-out" variant="text" @click="handleLogout"></VBtn>
 		</template>
 	</VAppBar>
@@ -60,10 +61,13 @@
 	import { useLoading } from "@/utils/loading";
 	import request from "@/utils/request";
 	import { updateUser } from "@/utils/user";
+	import { confirmation } from "@/utils/generic_modals";
 
 	const { mdAndUp } = useDisplay();
 	const loading = useLoading();
 	const authStore = useAuthStore();
+
+	const isProd = import.meta.env.MODE === "production";
 
 	const drawer = ref(mdAndUp.value);
 	const connectedDB = ref();
@@ -92,6 +96,17 @@
 			authStore.logOut();
 			loading.end();
 		}, 1000);
+	}
+
+	async function handleUpdate() {
+		const confirmed = await confirmation("Confirm", "Are you sure you want to start an update?");
+
+		if (!confirmed) {
+			return;
+		}
+
+		await request.post("/meta/update");
+		handleLogout();
 	}
 </script>
 

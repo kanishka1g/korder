@@ -1,5 +1,7 @@
 import express from "express";
 import { mongoDbName } from "../config/db_check.js";
+import { exec } from "child_process";
+import path from "path";
 
 const router = express.Router();
 
@@ -18,6 +20,18 @@ router.get("/verify", (req, res) => {
     res.json("production");
   }
   res.json();
+});
+
+router.post("/deploy", (req, res) => {
+  const scriptPath = path.join(__dirname, "..", "deploy.sh");
+
+  exec(`bash ${scriptPath}`, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error: ${stderr}`);
+      return res.status(500).json({ success: false, error: stderr });
+    }
+    res.json({ success: true, output: stdout });
+  });
 });
 
 export default router;

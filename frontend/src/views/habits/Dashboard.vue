@@ -77,67 +77,70 @@
 											@update:model-value="handleDailyCheck(habit)"
 										/>
 									</VCol>
-
-									<VCol v-if="habit.showMissedNote" cols="12">
-										<VTextarea
-											v-model="habit.missedNote"
-											label="Missed Note"
-											variant="outlined"
-											density="compact"
-										/>
-										<div class="d-flex justify-end">
-											<VBtn
-												icon="fas fa-floppy-disk"
-												size="small"
-												variant="text"
-												color="success"
-												@click="saveMissedNote(habit)"
+									<VScrollXTransition mode="out-in">
+										<VCol v-if="habit.showMissedNote" cols="12">
+											<VTextarea
+												v-model="habit.missedNote"
+												label="Missed Note"
+												variant="outlined"
+												density="compact"
 											/>
-											<VBtn
-												icon="fas fa-xmark"
-												size="small"
-												variant="text"
-												@click="habit.showMissedNote = false"
-											/>
-										</div>
-									</VCol>
+											<div class="d-flex justify-end">
+												<VBtn
+													icon="fas fa-floppy-disk"
+													size="small"
+													variant="text"
+													color="success"
+													@click="saveMissedNote(habit)"
+												/>
+												<VBtn
+													icon="fas fa-xmark"
+													size="small"
+													variant="text"
+													@click="habit.showMissedNote = false"
+												/>
+											</div>
+										</VCol>
 
-									<VCol v-else-if="!habit.checked && foundMissedNote(habit)" cols="12">
-										<VCard variant="tonal" color="warning">
-											<VCardText>
-												<VRow dense>
-													<VCol> <strong>Note:</strong> {{ foundMissedNote(habit) }} </VCol>
-												</VRow>
-												<VRow dense justify="end">
-													<VCol cols="auto">
-														<VBtn
-															icon="fas fa-pencil"
-															size="x-small"
-															variant="text"
-															color="primary"
-															@click="handleEditNote(habit)"
-														/>
-														<VBtn
-															icon="fas fa-trash"
-															size="x-small"
-															variant="text"
-															color="error"
-															@click="handleRemoveNote(habit)"
-														/>
-													</VCol>
-												</VRow>
-											</VCardText>
-										</VCard>
-									</VCol>
-									<VCol v-else-if="!habit.checked" cols="auto">
-										<VBtn
-											icon="fas fa-note-sticky"
-											size="x-small"
-											variant="text"
-											color="primary"
-											@click="habit.showMissedNote = true"
-										/>
-									</VCol>
+										<VCol v-else-if="!habit.checked && foundMissedNote(habit)" cols="12">
+											<VCard variant="tonal" color="warning">
+												<VCardText>
+													<VRow dense>
+														<VCol>
+															<strong>Note:</strong> {{ foundMissedNote(habit) }}
+														</VCol>
+													</VRow>
+													<VRow dense justify="end">
+														<VCol cols="auto">
+															<VBtn
+																icon="fas fa-pencil"
+																size="x-small"
+																variant="text"
+																color="primary"
+																@click="handleEditNote(habit)"
+															/>
+															<VBtn
+																icon="fas fa-trash"
+																size="x-small"
+																variant="text"
+																color="error"
+																@click="handleRemoveNote(habit)"
+															/>
+														</VCol>
+													</VRow>
+												</VCardText>
+											</VCard>
+										</VCol>
+										<VCol v-else-if="!habit.checked" cols="auto">
+											<VBtn
+												icon="fas fa-note-sticky"
+												size="x-small"
+												variant="text"
+												color="primary"
+												@click="habit.showMissedNote = true"
+											/>
+										</VCol>
+									</VScrollXTransition>
 								</VRow>
 								<VRow v-if="!dayList.length" class="text-center text-medium-emphasis">
 									<VCol> No habits for the day. Change the date or add a new habit. </VCol>

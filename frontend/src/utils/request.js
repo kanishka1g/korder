@@ -26,7 +26,6 @@ api.interceptors.request.use(
 
 		if (config.data) {
 			config.data = formatDatesForBackend(config.data);
-			console.log(config.data);
 		}
 
 		if (config.params) {

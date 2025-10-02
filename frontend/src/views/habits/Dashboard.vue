@@ -58,7 +58,7 @@
 					</VCol>
 					<VCol cols="12" md="6" order-md="2" order="1">
 						<VCard variant="outlined" class="mt-3">
-							<VCardTitle> Daily checkin </VCardTitle>
+							<VCardTitle> Today </VCardTitle>
 							<VCardText class="pa-3">
 								<VRow>
 									<VCol cols="6">
@@ -77,42 +77,59 @@
 											@update:model-value="handleDailyCheck(habit)"
 										/>
 									</VCol>
+
 									<VCol v-if="habit.showMissedNote" cols="12">
-										<VTextField
+										<VTextarea
 											v-model="habit.missedNote"
 											label="Missed Note"
 											variant="outlined"
 											density="compact"
-											hide-details
-										>
-											<template #append-inner>
-												<VBtn
-													icon="fas fa-floppy-disk"
-													size="small"
-													variant="text"
-													color="success"
-													@click="handleDailyCheck(habit)"
-												/>
-											</template>
-										</VTextField>
-									</VCol>
-									<!-- TODO: make this note bit nicer -->
-									<VCol
-										v-else-if="!habit.checked && foundMissedNote(habit)"
-										cols="12"
-										class="mt-n5 ml-4"
-									>
-										<span class="text-warning"> Note: </span>
-										{{ foundMissedNote(habit) }}
-										<VBtn
-											icon="fas fa-pencil"
-											size="x-small"
-											variant="text"
-											color="primary"
-											@click="handleEditNote(habit)"
 										/>
+										<div class="d-flex justify-end">
+											<VBtn
+												icon="fas fa-floppy-disk"
+												size="small"
+												variant="text"
+												color="success"
+												@click="saveMissedNote(habit)"
+											/>
+											<VBtn
+												icon="fas fa-xmark"
+												size="small"
+												variant="text"
+												@click="habit.showMissedNote = false"
+											/>
+										</div>
 									</VCol>
-									<VCol v-else cols="auto">
+
+									<VCol v-else-if="!habit.checked && foundMissedNote(habit)" cols="12">
+										<VCard variant="tonal" color="warning">
+											<VCardText>
+												<VRow dense>
+													<VCol> <strong>Note:</strong> {{ foundMissedNote(habit) }} </VCol>
+												</VRow>
+												<VRow dense justify="end">
+													<VCol cols="auto">
+														<VBtn
+															icon="fas fa-pencil"
+															size="x-small"
+															variant="text"
+															color="primary"
+															@click="handleEditNote(habit)"
+														/>
+														<VBtn
+															icon="fas fa-trash"
+															size="x-small"
+															variant="text"
+															color="error"
+															@click="handleRemoveNote(habit)"
+														/>
+													</VCol>
+												</VRow>
+											</VCardText>
+										</VCard>
+									</VCol>
+									<VCol v-else-if="!habit.checked" cols="auto">
 										<VBtn
 											icon="fas fa-note-sticky"
 											size="x-small"
@@ -429,16 +446,7 @@
 		reload();
 	}
 
-	async function handleDailyCheck(habit) {
-		if (!habit.checked && !habit.missedNote) {
-			const confirmed = await confirmation("Confirm", `Are you sure you want to check out of ${habit.title}?`);
-
-			if (!confirmed) {
-				habit.checked = true;
-				return;
-			}
-		}
-
+	async function saveDailyCheck(habit) {
 		loading.start();
 		try {
 			const res = await request.post(`habits/${habit._id}/check`, {
@@ -456,6 +464,44 @@
 		} finally {
 			loading.end();
 		}
+	}
+
+	async function handleDailyCheck(habit, nullifyNote = false) {
+		if (!habit.checked && !habit.missedNote) {
+			const confirmed = await confirmation("Confirm", `Are you sure you want to check out of ${habit.title}?`);
+
+			if (!confirmed) {
+				habit.checked = true;
+				return;
+			}
+		}
+
+		await saveDailyCheck(habit);
+	}
+
+	async function saveMissedNote(habit) {
+		if (!habit.missedNote) {
+			snackbar.warning("Please enter a note");
+			return;
+		}
+
+		await saveDailyCheck(habit);
+	}
+
+	async function handleRemoveNote(habit) {
+		const confirmed = await confirmation(
+			"Remove Note",
+			`Are you sure you want to remove the missed note for ${habit.title}?`,
+			true,
+		);
+
+		if (!confirmed) {
+			return;
+		}
+
+		habit.missedNote = null;
+
+		await saveDailyCheck(habit);
 	}
 
 	//TODO: Probably clean up this function
@@ -511,7 +557,6 @@
 	}
 
 	async function handleDeleteBadData(item) {
-		console.log(item);
 		const confirmed = await confirmation("Delete", `Are you sure you want to delete ${item.habitTitle}?`, true);
 
 		if (!confirmed) {

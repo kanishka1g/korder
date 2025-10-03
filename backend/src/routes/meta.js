@@ -23,7 +23,7 @@ router.get("/verify", (req, res) => {
 });
 
 router.post("/deploy", (req, res) => {
-  const scriptPath = path.join(__dirname, "..", "deploy.sh");
+  const scriptPath = path.join(__dirname, "..", "test.sh");
 
   exec(`bash ${scriptPath}`, (error, stdout, stderr) => {
     if (error) {

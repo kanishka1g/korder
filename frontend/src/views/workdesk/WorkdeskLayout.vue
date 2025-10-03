@@ -7,7 +7,8 @@
 			<VAppBarTitle>Korder</VAppBarTitle>
 		</RouterLink>
 		<template #append>
-			<VBtn v-if="isProd" icon="fas fa-download" variant="text" @click="handleUpdate" class="mr-2"></VBtn>
+			<!-- TODO: find out a proper way to do this -->
+			<!-- <VBtn v-if="isProd" icon="fas fa-download" variant="text" class="mr-2" @click="handleUpdate"></VBtn> -->
 			<VBtn icon="fas fa-sign-out" variant="text" @click="handleLogout"></VBtn>
 		</template>
 	</VAppBar>

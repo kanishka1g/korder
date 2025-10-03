@@ -27,7 +27,7 @@ router.get("/verify", (req, res) => {
 });
 
 router.post("/deploy", (req, res) => {
-  const scriptPath = path.join(process.cwd(), "test.sh");
+  const scriptPath = "/app/deploy.sh";
 
   exec(`bash "${scriptPath}"`, (error, stdout, stderr) => {
     console.log("Running script at:", scriptPath);

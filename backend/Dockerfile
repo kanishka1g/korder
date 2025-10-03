@@ -7,7 +7,10 @@ RUN npm install --production
 
 COPY . .
 
-# Run your app from src/server.js
+COPY ../test.sh ./test.sh
+
+RUN chmod +x ./test.sh
+
 CMD ["node", "src/server.js"]
 
 EXPOSE 5000

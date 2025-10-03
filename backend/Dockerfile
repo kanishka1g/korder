@@ -5,12 +5,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --production
 
-RUN cd backend && npm install
+COPY . .
 
-COPY backend ./backend
+CMD ["node", "src/server.js"]
 
-COPY deploy.sh ./deploy.sh
-RUN chmod +x ./deploy.sh
 
-CMD ["node", "backend/src/server.js"]
 EXPOSE 5000

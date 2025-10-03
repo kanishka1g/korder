@@ -1,38 +1,67 @@
 <template>
 	<Page title="Health" :error="error">
-		<VCard class="card fill-height mt-3" variant="tonal" elevation="4" rounded="lg" density="comfortable">
-			<VCardText>
-				<VRow>
-					<VCol cols="12" md="6" order-md="1" order="2">
-						<VCard variant="outlined" class="mt-3">
-							<VCardText>
-								<TableView :headers="headers" :items="weights" hide-active-toggle @add="handleAdd">
-									<template #item.date="{ item }">
-										<DisplayDateTime :value="item.date" date-only />
-									</template>
-									<template #actions="{ item }">
-										<VBtn
-											icon="fa-solid fa-pencil"
-											color="primary"
-											size="x-small"
-											variant="text"
-											@click="handleEdit(item)"
-										/>
-										<VBtn
-											icon="fa-solid fa-trash"
-											color="error"
-											size="x-small"
-											variant="text"
-											@click="handleDelete(item)"
-										/>
-									</template>
-								</TableView>
-							</VCardText>
-						</VCard>
-					</VCol>
-				</VRow>
-			</VCardText>
-		</VCard>
+		<VRow>
+			<VCol cols="12" md="6" order-md="2" order="1">
+				<VCard class="card fill-height mt-3" variant="tonal" elevation="4" rounded="lg" density="comfortable">
+					<VCardText>
+						<VRow>
+							<VCol>
+								<LineChart :data="lineChartData" />
+							</VCol>
+						</VRow>
+					</VCardText>
+				</VCard>
+			</VCol>
+			<VCol cols="12" md="6" order-md="1" order="2">
+				<VCard class="card fill-height mt-3" variant="tonal" elevation="4" rounded="lg" density="comfortable">
+					<VCardText>
+						<VRow>
+							<VCol>
+								<VCard variant="outlined" class="mt-3">
+									<VCardText>
+										<TableView
+											:headers="headers"
+											:items="weights"
+											hide-active-toggle
+											@add="handleAdd"
+										>
+											<template #item.date="{ item }">
+												<DisplayDateTime :value="item.date" date-only />
+											</template>
+											<template #actions="{ item }">
+												<VBtn
+													icon="fa-solid fa-pencil"
+													color="primary"
+													size="x-small"
+													variant="text"
+													@click="handleEdit(item)"
+												/>
+												<VBtn
+													icon="fa-solid fa-trash"
+													color="error"
+													size="x-small"
+													variant="text"
+													@click="handleDelete(item)"
+												/>
+											</template>
+											<template #mobile="{ item }">
+												<VRow>
+													<VCol cols="4" class="text-medium-emphasis">
+														<DisplayDateTime :value="item.date" date-only />
+													</VCol>
+
+													<VCol cols="8">{{ item.weight }}</VCol>
+												</VRow>
+											</template>
+										</TableView>
+									</VCardText>
+								</VCard>
+							</VCol>
+						</VRow>
+					</VCardText>
+				</VCard>
+			</VCol>
+		</VRow>
 	</Page>
 	<Modal
 		v-model="weightModal.show"
@@ -69,13 +98,14 @@
 </template>
 
 <script setup>
-	import { ref } from "vue";
+	import { computed, ref } from "vue";
 	import { useNow } from "@/utils/now";
 	import dayjs from "@/plugins/dayjs";
 	import request from "@/utils/request";
 	import { useLogger } from "@/utils/useLogger";
 	import { useLoading } from "@/utils/loading";
 	import { snackbar, confirmation } from "@/utils/generic_modals";
+	import LineChart from "@/components/charts/LineChart.vue";
 
 	import DateField from "@/components/common/DateField.vue";
 	import TableView from "@/components/common/TableView.vue";
@@ -110,6 +140,20 @@
 	});
 	const weightForm = ref(null);
 	const weights = ref([]);
+
+	const lineChartData = computed(function () {
+		return {
+			labels: weights.value.map((w) => dayjs(w.date).format("MMM D")),
+			datasets: [
+				{
+					label: "Weight",
+					data: weights.value.map((w) => w.weight),
+					borderColor: "rgba(75, 192, 192, 1)",
+					backgroundColor: "rgba(75, 192, 192, 0.2)",
+				},
+			],
+		};
+	});
 
 	function handleAdd() {
 		weightModal.value.form = weightObject();

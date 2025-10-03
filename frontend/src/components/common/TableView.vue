@@ -19,28 +19,30 @@
 	</VDataTable>
 	<VRow v-for="item in items" v-else :key="item.id" dense>
 		<VCol>
-			<VCard class="mb-2">
-				<VCardText>
-					<VRow v-for="header in headers" :key="header.value" dense>
-						<VCol cols="4" class="text-medium-emphasis">
-							{{ header.title }}
-						</VCol>
-						<VCol cols="8">
-							<slot v-if="slots[`item.${header.key}`]" :name="`item.${header.key}`" :item="item" />
-							<span v-else>
-								{{ item[header.key] }}
-							</span>
-						</VCol>
-					</VRow>
-				</VCardText>
-				<VCardActions>
-					<VRow justify="end" dense>
-						<VCol cols="auto">
-							<slot name="actions" :item="item"></slot>
-						</VCol>
-					</VRow>
-				</VCardActions>
-			</VCard>
+			<slot name="mobile" :item="item">
+				<VCard class="mb-2">
+					<VCardText>
+						<VRow v-for="header in headers" :key="header.value" dense>
+							<VCol cols="4" class="text-medium-emphasis">
+								{{ header.title }}
+							</VCol>
+							<VCol cols="8">
+								<slot v-if="slots[`item.${header.key}`]" :name="`item.${header.key}`" :item="item" />
+								<span v-else>
+									{{ item[header.key] }}
+								</span>
+							</VCol>
+						</VRow>
+					</VCardText>
+					<VCardActions>
+						<VRow justify="end" dense>
+							<VCol cols="auto">
+								<slot name="actions" :item="item"></slot>
+							</VCol>
+						</VRow>
+					</VCardActions>
+				</VCard>
+			</slot>
 		</VCol>
 	</VRow>
 	<VRow v-if="!items.length">

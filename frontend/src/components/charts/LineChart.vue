@@ -1,3 +1,7 @@
+<template>
+	<Line :data="chartData" :options="props.options" />
+</template>
+
 <script setup>
 	import {
 		Chart as ChartJS,
@@ -16,7 +20,7 @@
 
 	const props = defineProps({
 		data: { type: Object, required: true },
-		options: { type: Object, default: () => ({ responsive: true }) },
+		options: { type: Object, default: () => ({ responsive: false }) },
 	});
 
 	const chartData = computed(() => {
@@ -30,7 +34,3 @@
 		return copy;
 	});
 </script>
-
-<template>
-	<Line :data="chartData" :options="props.options" />
-</template>

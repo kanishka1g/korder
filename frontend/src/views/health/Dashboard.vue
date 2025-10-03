@@ -49,7 +49,6 @@
 													<VCol cols="4" class="text-medium-emphasis">
 														<DisplayDateTime :value="item.date" date-only />
 													</VCol>
-
 													<VCol cols="8">{{ item.weight }}</VCol>
 												</VRow>
 											</template>
@@ -75,7 +74,12 @@
 		<VForm ref="weightForm">
 			<VRow>
 				<VCol cols="12">
-					<DateField v-model="weightModal.form.date" label="Date" />
+					<VSelect v-model="weightModal.form.location" :items="locations" label="Location" />
+				</VCol>
+			</VRow>
+			<VRow>
+				<VCol cols="12">
+					<DateField v-model="weightModal.form.date" label="Date" past-only />
 				</VCol>
 			</VRow>
 			<VRow>
@@ -86,8 +90,8 @@
 			<VRow>
 				<VCol>
 					<VTextField
-						v-model="weightModal.form.calories"
-						label="Calorie"
+						v-model="weightModal.form.burnedCalories"
+						label="Burned Calories"
 						type="number"
 						:rules="calorieRules"
 					/>
@@ -105,8 +109,9 @@
 	import { useLogger } from "@/utils/useLogger";
 	import { useLoading } from "@/utils/loading";
 	import { snackbar, confirmation } from "@/utils/generic_modals";
-	import LineChart from "@/components/charts/LineChart.vue";
+	import { displayLongMonthDayFormat } from "@/utils/time";
 
+	import LineChart from "@/components/charts/LineChart.vue";
 	import DateField from "@/components/common/DateField.vue";
 	import TableView from "@/components/common/TableView.vue";
 	import DisplayDateTime from "@/components/common/DisplayDateTime.vue";
@@ -116,7 +121,7 @@
 	const headers = [
 		{ title: "Date", key: "date" },
 		{ title: "Weight", key: "weight" },
-		{ title: "Calorie", key: "calories" },
+		{ title: "Burned Calories", key: "burnedCalories" },
 		{ title: "", key: "action" },
 	];
 
@@ -132,6 +137,8 @@
 		(v) => v < 1000 || "Calorie must be less than 1000",
 	];
 
+	const locations = ["home", "gym"];
+
 	const error = ref();
 	const weightModal = ref({
 		show: false,
@@ -143,13 +150,11 @@
 
 	const lineChartData = computed(function () {
 		return {
-			labels: weights.value.map((w) => dayjs(w.date).format("MMM D")),
+			labels: weights.value.map((w) => dayjs(w.date).format(displayLongMonthDayFormat)),
 			datasets: [
 				{
 					label: "Weight",
 					data: weights.value.map((w) => w.weight),
-					borderColor: "rgba(75, 192, 192, 1)",
-					backgroundColor: "rgba(75, 192, 192, 0.2)",
 				},
 			],
 		};
@@ -166,7 +171,7 @@
 			_id: item._id,
 			date: dayjs(item.date),
 			weight: item.weight.toString(),
-			calories: item.calories.toString(),
+			burnedCalories: item.burnedCalories.toString(),
 		};
 		weightModal.value.action = "Edit";
 		weightModal.value.show = true;
@@ -192,11 +197,21 @@
 			return;
 		}
 
+		if (
+			weights.value.some(
+				(w) => w.date.isSame(weightModal.value.form.date, "day") && w._id !== weightModal.value.form._id,
+			)
+		) {
+			snackbar.warning("You have already logged weight for this date.");
+			return;
+		}
+
 		if (weightModal.value.action === "Add") {
 			const res = await request.post("weights", {
 				date: weightModal.value.form.date,
 				weight: weightModal.value.form.weight,
-				calories: weightModal.value.form.calories,
+				burnedCalories: weightModal.value.form.burnedCalories,
+				location: weightModal.value.form.location,
 			});
 
 			snackbar.success("successfully added");
@@ -204,7 +219,8 @@
 			const res = await request.put(`weights/${weightModal.value.form._id}`, {
 				date: weightModal.value.form.date,
 				weight: weightModal.value.form.weight,
-				calories: weightModal.value.form.calories,
+				burnedCalories: weightModal.value.form.burnedCalories,
+				location: weightModal.value.form.location,
 			});
 
 			snackbar.success("Weight edited successfully");
@@ -229,9 +245,10 @@
 
 	function weightObject() {
 		return {
+			location: "home",
 			date: now.value,
 			weight: null,
-			calories: null,
+			burnedCalories: null,
 		};
 	}
 </script>

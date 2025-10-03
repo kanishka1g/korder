@@ -2,12 +2,13 @@ import Weight from "../models/Weight.js";
 
 export const addWeight = async (req, res) => {
   try {
-    const { date, weight, calories } = req.body;
+    const { date, weight, burnedCalories, location } = req.body;
     const item = await Weight.create({
       userId: req.user.userId,
       date,
       weight,
-      calories,
+      burnedCalories,
+      location,
     });
     res.status(201).json(item);
   } catch (err) {

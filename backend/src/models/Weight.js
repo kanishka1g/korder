@@ -9,7 +9,12 @@ const weightSchema = new mongoose.Schema(
     },
     date: { type: Date, required: true },
     weight: { type: Number, required: true },
-    calories: { type: Number, required: true },
+    burnedCalories: { type: Number, required: true },
+    location: {
+      type: String,
+      enum: ["home", "gym"],
+      default: "home",
+    },
   },
   { timestamps: true }
 );

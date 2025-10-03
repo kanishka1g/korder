@@ -1,7 +1,8 @@
 <script setup>
 	import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement } from "chart.js";
 	import { Doughnut } from "vue-chartjs";
-	import { defineProps, computed } from "vue";
+	import { computed } from "vue";
+	import { defaultColors } from "@/utils/helpers";
 
 	ChartJS.register(Title, Tooltip, Legend, ArcElement);
 
@@ -9,8 +10,6 @@
 		data: { type: Object, required: true },
 		options: { type: Object, default: () => ({ responsive: true }) },
 	});
-
-	const defaultColors = ["#3f51b5", "#e91e63", "#ff9800", "#4caf50", "#2196f3", "#9c27b0", "#00bcd4"];
 
 	const chartData = computed(() => {
 		const copy = JSON.parse(JSON.stringify(props.data));

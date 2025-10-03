@@ -1,11 +1,17 @@
 <template>
 	<VCard variant="tonal" rounded="lg">
 		<!-- TODO: rename it to QuickLinks ?? if yes file name change -->
-		<VCardTitle class="title"> App Links </VCardTitle>
+		<VCardTitle class="title d-flex align-center"> App Links </VCardTitle>
 		<VCardText>
 			<VRow>
-				<VCol v-for="link in internalLinks" :key="link.title" cols="12" md="6">
-					<VCard variant="outlined" rounded="lg" :href="link.route" :prepend-icon="link.icon">
+				<VCol v-for="(link, index) in internalLinks" :key="link.title" cols="12" md="6">
+					<VCard
+						:color="defaultColors[index]"
+						variant="flat"
+						rounded="lg"
+						:href="link.route"
+						:prepend-icon="link.icon"
+					>
 						<VCardText class="subtitle text-body-1">
 							<VRow>
 								<VCol>
@@ -17,14 +23,15 @@
 				</VCol>
 			</VRow>
 			<VRow>
-				<VCol v-for="link in externalLinks" :key="link.title" cols="12" md="6">
+				<VCol v-for="(link, index) in externalLinks" :key="link.title" cols="12" md="6">
 					<VCard
-						variant="outlined"
+						variant="flat"
 						rounded="lg"
 						:href="link.route"
 						target="_blank"
 						:prepend-icon="link.icon"
 						append-icon="fa-solid fa-arrow-up-right-from-square"
+						:color="defaultColors[index + internalLinks.length]"
 					>
 						<VCardText class="subtitle text-body-1">
 							{{ link.title }}
@@ -37,7 +44,7 @@
 </template>
 
 <script setup>
-	import { internalLinks, externalLinks } from "@/utils/helpers";
+	import { internalLinks, externalLinks, defaultColors } from "@/utils/helpers";
 </script>
 
 <style scoped lang="scss">

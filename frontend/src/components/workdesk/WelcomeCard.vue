@@ -1,5 +1,5 @@
 <template>
-	<VCard variant="tonal" rounded="lg">
+	<VCard variant="tonal" rounded="lg" class="fill-height">
 		<VCardTitle class="d-flex align-center mb-3 text-wrap">
 			<VAvatar variant="outlined" size="48" class="me-3">
 				<img src="https://i.pravatar.cc/48" />
@@ -9,19 +9,18 @@
 				<div class="text-body-1 subtitle">{{ quote }}</div>
 			</div>
 		</VCardTitle>
-
 		<VCardText>
 			<VRow dense>
 				<VCol cols="auto">
-					<VIcon icon="fas fa-clock" color="warning" size="small"></VIcon>
+					<VIcon icon="fas fa-clock" :color="defaultColors[0]" size="small"></VIcon>
 				</VCol>
 				<VCol cols="auto">
-					<span class="time-text">{{ now.format(displayTimeFormat) }}</span>
+					<span>{{ now.format(displayTimeFormat) }}</span>
 				</VCol>
 			</VRow>
 			<VRow dense>
 				<VCol cols="auto">
-					<VIcon icon="fas fa-calendar-day" color="success" size="small"></VIcon>
+					<VIcon icon="fas fa-calendar-day" :color="defaultColors[1]" size="small"></VIcon>
 				</VCol>
 				<VCol cols="auto">
 					<span>{{ formattedDate }}</span>
@@ -29,7 +28,7 @@
 			</VRow>
 			<VRow v-if="temperature && city" dense>
 				<VCol cols="auto">
-					<VIcon icon="fa-solid fa-location-dot" color="warning" size="small"></VIcon>
+					<VIcon icon="fa-solid fa-location-dot" :color="defaultColors[2]" size="small"></VIcon>
 				</VCol>
 				<VCol cols="auto">
 					<span>{{ city }}</span>
@@ -54,6 +53,7 @@
 	import { useLogger } from "@/utils/useLogger";
 	import { snackbar } from "@/utils/generic_modals";
 	import { useLoading } from "@/utils/loading";
+	import { defaultColors } from "@/utils/helpers";
 
 	const now = useNow();
 	const user = useUser();

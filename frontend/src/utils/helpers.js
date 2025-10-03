@@ -42,3 +42,5 @@ export const externalLinks = [
 		route: `https://n8n.${domain}`,
 	},
 ];
+
+export const defaultColors = ["#3f51b5", "#e91e63", "#ff9800", "#4caf50", "#2196f3", "#9c27b0", "#00bcd4"];

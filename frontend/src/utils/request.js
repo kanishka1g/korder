@@ -1,4 +1,3 @@
-// src/utils/request.js
 import axios from "axios";
 import dayjs from "dayjs";
 import { useLogger } from "@/utils/useLogger";
@@ -11,7 +10,7 @@ const loading = useLoading();
 const authStore = useAuthStore();
 
 const api = axios.create({
-	baseURL: import.meta.env.VITE_API_BASE_URL,
+	baseURL: `${import.meta.env.VITE_BACKEND_URL}/api`,
 	timeout: 10000,
 });
 

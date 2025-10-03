@@ -5,6 +5,9 @@
 				<Welcome />
 			</VCol>
 			<VCol cols="12" md="6">
+				<Status />
+			</VCol>
+			<VCol cols="12" md="6">
 				<!-- TODO: calender or todoist component -->
 				<VCard variant="tonal" rounded="lg">
 					<VCardTitle>
@@ -23,8 +26,9 @@
 <script setup>
 	import { ref } from "vue";
 
-	import Welcome from "@/components/workdesk/Welcome.vue";
-	import AppLinks from "@/components/workdesk/AppLinks.vue";
+	import Welcome from "@/components/workdesk/WelcomeCard.vue";
+	import AppLinks from "@/components/workdesk/AppLinksCard.vue";
+	import Status from "@/components/workdesk/StatusCard.vue";
 
 	const error = ref();
 </script>

@@ -1,9 +1,13 @@
+import path, { dirname } from "path";
 import express from "express";
-import { mongoDbName } from "../config/db_check.js";
 import { exec } from "child_process";
-import path from "path";
+import { fileURLToPath } from "url";
+import { mongoDbName } from "../config/db_check.js";
 
 const router = express.Router();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 router.get("/verify", (req, res) => {
   if (mongoDbName !== "korder_dev" && mongoDbName !== "korder_prod") {
@@ -23,7 +27,7 @@ router.get("/verify", (req, res) => {
 });
 
 router.post("/deploy", (req, res) => {
-  const scriptPath = path.join(__dirname, "..", "test.sh");
+  const scriptPath = path.join(__dirname, "..", "..", "..", "test.sh");
 
   exec(`bash ${scriptPath}`, (error, stdout, stderr) => {
     if (error) {

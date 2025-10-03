@@ -20,7 +20,7 @@
 
 	const props = defineProps({
 		data: { type: Object, required: true },
-		options: { type: Object, default: () => ({ responsive: false }) },
+		options: { type: Object, default: () => ({ responsive: true }) },
 	});
 
 	const chartData = computed(() => {

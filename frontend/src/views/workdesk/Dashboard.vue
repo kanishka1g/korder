@@ -22,12 +22,9 @@
 
 <script setup>
 	import { ref } from "vue";
-	import { useNow } from "@/utils/now";
 
 	import Welcome from "@/components/workdesk/Welcome.vue";
 	import AppLinks from "@/components/workdesk/AppLinks.vue";
-
-	const now = useNow();
 
 	const error = ref();
 </script>

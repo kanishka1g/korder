@@ -27,14 +27,19 @@ router.get("/verify", (req, res) => {
 });
 
 router.post("/deploy", (req, res) => {
-  const scriptPath = path.join(__dirname, "..", "..", "..", "test.sh");
+  const scriptPath = path.join(process.cwd(), "test.sh");
 
-  exec(`bash ${scriptPath}`, (error, stdout, stderr) => {
+  exec(`bash "${scriptPath}"`, (error, stdout, stderr) => {
+    console.log("Running script at:", scriptPath);
+    console.log("stdout:", stdout);
+    console.log("stderr:", stderr);
+
     if (error) {
-      console.error(`Error: ${stderr}`);
-      return res.status(500).json({ success: false, error: stderr });
+      return res
+        .status(500)
+        .json({ success: false, error: stderr || error.message });
     }
-    res.json({ success: true, output: stdout });
+    res.json({ success: true, output: stdout || "Script ran successfully" });
   });
 });
 

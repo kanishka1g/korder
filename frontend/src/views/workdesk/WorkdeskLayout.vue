@@ -8,7 +8,7 @@
 		</RouterLink>
 		<template #append>
 			<!-- TODO: find out a proper way to do this -->
-			<!-- <VBtn v-if="isProd" icon="fas fa-download" variant="text" class="mr-2" @click="handleUpdate"></VBtn> -->
+			<VBtn v-if="isProd" icon="fas fa-download" variant="text" class="mr-2" @click="handleUpdate"></VBtn>
 			<VBtn icon="fas fa-sign-out" variant="text" @click="handleLogout"></VBtn>
 		</template>
 	</VAppBar>

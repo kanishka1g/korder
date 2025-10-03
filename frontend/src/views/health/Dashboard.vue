@@ -155,6 +155,12 @@
 				{
 					label: "Weight",
 					data: weights.value.map((w) => w.weight),
+					yAxisID: "y",
+				},
+				{
+					label: "burned Calories",
+					data: weights.value.map((w) => w.burnedCalories),
+					yAxisID: "y1",
 				},
 			],
 		};

@@ -1,0 +1,42 @@
+@use "variables" as *;
+
+/* Modern Card Base */
+.modern-card {
+	backdrop-filter: blur(10px);
+	background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 1rem; // rounded-xl
+	transition: all 0.3s ease;
+
+	&:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+	}
+
+	.card-title {
+		font-family: $title-font;
+		font-size: 21px;
+		font-weight: 600;
+	}
+
+	.card-subtitle {
+		font-family: $subtitle-font;
+		font-size: 14px;
+		color: rgba(255, 255, 255, 0.8);
+	}
+
+	.hover-card {
+		transition: all 0.2s ease;
+		cursor: pointer;
+
+		&:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+		}
+
+		span,
+		.v-icon {
+			color: white !important; // ensures text/icon contrast on tonal backgrounds
+		}
+	}
+}

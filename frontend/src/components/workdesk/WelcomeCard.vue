@@ -1,43 +1,40 @@
 <template>
-	<VCard variant="tonal" rounded="lg" class="fill-height">
-		<VCardTitle class="d-flex align-center mb-3 text-wrap">
-			<VAvatar variant="outlined" size="48" class="me-3">
-				<img src="https://i.pravatar.cc/48" />
-			</VAvatar>
-			<div class="d-flex flex-column">
-				<div class="text-h6 font-weight-bold title">Welcome, {{ user.name }} ({{ user.role }})</div>
-				<div class="text-body-1 subtitle">{{ quote }}</div>
-			</div>
-		</VCardTitle>
+	<VCard class="modern-card pa-4 rounded-xl fill-height" elevation="4">
 		<VCardText>
-			<VRow dense>
+			<VRow align="center" class="mb-4">
 				<VCol cols="auto">
-					<VIcon icon="fas fa-clock" :color="defaultColors[0]" size="small"></VIcon>
+					<VAvatar size="64" class="shadow-sm">
+						<img :src="userAvatar" alt="User Avatar" />
+					</VAvatar>
 				</VCol>
-				<VCol cols="auto">
-					<span>{{ now.format(displayTimeFormat) }}</span>
-				</VCol>
-			</VRow>
-			<VRow dense>
-				<VCol cols="auto">
-					<VIcon icon="fas fa-calendar-day" :color="defaultColors[1]" size="small"></VIcon>
-				</VCol>
-				<VCol cols="auto">
-					<span>{{ formattedDate }}</span>
+				<VCol>
+					<div class="text-h6 font-weight-bold mb-1">Welcome back, {{ user.name || "Guest" }}</div>
+					<div class="text-body-2 text-medium-emphasis">
+						{{ user.role || "User" }}
+					</div>
 				</VCol>
 			</VRow>
-			<VRow v-if="temperature && city" dense>
-				<VCol cols="auto">
-					<VIcon icon="fa-solid fa-location-dot" :color="defaultColors[2]" size="small"></VIcon>
+
+			<Transition name="fade">
+				<div v-if="quote" class="italic text-body-2 mb-4 text-medium-emphasis">“{{ quote }}”</div>
+			</Transition>
+
+			<VRow dense align="center" class="text-body-2">
+				<VCol cols="12" sm="6" class="d-flex align-center mb-1">
+					<VIcon icon="fa-regular fa-clock" color="primary" size="small" class="mr-2" />
+					<DisplayDateTime :value="now" time-only />
 				</VCol>
-				<VCol cols="auto">
+
+				<VCol cols="12" sm="6" class="d-flex align-center mb-1">
+					<VIcon icon="fa-regular fa-calendar" color="primary" size="small" class="mr-2" />
+					<DisplayDateTime :value="now" date-only long />
+				</VCol>
+
+				<VCol v-if="city && temperature" cols="12" class="d-flex align-center mt-2">
+					<VIcon icon="fa-solid fa-location-dot" color="info" size="small" class="mr-2" />
 					<span>{{ city }}</span>
-				</VCol>
-				<VDivider class="mx-2" vertical inset opacity="100"></VDivider>
-				<VCol cols="auto">
-					<VIcon icon="fa-solid fa-temperature-half" :color="temperatureColour" size="small"></VIcon>
-				</VCol>
-				<VCol cols="auto">
+					<VDivider class="mx-3" vertical />
+					<VIcon icon="fa-solid fa-temperature-half" :color="temperatureColour" size="small" class="mr-2" />
 					<span>{{ temperature }}</span>
 				</VCol>
 			</VRow>
@@ -47,75 +44,50 @@
 
 <script setup>
 	import { ref, computed } from "vue";
+	import DisplayDateTime from "../common/DisplayDateTime.vue";
 	import { useNow } from "@/utils/now";
-	import { displayTimeFormat, displayLongDateTimeFormat } from "@/utils/time";
 	import { useUser } from "@/utils/user";
-	import { useLogger } from "@/utils/useLogger";
-	import { snackbar } from "@/utils/generic_modals";
-	import { useLoading } from "@/utils/loading";
-	import { defaultColors } from "@/utils/helpers";
 
 	const now = useNow();
 	const user = useUser();
-	const logger = useLogger();
-	const loading = useLoading();
+	const userAvatar = "https://i.pravatar.cc/64";
 
 	const temperature = ref();
 	const city = ref();
 	const quote = ref();
 
-	const formattedDate = computed(() => {
-		return now.value.format(displayLongDateTimeFormat);
-	});
-
 	const temperatureColour = computed(() => {
 		const temp = parseInt(temperature.value);
-
-		if (temp < 18) {
-			return "info";
-		} else if (temp < 30) {
-			return "warning";
-		} else {
-			return "error";
-		}
+		if (temp < 18) return "info";
+		if (temp < 30) return "warning";
+		return "error";
 	});
 
-	async function fetchTemperatureAndCity(position) {
-		loading.start();
-		const { latitude, longitude } = position.coords;
+	async function fetchInfo(lat, lon) {
 		try {
-			const [weatherResponse, cityResponse, quoteResponse] = await Promise.all([
-				fetch(
-					`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`,
-				),
-				fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`),
+			const [weather, reverse, quoteRes] = await Promise.all([
+				fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`),
+				fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`),
 				fetch("https://api.devexcus.es/"),
 			]);
-			const weatherData = await weatherResponse.json();
-			temperature.value = `${Math.round(weatherData.current_weather.temperature)}°C`;
 
-			const cityData = await cityResponse.json();
-			city.value = cityData.address.suburb || cityData.address.city || "Unknown Location";
-			const quoteData = await quoteResponse.json();
-			quote.value = quoteData.text;
-		} catch (error) {
-			logger.error(error);
-		} finally {
-			loading.end();
+			const weatherData = await weather.json();
+			const reverseData = await reverse.json();
+			const quoteData = await quoteRes.json();
+
+			temperature.value = `${Math.round(weatherData.current_weather.temperature)}°C`;
+			city.value = reverseData.address.suburb || reverseData.address.city || "Unknown";
+			quote.value = quoteData.content;
+		} catch {
+			quote.value = "Keep pushing forward, one line at a time.";
 		}
 	}
 
 	function reload() {
-		if (!("geolocation" in navigator)) {
-			snackbar.warning("Geolocation is not supported.");
-			return;
-		}
-
+		if (!("geolocation" in navigator)) return;
 		navigator.geolocation.getCurrentPosition(
-			(position) => fetchTemperatureAndCity(position),
-			(error) => {
-				logger.warning(error.message, error);
-			},
+			(pos) => fetchInfo(pos.coords.latitude, pos.coords.longitude),
+			() => (quote.value = "Couldn’t get your location, but you’re doing great!"),
 		);
 	}
 
@@ -123,14 +95,5 @@
 </script>
 
 <style scoped lang="scss">
-	@use "@/assets/styles/variables";
-
-	.title {
-		font-family: variables.$title-font;
-		font-size: 21px;
-	}
-
-	.subtitle {
-		font-family: variables.$subtitle-font;
-	}
+	@use "@/assets/styles/cards";
 </style>

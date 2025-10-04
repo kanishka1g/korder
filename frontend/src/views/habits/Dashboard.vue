@@ -446,6 +446,7 @@
 		const res = await request.delete(`habits/${habit._id}`);
 
 		snackbar.success(res.data.message);
+		statsModal.value.show = false;
 		reload();
 	}
 

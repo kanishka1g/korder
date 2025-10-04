@@ -127,7 +127,7 @@ export const getStats = async (req, res) => {
 
     const completedHabits = habits.filter((habit) =>
       ClockUtil.isBeforeDayUTC(habit.endDate, today)
-    ).length;
+    );
 
     if (habits.length)
       stats.push({ title: "Total Habits", items: habits, hideView: true });
@@ -137,7 +137,7 @@ export const getStats = async (req, res) => {
         items: upcomingHabits,
         hideView: false,
       });
-    if (completedHabits)
+    if (completedHabits.length)
       stats.push({
         title: "Completed Habits",
         items: completedHabits,

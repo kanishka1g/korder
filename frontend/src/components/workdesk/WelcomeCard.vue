@@ -77,7 +77,7 @@
 
 			temperature.value = `${Math.round(weatherData.current_weather.temperature)}°C`;
 			city.value = reverseData.address.suburb || reverseData.address.city || "Unknown";
-			quote.value = quoteData.content;
+			quote.value = quoteData.text;
 		} catch {
 			quote.value = "Keep pushing forward, one line at a time.";
 		}

@@ -463,6 +463,7 @@
 			habit.showMissedNote = false;
 			await reload();
 		} catch (err) {
+			habit.checked = !habit.missedNote && !habit.checked;
 			logger.error(err, "handleDailyCheck");
 		} finally {
 			loading.end();

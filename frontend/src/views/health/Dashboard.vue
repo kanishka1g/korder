@@ -21,10 +21,18 @@
 									<VCardText>
 										<TableView
 											:headers="headers"
-											:items="weights"
+											:items="filterWeights"
 											hide-active-toggle
 											@add="handleAdd"
 										>
+											<template #top>
+												<VSelect
+													v-model="filterLocation"
+													:items="locations"
+													label="Location"
+													hide-details
+												/>
+											</template>
 											<template #item.date="{ item }">
 												<DisplayDateTime :value="item.date" date-only />
 											</template>
@@ -45,12 +53,39 @@
 												/>
 											</template>
 											<template #mobile="{ item }">
-												<VRow>
-													<VCol cols="4" class="text-medium-emphasis">
-														<DisplayDateTime :value="item.date" date-only />
+												<VRow no-gutters>
+													<VCol cols="12" class="d-flex justify-space-between align-center">
+														<span>
+															<DisplayDateTime :value="item.date" date-only />
+														</span>
+														<div class="d-flex">
+															<VBtn
+																icon="fas fa-pencil"
+																color="primary"
+																size="x-small"
+																variant="text"
+																class="mr-1"
+																@click="handleEdit(item)"
+															/>
+															<VBtn
+																icon="fas fa-trash"
+																color="error"
+																size="x-small"
+																variant="text"
+																@click="handleDelete(item)"
+															/>
+														</div>
 													</VCol>
-													<VCol cols="8">{{ item.weight }}</VCol>
+													<VCol cols="6">
+														<span class="text-caption text-medium-emphasis">Weight</span>
+														<div>{{ item.weight }} kg</div>
+													</VCol>
+													<VCol cols="6" class="text-right">
+														<span class="text-caption text-medium-emphasis">Burned</span>
+														<div>{{ item.burnedCalories }} cal</div>
+													</VCol>
 												</VRow>
+												<VDivider class="mt-2" color="info" opacity="100" />
 											</template>
 										</TableView>
 									</VCardText>
@@ -74,7 +109,12 @@
 		<VForm ref="weightForm">
 			<VRow>
 				<VCol cols="12">
-					<VSelect v-model="weightModal.form.location" :items="locations" label="Location" />
+					<VSelect
+						v-model="weightModal.form.location"
+						:items="locations"
+						label="Location"
+						:disabled="weightModal.action === 'Edit'"
+					/>
 				</VCol>
 			</VRow>
 			<VRow>
@@ -147,6 +187,11 @@
 	});
 	const weightForm = ref(null);
 	const weights = ref([]);
+	const filterLocation = ref("home");
+
+	const filterWeights = computed(() => {
+		return weights.value.filter((w) => w.location === filterLocation.value);
+	});
 
 	const lineChartData = computed(function () {
 		return {
@@ -168,6 +213,7 @@
 
 	function handleAdd() {
 		weightModal.value.form = weightObject();
+		weightModal.value.form.location = filterLocation.value;
 		weightModal.value.action = "Add";
 		weightModal.value.show = true;
 	}
@@ -175,6 +221,7 @@
 	function handleEdit(item) {
 		weightModal.value.form = {
 			_id: item._id,
+			location: item.location,
 			date: dayjs(item.date),
 			weight: item.weight.toString(),
 			burnedCalories: item.burnedCalories.toString(),

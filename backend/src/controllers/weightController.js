@@ -19,7 +19,7 @@ export const addWeight = async (req, res) => {
 export const getWeights = async (req, res) => {
   try {
     const weights = await Weight.find({ userId: req.user.userId }).sort({
-      date: 1,
+      date: -1,
     });
     res.json(weights);
   } catch (err) {

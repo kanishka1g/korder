@@ -1,5 +1,8 @@
 <template>
 	<VRow justify="end">
+		<VCol>
+			<slot name="top" />
+		</VCol>
 		<VCol v-if="!hideActiveToggle" cols="auto">
 			<VSwitch v-model="showActiveToggle" :label="activeLabel" color="warning" density="compact" />
 		</VCol>

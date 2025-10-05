@@ -1,5 +1,5 @@
 <template>
-	<VCard class="modern-card pa-2 rounded-xl" elevation="4">
+	<VCard class="modern-card pa-2 rounded-xl fill-height" elevation="4">
 		<VCardTitle class="text-h6 mb-4">
 			<VRow align="end">
 				<VCol cols="auto">

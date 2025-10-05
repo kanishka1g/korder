@@ -3,8 +3,8 @@
 		<VCardText>
 			<VRow align="center" class="mb-4">
 				<VCol cols="auto">
-					<VAvatar size="64" class="shadow-sm">
-						<img :src="userAvatar" alt="User Avatar" />
+					<VAvatar size="64" class="shadow-sm" variant="outlined">
+						<VImg :src="userAvatar" alt="User Avatar" />
 					</VAvatar>
 				</VCol>
 				<VCol>
@@ -50,7 +50,7 @@
 
 	const now = useNow();
 	const user = useUser();
-	const userAvatar = "https://i.pravatar.cc/64";
+	const userAvatar = `https://robohash.org/random-${Math.random()}.png?size=460x460`;
 
 	const temperature = ref();
 	const city = ref();

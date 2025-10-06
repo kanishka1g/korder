@@ -1,4 +1,4 @@
-import path, { dirname } from "path";
+import { dirname } from "path";
 import express from "express";
 import { exec } from "child_process";
 import { fileURLToPath } from "url";
@@ -7,7 +7,6 @@ import { mongoDbName } from "../config/db_check.js";
 const router = express.Router();
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 router.get("/verify", (req, res) => {
   if (mongoDbName !== "korder_dev" && mongoDbName !== "korder_prod") {

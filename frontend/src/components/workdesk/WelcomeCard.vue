@@ -16,7 +16,10 @@
 			</VRow>
 
 			<Transition name="fade">
-				<div v-if="quote" class="italic text-body-2 mb-4 text-medium-emphasis">“{{ quote }}”</div>
+				<div v-if="quoteObject" class="font-italic text-body-2 mb-4 font-weight-bold">
+					<span> “{{ quoteObject.quote }}” </span>
+					<div v-if="quoteObject.author" class="text-medium-emphasis">- {{ quoteObject.author }}</div>
+				</div>
 			</Transition>
 
 			<VRow dense align="center" class="text-body-2">
@@ -54,7 +57,7 @@
 
 	const temperature = ref();
 	const city = ref();
-	const quote = ref();
+	const quoteObject = ref();
 
 	const temperatureColour = computed(() => {
 		const temp = parseInt(temperature.value);
@@ -68,18 +71,17 @@
 			const [weather, reverse, quoteRes] = await Promise.all([
 				fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`),
 				fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`),
-				fetch("https://api.devexcus.es/"),
+				fetch(`https://motivational-spark-api.vercel.app/api/quotes/random`),
 			]);
 
 			const weatherData = await weather.json();
 			const reverseData = await reverse.json();
-			const quoteData = await quoteRes.json();
 
 			temperature.value = `${Math.round(weatherData.current_weather.temperature)}°C`;
 			city.value = reverseData.address.suburb || reverseData.address.city || "Unknown";
-			quote.value = quoteData.text;
+			quoteObject.value = await quoteRes.json();
 		} catch {
-			quote.value = "Keep pushing forward, one line at a time.";
+			quoteObject.value = { quote: "Keep pushing forward, one line at a time.", author: "Unknown" };
 		}
 	}
 
@@ -87,7 +89,7 @@
 		if (!("geolocation" in navigator)) return;
 		navigator.geolocation.getCurrentPosition(
 			(pos) => fetchInfo(pos.coords.latitude, pos.coords.longitude),
-			() => (quote.value = "Couldn’t get your location, but you’re doing great!"),
+			() => (quoteObject.value = "Couldn’t get your location, but you’re doing great!"),
 		);
 	}
 

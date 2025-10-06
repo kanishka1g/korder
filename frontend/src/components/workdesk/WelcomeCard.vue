@@ -68,7 +68,7 @@
 
 	async function fetchInfo(lat, lon) {
 		try {
-			const [weather, reverse, quoteRes] = await Promise.all([
+			const [weather, reverse, quoteRes, n8n] = await Promise.all([
 				fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`),
 				fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`),
 				fetch(`https://motivational-spark-api.vercel.app/api/quotes/random`),

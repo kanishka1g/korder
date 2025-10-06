@@ -12,7 +12,7 @@
 		</VCardTitle>
 		<VCardText>
 			<VRow>
-				<VCol cols="12" sm="4" v-for="(stat, index) in stats" :key="index">
+				<VCol v-for="(stat, index) in stats" :key="index" cols="12" sm="4">
 					<div class="d-flex align-center mb-1">
 						<VIcon :icon="stat.icon" :color="stat.color" size="20" class="mr-2" />
 						<span class="text-body-2">{{ stat.label }}</span>
@@ -80,7 +80,8 @@
 
 	let socket;
 	onMounted(() => {
-		socket = io(import.meta.env.VITE_BACKEND_URL);
+		socket = io(`${import.meta.env.VITE_BACKEND_URL}/system`);
+
 		socket.on("statusUpdate", (data) => {
 			cpu.value = Number(data.cpu);
 			ram.value = Number(data.ram);

@@ -151,7 +151,11 @@ export const getStats = async (req, res) => {
   }
 };
 
-const badDataTypes = { outOfScheduleCheck: "Out of Schedule Check" };
+const badDataTypes = {
+  outOfScheduleCheck: "Out of Schedule Check",
+  noCheckIn: "Habit has no valid check-ins",
+  checkInHasTime: "Check-in date contains time",
+};
 
 export const findBadHabitData = async (req, res) => {
   try {
@@ -161,11 +165,23 @@ export const findBadHabitData = async (req, res) => {
     });
 
     habits.forEach((habit) => {
+      if (
+        !habit.checkIns.length ||
+        habit.checkIns.every((check) => !check.checked && !check.missedNote)
+      ) {
+        badEntries.push({
+          habitId: habit._id,
+          habitTitle: habit.title,
+          type: badDataTypes.noCheckIn,
+        });
+      }
+
       habit.checkIns.forEach((check) => {
         const dayName = ClockUtil.weekdayNameUTC(check.date);
 
         if (!habit.weekdays.includes(dayName)) {
           badEntries.push({
+            habitId: habit._id,
             habitTitle: habit.title,
             date: check.date,
             dayName,
@@ -173,6 +189,23 @@ export const findBadHabitData = async (req, res) => {
             missedNote: check.missedNote,
             checkedId: check._id,
             type: badDataTypes.outOfScheduleCheck,
+          });
+        }
+
+        // 🔹 Case 3: Check-in date has time (anything not 00:00:00)
+        const d = new Date(check.date);
+        if (
+          d.getUTCHours() !== 0 ||
+          d.getUTCMinutes() !== 0 ||
+          d.getUTCSeconds() !== 0 ||
+          d.getUTCMilliseconds() !== 0
+        ) {
+          badEntries.push({
+            habitId: habit._id,
+            habitTitle: habit.title,
+            date: check.date,
+            checkedId: check._id,
+            type: badDataTypes.checkInHasTime,
           });
         }
       });

@@ -12,6 +12,8 @@ import userRoutes from "./routes/user.js";
 import metaRoutes from "./routes/meta.js";
 import { authMiddleware } from "./middleware/authMiddleware.js";
 import { getSystemStatus } from "./services/system.js";
+import { setupSystemStatusSocket } from "./socket/systemStatusSocket.js";
+import { dayPlanSocket } from "./socket/dayPlanSocket.js";
 
 dotenv.config();
 
@@ -44,24 +46,27 @@ app.get("/", (req, res) => {
   res.send("API is running");
 });
 
+setupSystemStatusSocket(io);
+dayPlanSocket(io);
+
 //TODO: I think this should do better way
-io.on("connection", (socket) => {
-  console.log("🔌 Client connected");
+// io.on("connection", (socket) => {
+//   console.log("🔌 Client connected");
 
-  const interval = setInterval(async () => {
-    try {
-      const status = await getSystemStatus();
-      socket.emit("statusUpdate", status);
-    } catch (err) {
-      console.error("Error fetching system info:", err);
-    }
-  }, 2000);
+//   const interval = setInterval(async () => {
+//     try {
+//       const status = await getSystemStatus();
+//       socket.emit("statusUpdate", status);
+//     } catch (err) {
+//       console.error("Error fetching system info:", err);
+//     }
+//   }, 2000);
 
-  socket.on("disconnect", () => {
-    console.log("❌ Client disconnected");
-    clearInterval(interval);
-  });
-});
+//   socket.on("disconnect", () => {
+//     console.log("❌ Client disconnected");
+//     clearInterval(interval);
+//   });
+// });
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`🚀 Server running on ${PORT}`));

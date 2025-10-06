@@ -42,4 +42,10 @@ router.post("/deploy", (req, res) => {
   });
 });
 
+router.get("/day-plan", async (req, res) => {
+  const response = await fetch("https://n8n.korder.cloud/webhook/day-paln");
+  const data = await response.json();
+  res.json(data);
+});
+
 export default router;

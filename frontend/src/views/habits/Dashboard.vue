@@ -258,7 +258,12 @@
 						</span>
 					</VCol>
 				</VRow>
-				<VRow v-for="check in viewModal.habit.checkIns" :key="check.id" justify="space-between" dense>
+				<VRow
+					v-for="check in viewModal.habit.checkIns.sort((a, b) => b.date - a.date)"
+					:key="check.id"
+					justify="space-between"
+					dense
+				>
 					<VCol>
 						{{ dayjs(check.date).format("dddd, DD-MMM YYYY") }}
 						<div v-if="check.missedNote" class="text-medium-emphasis text-caption text-warning">

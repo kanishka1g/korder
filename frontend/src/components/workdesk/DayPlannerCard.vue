@@ -5,8 +5,17 @@
 				<VCol cols="auto">
 					<VIcon icon="fas fa-calendar" color="primary" size="20" />
 				</VCol>
-				<VCol cols="auto">
-					<div class="text-h6 font-weight-bold">Day Plan</div>
+				<VCol cols="auto" class="text-h6 font-weight-bold"> Day Plan </VCol>
+				<VCol cols="auto" class="ml-auto">
+					<VBtn
+						color="primary"
+						variant="text"
+						size="small"
+						prepend-icon="fas fa-refresh"
+						@click="handleRefreshDayPlan"
+					>
+						Refresh
+					</VBtn>
 				</VCol>
 			</VRow>
 		</VCardTitle>
@@ -34,6 +43,13 @@
 								>
 									<!-- TODO: Add icon regards of task or event -->
 									<VCol cols="9" class="text-white text-body-2">
+										<VIcon
+											:icon="task.source === 'TASK' ? 'fas fa-list-check' : 'fas fa-calendar'"
+											color="white"
+											size="small"
+											class="mr-2"
+										/>
+
 										{{ task.title }}
 									</VCol>
 									<VCol cols="3" class="text-white text-right text-caption">
@@ -74,6 +90,7 @@
 	import { parseDate } from "@/utils/time";
 	import { defaultColors } from "@/utils/helpers";
 	import request from "@/utils/request";
+	import { snackbar } from "@/utils/generic_modals";
 
 	import DisplayDateTime from "../common/DisplayDateTime.vue";
 
@@ -85,6 +102,16 @@
 	}
 
 	reload();
+
+	async function handleRefreshDayPlan() {
+		const response = await request.request({
+			url: "workdesk/day-plan/refresh",
+			method: "post",
+			timeout: 60000,
+		});
+		items.value = response.data.plan;
+		snackbar.success(response.data.message);
+	}
 
 	function limitedTasks(item) {
 		return item?.showAll ? item.items : item.items.slice(0, 5);

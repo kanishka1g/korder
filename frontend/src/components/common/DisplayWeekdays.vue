@@ -13,9 +13,9 @@
 				color="primary"
 				class="text-caption"
 				density="compact"
-				:variant="selectedDays.includes(day.toLowerCase()) ? 'flat' : 'outlined'"
+				:variant="selectedDays.includes(day.value) ? 'flat' : 'outlined'"
 			>
-				{{ day }}
+				{{ day.title }}
 			</VChip>
 		</template>
 	</div>
@@ -32,10 +32,22 @@
 		},
 	});
 
-	const allWeekdays = dayjs.weekdays();
+	const allWeekdays = computed(function () {
+		const days = [];
+		for (let i = 0; i < 7; i++) {
+			const day = dayjs()
+				.day(i + 1)
+				.format("dddd");
+			days.push({
+				title: day,
+				value: day.toLocaleLowerCase(),
+			});
+		}
+		return days;
+	});
 
-	const weekdays = allWeekdays.slice(1, 6).map((d) => d.toLowerCase());
-	const weekends = [allWeekdays[0], allWeekdays[6]].map((d) => d.toLowerCase());
+	const weekdays = allWeekdays.value.slice(0, 5).map((d) => d.value);
+	const weekends = [allWeekdays.value[5], allWeekdays.value[6]].map((d) => d.value);
 
 	const label = computed(() => {
 		const selected = props.selectedDays.map((d) => d.toLowerCase());

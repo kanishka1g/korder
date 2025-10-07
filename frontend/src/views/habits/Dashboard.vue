@@ -14,7 +14,7 @@
 				</VRow>
 				<VRow>
 					<VCol cols="12" md="6" order-md="1" order="2">
-						<VCard variant="outlined" class="mt-3">
+						<VCard variant="outlined" class="mt-3 fill-height">
 							<VCardTitle> Active Habits </VCardTitle>
 							<VCardText>
 								<TableView
@@ -57,7 +57,7 @@
 						</VCard>
 					</VCol>
 					<VCol cols="12" md="6" order-md="2" order="1">
-						<VCard variant="outlined" class="mt-3">
+						<VCard variant="outlined" class="mt-3 fill-height">
 							<VCardTitle> Today </VCardTitle>
 							<VCardText class="pa-3">
 								<VRow>

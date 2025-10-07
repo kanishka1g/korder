@@ -1,6 +1,5 @@
 <template>
-	<VSkeletonLoader v-if="loading" type="card"></VSkeletonLoader>
-	<VCard v-else class="modern-card pa-4 rounded-xl fill-height" elevation="4">
+	<VCard class="modern-card pa-4 rounded-xl fill-height" elevation="4">
 		<VCardTitle class="text-h6 mb-4">
 			<VRow align="end">
 				<VCol cols="auto">
@@ -71,51 +70,25 @@
 </template>
 
 <script setup>
-	import { ref, computed, onMounted } from "vue";
-	import { io } from "socket.io-client";
-	import { useLogger } from "@/utils/useLogger";
+	import { ref } from "vue";
 	import { parseDate } from "@/utils/time";
 	import { defaultColors } from "@/utils/helpers";
+	import request from "@/utils/request";
 
 	import DisplayDateTime from "../common/DisplayDateTime.vue";
 
-	const logger = useLogger();
-
-	const loading = ref(false);
 	const items = ref([]);
 
-	let socket;
-	onMounted(async () => {
-		loading.value = true;
-		try {
-			socket = io(`${import.meta.env.VITE_BACKEND_URL}/day-plan`);
+	async function reload() {
+		const response = await request.get("workdesk/day-plan");
+		items.value = response.data;
+	}
 
-			await new Promise((resolve, reject) => {
-				socket.on("statusUpdate", (data) => {
-					items.value = data.result;
-					resolve();
-				});
-
-				socket.on("connect_error", (err) => {
-					reject(err);
-				});
-			});
-		} catch (err) {
-			logger.error(err, "handleDailyCheck");
-		} finally {
-			loading.value = false;
-		}
-	});
+	reload();
 
 	function limitedTasks(item) {
 		return item?.showAll ? item.items : item.items.slice(0, 5);
 	}
-
-	// const limitedTasks = (item) => {
-	// 	const limit = 5;
-	// 	if (item.showAll) return getItems(item);
-	// 	return getItems(item).slice(0, limit);
-	// };
 </script>
 
 <style scoped lang="scss">

@@ -5,6 +5,11 @@ const CACHE_FILE = process.env.CACHE_FILE;
 const N8N_WEBHOOK = process.env.N8N_WEBHOOK;
 const N8N_JWT = process.env.N8N_JWT;
 
+const cacheDir = CACHE_FILE.substring(0, CACHE_FILE.lastIndexOf("/"));
+if (!fs.existsSync(cacheDir)) {
+  fs.mkdirSync(cacheDir, { recursive: true });
+}
+
 export const getDayPlan = async (req, res) => {
   if (fs.existsSync(CACHE_FILE)) {
     const data = fs.readFileSync(CACHE_FILE, "utf-8");
@@ -15,9 +20,6 @@ export const getDayPlan = async (req, res) => {
     res.json(JSON.parse(data));
   }
 };
-
-const cacheDir = CACHE_FILE.substring(0, CACHE_FILE.lastIndexOf("/"));
-if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
 
 async function fetchDayPlan() {
   try {

@@ -12,7 +12,7 @@
 		</VCardTitle>
 		<VCardText>
 			<VRow class="g-6 pa-4">
-				<VCol v-for="(item, index) in items" :key="item.date" cols="12" md="4">
+				<VCol v-for="(item, index) in items" :key="item.date" cols="12" md="6">
 					<VCard
 						class="modern-card transition-all duration-300 hover:scale-[1.02] hover:shadow-lg fill-height"
 						:color="defaultColors[index]"
@@ -80,7 +80,7 @@
 	const items = ref([]);
 
 	async function reload() {
-		const response = await request.get("workdesk/day-plan");
+		const response = await request.get("workdesk/day-plan", { timeout: 60000 });
 		items.value = response.data;
 	}
 

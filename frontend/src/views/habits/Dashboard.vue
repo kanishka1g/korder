@@ -254,7 +254,8 @@
 					<VCol cols="auto">
 						Total missed:
 						<span class="text-warning">
-							{{ viewModal.habit.checkIns.filter((c) => !c.checked).length }}
+							{{ viewModal.habit.checkIns.filter((c) => !c.checked).length }}/
+							{{ viewModal.habit.checkIns.length }}
 						</span>
 					</VCol>
 				</VRow>
@@ -517,30 +518,22 @@
 	//TODO: Probably clean up this function
 	async function handleConfirm() {
 		if (!habitModal.value.data.weekdays.length) {
-			snackbar.warning("Please select at least one weekday");
-			return;
+			return snackbar.warning("Please select at least one weekday");
 		}
 
-		if (habitModal.value.action === "Add") {
-			const res = await request.post("habits", {
-				title: habitModal.value.data.title,
-				startDate: habitModal.value.data.startDate,
-				endDate: habitModal.value.data.endDate,
-				weekdays: habitModal.value.data.weekdays,
-			});
+		const { action, data } = habitModal.value;
+		const payload = {
+			title: data.title,
+			startDate: data.startDate,
+			endDate: data.endDate,
+			weekdays: data.weekdays,
+		};
 
-			snackbar.success(`${res.data.title} added`);
-		} else if (habitModal.value.action === "Edit") {
-			const res = await request.put(`habits/${habitModal.value.data._id}`, {
-				title: habitModal.value.data.title,
-				startDate: habitModal.value.data.startDate,
-				endDate: habitModal.value.data.endDate,
-				weekdays: habitModal.value.data.weekdays,
-			});
+		const url = action === "Add" ? "habits" : `habits/${data._id}`;
+		const method = action === "Add" ? request.post : request.put;
 
-			snackbar.success(`${res.data.title} edited`);
-		}
-
+		const res = await method(url, payload);
+		snackbar.success(`${res.data.title} ${action.toLowerCase()}ed`);
 		reload();
 		habitModal.value.show = false;
 	}

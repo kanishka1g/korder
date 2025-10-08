@@ -114,7 +114,7 @@
 	});
 
 	async function reload() {
-		const response = await request.get("workdesk/day-plan");
+		const response = await request.get("workdesk/day-plan", { timeout: 60000 });
 		dates.value = response.data;
 	}
 

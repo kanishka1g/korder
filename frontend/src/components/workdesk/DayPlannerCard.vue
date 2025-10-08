@@ -6,27 +6,12 @@
 					<VIcon icon="fas fa-calendar" color="primary" size="20" />
 				</VCol>
 				<VCol cols="auto" class="text-h6 font-weight-bold"> Day Plan </VCol>
-
 				<VCol cols="auto" class="ml-auto">
-					<VBtn
-						color="primary"
-						variant="text"
-						size="small"
-						prepend-icon="fas fa-refresh"
-						@click="handleRefreshDayPlan"
-					>
-						Refresh
-					</VBtn>
+					<VSelect v-model="dayPlanType" :items="dayPlanTypes" dense hide-details />
 				</VCol>
 			</VRow>
 		</VCardTitle>
 		<VCardText>
-			<VRow>
-				<VCol />
-				<VCol>
-					<VSelect v-model="dayPlanType" :items="dayPlanTypes" dense hide-details />
-				</VCol>
-			</VRow>
 			<VRow>
 				<VCol v-for="(item, index) in filteredItems" :key="item.date" v-bind="colProps">
 					<VCard
@@ -40,7 +25,7 @@
 							<VRow align="center" justify="space-between" no-gutters>
 								<VCol> <DisplayDateTime :value="parseDate(item.date)" date-only /></VCol>
 								<VCol cols="auto" class="text-body-2 text-medium-emphasis">
-									total: {{ item.items.length }}
+									total: {{ item.tasksAndEvents.length }}
 								</VCol>
 							</VRow>
 						</VCardTitle>
@@ -74,7 +59,7 @@
 								</VRow>
 							</TransitionGroup>
 
-							<VRow class="mt-2" v-if="filteredItems.length !== 1 && item.items.length > 5">
+							<VRow class="mt-2" v-if="filteredItems.length !== 1 && item.tasksAndEvents.length > 5">
 								<VCol class="text-center">
 									<VBtn
 										@click="item.showAll = !item.showAll"
@@ -100,7 +85,6 @@
 	import { parseDate } from "@/utils/time";
 	import { defaultColors } from "@/utils/helpers";
 	import request from "@/utils/request";
-	import { snackbar } from "@/utils/generic_modals";
 	import { useNow } from "@/utils/now";
 
 	import DisplayDateTime from "../common/DisplayDateTime.vue";
@@ -112,14 +96,14 @@
 		{ title: "Next 7 Days", value: "next_7_days" },
 	];
 
-	const items = ref([]);
+	const dates = ref([]);
 	const dayPlanType = ref("today");
 
 	const filteredItems = computed(() => {
 		if (dayPlanType.value === "next_7_days") {
-			return items.value;
+			return dates.value;
 		}
-		return items.value.filter((item) => parseDate(item.date).isSame(now.value, "day"));
+		return dates.value.filter((item) => parseDate(item.date).isSame(now.value, "day"));
 	});
 
 	const colProps = computed(() => {
@@ -130,24 +114,16 @@
 	});
 
 	async function reload() {
-		const response = await request.get("workdesk/day-plan", { timeout: 60000 });
-		items.value = response.data;
+		const response = await request.get("workdesk/day-plan");
+		dates.value = response.data;
 	}
 
 	reload();
 
-	async function handleRefreshDayPlan() {
-		const response = await request.request({
-			url: "workdesk/day-plan/refresh",
-			method: "post",
-			timeout: 60000,
-		});
-		items.value = response.data.plan;
-		snackbar.success(response.data.message);
-	}
-
 	function limitedTasks(item) {
-		return item?.showAll || filteredItems.value.length === 1 ? item.items : item.items.slice(0, 5);
+		return item?.showAll || filteredItems.value.length === 1
+			? item.tasksAndEvents
+			: item.tasksAndEvents.slice(0, 5);
 	}
 </script>
 

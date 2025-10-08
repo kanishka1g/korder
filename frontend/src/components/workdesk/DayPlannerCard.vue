@@ -6,6 +6,7 @@
 					<VIcon icon="fas fa-calendar" color="primary" size="20" />
 				</VCol>
 				<VCol cols="auto" class="text-h6 font-weight-bold"> Day Plan </VCol>
+
 				<VCol cols="auto" class="ml-auto">
 					<VBtn
 						color="primary"
@@ -20,8 +21,14 @@
 			</VRow>
 		</VCardTitle>
 		<VCardText>
-			<VRow class="g-6 pa-4">
-				<VCol v-for="(item, index) in items" :key="item.date" cols="12" md="6">
+			<VRow>
+				<VCol />
+				<VCol>
+					<VSelect v-model="dayPlanType" :items="dayPlanTypes" dense hide-details />
+				</VCol>
+			</VRow>
+			<VRow>
+				<VCol v-for="(item, index) in filteredItems" :key="item.date" v-bind="colProps">
 					<VCard
 						class="modern-card transition-all duration-300 hover:scale-[1.02] hover:shadow-lg fill-height"
 						:color="defaultColors[index]"
@@ -30,9 +37,13 @@
 						elevation="6"
 					>
 						<VCardTitle class="text-h6 text-white font-weight-bold mb-1">
-							<DisplayDateTime :value="parseDate(item.date)" date-only />
+							<VRow align="center" justify="space-between" no-gutters>
+								<VCol> <DisplayDateTime :value="parseDate(item.date)" date-only /></VCol>
+								<VCol cols="auto" class="text-body-2 text-medium-emphasis">
+									total: {{ item.items.length }}
+								</VCol>
+							</VRow>
 						</VCardTitle>
-
 						<VCardText class="pt-1">
 							<TransitionGroup name="fade" tag="div">
 								<VRow
@@ -41,7 +52,6 @@
 									dense
 									class="align-center mb-1"
 								>
-									<!-- TODO: Add icon regards of task or event -->
 									<VCol cols="9" class="text-white text-body-2">
 										<VIcon
 											:icon="task.source === 'TASK' ? 'fas fa-list-check' : 'fas fa-calendar'"
@@ -64,7 +74,7 @@
 								</VRow>
 							</TransitionGroup>
 
-							<VRow class="mt-2" v-if="item.items.length > 5">
+							<VRow class="mt-2" v-if="filteredItems.length !== 1 && item.items.length > 5">
 								<VCol class="text-center">
 									<VBtn
 										@click="item.showAll = !item.showAll"
@@ -86,15 +96,38 @@
 </template>
 
 <script setup>
-	import { ref } from "vue";
+	import { ref, computed } from "vue";
 	import { parseDate } from "@/utils/time";
 	import { defaultColors } from "@/utils/helpers";
 	import request from "@/utils/request";
 	import { snackbar } from "@/utils/generic_modals";
+	import { useNow } from "@/utils/now";
 
 	import DisplayDateTime from "../common/DisplayDateTime.vue";
 
+	const now = useNow();
+
+	const dayPlanTypes = [
+		{ title: "Today", value: "today" },
+		{ title: "Next 7 Days", value: "next_7_days" },
+	];
+
 	const items = ref([]);
+	const dayPlanType = ref("today");
+
+	const filteredItems = computed(() => {
+		if (dayPlanType.value === "next_7_days") {
+			return items.value;
+		}
+		return items.value.filter((item) => parseDate(item.date).isSame(now.value, "day"));
+	});
+
+	const colProps = computed(() => {
+		if (filteredItems.value.length === 1) {
+			return { cols: 12, sm: 12, md: 12, lg: 12, xl: 12 };
+		}
+		return { cols: 12, sm: 6, md: 12, lg: 6, xl: 4 };
+	});
 
 	async function reload() {
 		const response = await request.get("workdesk/day-plan", { timeout: 60000 });
@@ -114,7 +147,7 @@
 	}
 
 	function limitedTasks(item) {
-		return item?.showAll ? item.items : item.items.slice(0, 5);
+		return item?.showAll || filteredItems.value.length === 1 ? item.items : item.items.slice(0, 5);
 	}
 </script>
 

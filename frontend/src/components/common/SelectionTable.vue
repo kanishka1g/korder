@@ -307,7 +307,6 @@
 						<VDivider v-if="slots.actions" />
 
 						<VCardActions v-if="slots.actions" class="mobile-actions">
-							<VSpacer />
 							<div class="actions-container">
 								<slot
 									name="actions"
@@ -1004,9 +1003,15 @@
 				background: rgba(var(--v-theme-surface-variant), 0.05);
 				border-radius: 0 0 12px 12px;
 
+				:deep(.v-card-actions) {
+					justify-content: flex-end;
+					width: 100%;
+				}
+
 				.actions-container {
 					display: flex;
 					gap: 8px;
+					margin-left: auto;
 				}
 			}
 		}

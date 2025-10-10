@@ -187,12 +187,13 @@
 						</div>
 					</VCardTitle>
 					<VCardText class="pa-6">
-						<TableView
+						<SelectionTable
 							v-model:active="showArchived"
 							:headers="headers"
 							:items="filteredHabits"
 							active-label="Show Archived"
 							@add="handleAdd"
+							searchable
 						>
 							<template #item.startDate="{ item }">
 								<DisplayDateTime :value="item.startDate" date-only />
@@ -225,7 +226,7 @@
 									/>
 								</div>
 							</template>
-						</TableView>
+						</SelectionTable>
 					</VCardText>
 				</VCard>
 			</VCol>
@@ -242,7 +243,7 @@
 						</div>
 					</VCardTitle>
 					<VCardText class="pa-6">
-						<TableView :headers="badDataHeaders" :items="badData">
+						<SelectionTable :headers="badDataHeaders" :items="badData">
 							<template #actions="{ item }">
 								<VBtn
 									icon="fas fa-trash"
@@ -252,7 +253,7 @@
 									@click="handleDeleteBadData(item)"
 								/>
 							</template>
-						</TableView>
+						</SelectionTable>
 					</VCardText>
 				</VCard>
 			</VCol>
@@ -459,7 +460,7 @@
 		confirm-color="primary"
 		@confirm="statsModal.show = false"
 	>
-		<TableView :headers="headers" :items="statsModal.items" hide-active-toggle>
+		<SelectionTable :headers="headers" :items="statsModal.items" hide-active-toggle>
 			<template #item.startDate="{ item }">
 				<DisplayDateTime :value="item.startDate" date-only />
 			</template>
@@ -481,7 +482,7 @@
 					<VBtn icon="fas fa-trash" color="error" size="small" variant="text" @click="handleDelete(item)" />
 				</div>
 			</template>
-		</TableView>
+		</SelectionTable>
 	</Modal>
 </template>
 
@@ -496,7 +497,7 @@
 
 	import DateField from "@/components/common/DateField.vue";
 	import StatCard from "@/components/common/StatCard.vue";
-	import TableView from "@/components/common/TableView.vue";
+	import SelectionTable from "@/components/common/SelectionTable.vue";
 	import DisplayDateTime from "@/components/common/DisplayDateTime.vue";
 	import DisplayWeekdays from "@/components/common/DisplayWeekdays.vue";
 

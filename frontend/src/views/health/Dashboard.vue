@@ -28,7 +28,7 @@
 		<!-- Health Stats Overview -->
 		<VRow class="mb-6">
 			<VCol cols="12" sm="6" md="3">
-				<VCard class="modern-stat-card weight-card" elevation="0">
+				<VCard class="modern-stat-card weight-card fill-height" elevation="0">
 					<VCardText class="pa-6">
 						<div class="d-flex align-center justify-space-between">
 							<div>
@@ -41,7 +41,7 @@
 				</VCard>
 			</VCol>
 			<VCol cols="12" sm="6" md="3">
-				<VCard class="modern-stat-card calories-card" elevation="0">
+				<VCard class="modern-stat-card calories-card fill-height" elevation="0">
 					<VCardText class="pa-6">
 						<div class="d-flex align-center justify-space-between">
 							<div>
@@ -54,7 +54,7 @@
 				</VCard>
 			</VCol>
 			<VCol cols="12" sm="6" md="3">
-				<VCard class="modern-stat-card workout-card" elevation="0">
+				<VCard class="modern-stat-card workout-card fill-height" elevation="0">
 					<VCardText class="pa-6">
 						<div class="d-flex align-center justify-space-between">
 							<div>
@@ -67,7 +67,7 @@
 				</VCard>
 			</VCol>
 			<VCol cols="12" sm="6" md="3">
-				<VCard class="modern-stat-card meals-card" elevation="0">
+				<VCard class="modern-stat-card meals-card fill-height" elevation="0">
 					<VCardText class="pa-6">
 						<div class="d-flex align-center justify-space-between">
 							<div>
@@ -146,7 +146,12 @@
 										density="compact"
 										class="mb-4"
 									/>
-									<TableView :headers="headers" :items="filterWeights" hide-active-toggle hideAdd>
+									<SelectionTable
+										:headers="headers"
+										:items="filterWeights"
+										hide-active-toggle
+										hideAdd
+									>
 										<template #item.date="{ item }">
 											<DisplayDateTime :value="item.date" date-only />
 										</template>
@@ -168,7 +173,7 @@
 												/>
 											</div>
 										</template>
-									</TableView>
+									</SelectionTable>
 								</VCardText>
 							</VCard>
 						</VCol>
@@ -333,7 +338,7 @@
 
 	import LineChart from "@/components/charts/LineChart.vue";
 	import DateField from "@/components/common/DateField.vue";
-	import TableView from "@/components/common/TableView.vue";
+	import SelectionTable from "@/components/common/SelectionTable.vue";
 	import DisplayDateTime from "@/components/common/DisplayDateTime.vue";
 
 	const now = useNow();

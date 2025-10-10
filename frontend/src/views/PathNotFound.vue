@@ -1,36 +1,64 @@
 <template>
-	<VApp>
-		<VMain class="error-page text-center container">
-			<h1 class="font-weight-bold mt-4 text-error">404</h1>
-			<p class="mb-4 text-subtitle-1">Oops! The page you're looking for doesn't exist.</p>
-			<VBtn color="primary" href="/workdesk" variant="outlined"> Go to workdesk </VBtn>
-		</VMain>
-	</VApp>
+	<v-app>
+		<v-main class="d-flex align-center justify-center min-height-screen">
+			<ErrorState
+				title="404 - Page Not Found"
+				message="Oops! The page you're looking for doesn't exist or may have been moved."
+				icon="fas fa-map-marked-alt"
+				variant="error"
+				:primary-action="primaryAction"
+				:secondary-action="secondaryAction"
+				:details="routeDetails"
+			/>
+		</v-main>
+	</v-app>
 </template>
+<script setup>
+	import { computed } from "vue";
+	import { useRouter, useRoute } from "vue-router";
+	import ErrorState from "@/components/app/ErrorState.vue";
+
+	const router = useRouter();
+	const route = useRoute();
+
+	// Navigation actions
+	const goToDashboard = () => {
+		router.push("/dashboard");
+	};
+
+	const goBack = () => {
+		if (window.history.length > 1) {
+			router.go(-1);
+		} else {
+			router.push("/dashboard");
+		}
+	};
+
+	// Action configurations
+	const primaryAction = {
+		text: "Go to Dashboard",
+		icon: "fas fa-home",
+		color: "primary",
+		variant: "elevated",
+		action: goToDashboard,
+	};
+
+	const secondaryAction = {
+		text: "Go Back",
+		icon: "fas fa-arrow-left",
+		color: "secondary",
+		variant: "outlined",
+		action: goBack,
+	};
+
+	// Route details for debugging (optional)
+	const routeDetails = computed(() => {
+		return `Requested path: ${route.fullPath}\nAvailable routes: /dashboard, /settings, /workdesk, /health, /habits`;
+	});
+</script>
 
 <style scoped>
-	.error-page {
-		background-color: #f9f9f9;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		text-align: center;
-	}
-
-	.text-error {
-		color: #e74c3c;
-		font-size: 5rem;
-	}
-
-	.text-subtitle-1 {
-		color: #7f8c8d;
-		font-size: 1.5rem;
-	}
-
-	.error-icon {
-		font-size: 3rem;
-		color: #e74c3c;
-		margin-top: 20px;
+	.min-height-screen {
+		min-height: 100vh;
 	}
 </style>

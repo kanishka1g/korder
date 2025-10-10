@@ -1,7 +1,6 @@
-import { snackbar } from "@/utils/generic_modals";
-
 /**
- * Centralized logger with optional contextual/local logging
+ * Centralized logger for debugging and monitoring
+ * Note: This logger only logs to console. UI notifications are handled by request interceptors.
  */
 export function useLogger() {
 	function error(error, context = "") {
@@ -11,7 +10,7 @@ export function useLogger() {
 			const { status, data } = error.response;
 			const backendMessage = data?.message || data?.error || data?.details || null;
 
-			console.error(`[API ERROR] ${context}`, { status, data });
+			console.error(`[API ERROR] ${context}`, { status, data, error });
 
 			switch (status) {
 				case 400:
@@ -32,33 +31,31 @@ export function useLogger() {
 				default:
 					userMessage = backendMessage || "Unexpected error occurred.";
 			}
-			snackbar.error(userMessage);
 		} else if (error.request) {
-			console.log(`[NETWORK ERROR] ${context}`, error.request);
+			console.error(`[NETWORK ERROR] ${context}`, error.request);
 			userMessage = "Unable to connect to server. Please check your network.";
-			snackbar.error(userMessage);
 		} else {
-			console.log(`[CLIENT ERROR] ${context}`, error.message);
+			console.error(`[CLIENT ERROR] ${context}`, error.message);
 			userMessage = error.message || "Unexpected client error occurred.";
-			snackbar.error(userMessage);
 		}
 
-		return userMessage; // optional: can be used for local UI messages
+		return userMessage; // Return message for manual UI handling if needed
 	}
 
 	function info(message, meta = {}) {
 		console.info(`[INFO] ${message}`, meta);
-		snackbar.info(message);
 	}
 
 	function warning(message, meta = {}) {
 		console.warn(`[WARNING] ${message}`, meta);
-		snackbar.warning(message);
 	}
 
 	function success(message, meta = {}) {
 		console.log(`[SUCCESS] ${message}`, meta);
-		snackbar.success(message);
+	}
+
+	function debug(message, meta = {}) {
+		console.debug(`[DEBUG] ${message}`, meta);
 	}
 
 	return {
@@ -66,5 +63,6 @@ export function useLogger() {
 		info,
 		warning,
 		success,
+		debug,
 	};
 }

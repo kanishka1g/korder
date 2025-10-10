@@ -1,44 +1,75 @@
 <template>
-	<VCard class="modern-card pa-4 rounded-xl fill-height" elevation="4">
-		<VCardText>
-			<VRow align="center" class="mb-4">
-				<VCol cols="auto">
-					<VAvatar size="64" class="shadow-sm" variant="outlined">
-						<VImg :src="userAvatar" alt="User Avatar" />
-					</VAvatar>
-				</VCol>
-				<VCol>
-					<div class="text-h6 font-weight-bold mb-1">Welcome back, {{ user.name || "Guest" }}</div>
-					<div class="text-body-2 text-medium-emphasis">
+	<VCard class="welcome-card pa-6 rounded-xl fill-height" elevation="8">
+		<VCardText class="pa-0">
+			<!-- Header Section -->
+			<div class="d-flex align-center mb-6">
+				<VAvatar size="72" class="welcome-avatar mr-4" variant="outlined">
+					<VImg :src="userAvatar" alt="User Avatar" />
+				</VAvatar>
+				<div class="flex-grow-1">
+					<h2 class="text-h5 font-weight-bold mb-1 welcome-title">
+						Welcome back, {{ user.name || "Guest" }}
+					</h2>
+					<div class="text-body-1 text-medium-emphasis">
 						{{ user.role || "User" }}
 					</div>
-				</VCol>
-			</VRow>
+				</div>
+			</div>
 
 			<Transition name="fade">
-				<div v-if="quoteObject" class="font-italic text-body-2 mb-4 font-weight-bold">
-					<span> “{{ quoteObject.quote }}” </span>
-					<div v-if="quoteObject.author" class="text-medium-emphasis">- {{ quoteObject.author }}</div>
-				</div>
+				<VCard v-if="quoteObject" variant="tonal" color="primary" class="quote-card mb-6" rounded="lg">
+					<VCardText>
+						<div class="text-medium-emphasis text-body-1 mb-2">"{{ quoteObject.quote }}"</div>
+						<div v-if="quoteObject.author" class="text-body-2 text-medium-emphasis text-right">
+							— {{ quoteObject.author }}
+						</div>
+					</VCardText>
+				</VCard>
 			</Transition>
 
-			<VRow dense align="center" class="text-body-2">
-				<VCol cols="12" sm="6" class="d-flex align-center mb-1">
-					<VIcon icon="fa-regular fa-clock" color="primary" size="small" class="mr-2" />
-					<DisplayDateTime :value="now" time-only />
+			<VRow dense class="info-grid">
+				<VCol cols="12" sm="6">
+					<div class="info-item d-flex align-center pa-3 rounded-lg fill-height">
+						<VIcon icon="fas fa-clock" color="primary" size="20" class="mr-3" />
+						<div>
+							<div class="text-caption text-medium-emphasis">Current Time</div>
+							<div class="text-body-1 font-weight-medium">
+								<DisplayDateTime :value="now" time-only />
+							</div>
+						</div>
+					</div>
 				</VCol>
 
-				<VCol cols="12" sm="6" class="d-flex align-center mb-1">
-					<VIcon icon="fa-regular fa-calendar" color="primary" size="small" class="mr-2" />
-					<DisplayDateTime :value="now" date-only long />
+				<VCol cols="12" sm="6">
+					<div class="info-item d-flex align-center pa-3 rounded-lg fill-height">
+						<VIcon icon="fas fa-calendar" color="primary" size="20" class="mr-3" />
+						<div>
+							<div class="text-caption text-medium-emphasis">Today</div>
+							<div class="text-body-1 font-weight-medium">
+								<DisplayDateTime :value="now" date-only long />
+							</div>
+						</div>
+					</div>
 				</VCol>
 
-				<VCol v-if="city && temperature" cols="12" class="d-flex align-center mt-2">
-					<VIcon icon="fa-solid fa-location-dot" color="info" size="small" class="mr-2" />
-					<span>{{ city }}</span>
-					<VDivider class="mx-3" vertical />
-					<VIcon icon="fa-solid fa-temperature-half" :color="temperatureColour" size="small" class="mr-2" />
-					<span>{{ temperature }}</span>
+				<VCol v-if="city && temperature" cols="12">
+					<div class="info-item d-flex align-center pa-3 rounded-lg">
+						<VIcon icon="fas fa-map-marker-alt" color="info" size="20" class="mr-3" />
+						<div class="flex-grow-1">
+							<div class="text-caption text-medium-emphasis">Location & Weather</div>
+							<div class="d-flex align-center">
+								<span class="text-body-1 font-weight-medium mr-3">{{ city }}</span>
+								<VChip
+									:color="temperatureColour"
+									variant="tonal"
+									size="small"
+									prepend-icon="fas fa-thermometer-half"
+								>
+									{{ temperature }}
+								</VChip>
+							</div>
+						</div>
+					</div>
 				</VCol>
 			</VRow>
 		</VCardText>
@@ -89,7 +120,7 @@
 		if (!("geolocation" in navigator)) return;
 		navigator.geolocation.getCurrentPosition(
 			(pos) => fetchInfo(pos.coords.latitude, pos.coords.longitude),
-			() => (quoteObject.value = "Couldn’t get your location, but you’re doing great!"),
+			() => (quoteObject.value = "Couldn't get your location, but you're doing great!"),
 		);
 	}
 
@@ -98,4 +129,87 @@
 
 <style scoped lang="scss">
 	@use "@/assets/styles/cards";
+
+	.welcome-card {
+		background: linear-gradient(
+			135deg,
+			rgba(var(--v-theme-surface), 0.95) 0%,
+			rgba(var(--v-theme-surface), 0.8) 100%
+		);
+		backdrop-filter: blur(20px);
+		border: 1px solid rgba(var(--v-border-color), 0.12);
+		transition: all 0.3s ease;
+
+		&:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+		}
+	}
+
+	.welcome-avatar {
+		border: 3px solid rgba(var(--v-theme-primary), 0.2);
+		transition: all 0.3s ease;
+
+		&:hover {
+			border-color: rgba(var(--v-theme-primary), 0.5);
+			transform: scale(1.05);
+		}
+	}
+
+	.welcome-title {
+		background: linear-gradient(45deg, rgb(var(--v-theme-primary)), rgb(var(--v-theme-secondary)));
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-clip: text;
+	}
+
+	.quote-card {
+		border-left: 4px solid rgb(var(--v-theme-primary));
+		transition: all 0.3s ease;
+
+		&:hover {
+			transform: translateX(4px);
+		}
+	}
+
+	.info-item {
+		background: rgba(var(--v-theme-surface-variant), 0.3);
+		border: 1px solid rgba(var(--v-border-color), 0.08);
+		transition: all 0.3s ease;
+
+		&:hover {
+			background: rgba(var(--v-theme-primary), 0.08);
+			transform: translateY(-1px);
+		}
+	}
+
+	.info-grid {
+		.v-col {
+			margin-bottom: 8px;
+		}
+	}
+
+	.fade-enter-active,
+	.fade-leave-active {
+		transition: all 0.5s ease;
+	}
+
+	.fade-enter-from,
+	.fade-leave-to {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+
+	// Theme-specific enhancements
+	.v-theme--dark {
+		.welcome-card {
+			background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.9) 100%);
+		}
+	}
+
+	.v-theme--light {
+		.welcome-card {
+			background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%);
+		}
+	}
 </style>

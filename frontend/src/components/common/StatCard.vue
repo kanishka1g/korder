@@ -1,6 +1,5 @@
 <template>
 	<VCard class="fill-height">
-		<!-- TODO: make this stat card nicer -->
 		<VCardText>
 			<VRow dense>
 				<VCol cols="auto">

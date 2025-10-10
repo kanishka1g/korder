@@ -1,0 +1,463 @@
+/**
+ * Accessibility Styles
+ * Provides utilities for screen readers, focus management, and WCAG compliance
+ */
+
+/* Screen Reader Only Content */
+.sr-only {
+	position: absolute !important;
+	width: 1px !important;
+	height: 1px !important;
+	padding: 0 !important;
+	margin: -1px !important;
+	overflow: hidden !important;
+	clip: rect(0, 0, 0, 0) !important;
+	white-space: nowrap !important;
+	border: 0 !important;
+}
+
+/* Screen Reader Only - Focusable */
+.sr-only-focusable:focus,
+.sr-only-focusable:active {
+	position: static !important;
+	width: auto !important;
+	height: auto !important;
+	padding: inherit !important;
+	margin: inherit !important;
+	overflow: visible !important;
+	clip: auto !important;
+	white-space: inherit !important;
+}
+
+/* Skip Links */
+.skip-link {
+	position: absolute;
+	top: -40px;
+	left: 6px;
+	background: rgb(var(--v-theme-primary));
+	color: rgb(var(--v-theme-on-primary));
+	padding: 8px 16px;
+	text-decoration: none;
+	border-radius: 4px;
+	z-index: 9999;
+	font-weight: 500;
+	transition: top 0.2s ease;
+
+	&:focus {
+		top: 6px;
+	}
+}
+
+/* Focus Management */
+.focus-trap {
+	position: relative;
+}
+
+/* Enhanced Focus Indicators */
+.focus-visible,
+*:focus-visible {
+	outline: 2px solid rgb(var(--v-theme-primary)) !important;
+	outline-offset: 2px !important;
+	border-radius: 4px;
+}
+
+/* Remove default focus for mouse users */
+*:focus:not(:focus-visible) {
+	outline: none !important;
+}
+
+/* High Contrast Focus for Interactive Elements */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible,
+[role="button"]:focus-visible,
+[role="link"]:focus-visible,
+[role="menuitem"]:focus-visible,
+[role="tab"]:focus-visible {
+	outline: 2px solid rgb(var(--v-theme-primary)) !important;
+	outline-offset: 2px !important;
+	box-shadow: 0 0 0 4px rgba(var(--v-theme-primary), 0.2) !important;
+}
+
+/* Focus for Vuetify Components */
+.v-btn:focus-visible {
+	outline: 2px solid rgb(var(--v-theme-primary)) !important;
+	outline-offset: 2px !important;
+}
+
+.v-card:focus-visible {
+	outline: 2px solid rgb(var(--v-theme-primary)) !important;
+	outline-offset: 2px !important;
+}
+
+.v-list-item:focus-visible {
+	outline: 2px solid rgb(var(--v-theme-primary)) !important;
+	outline-offset: -2px !important;
+}
+
+.v-text-field:focus-within .v-field__outline {
+	border-width: 2px !important;
+	border-color: rgb(var(--v-theme-primary)) !important;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+	.v-card {
+		border: 1px solid rgb(var(--v-theme-on-surface)) !important;
+	}
+
+	.v-btn {
+		border: 1px solid rgb(var(--v-theme-on-surface)) !important;
+	}
+
+	.v-chip {
+		border: 1px solid rgb(var(--v-theme-on-surface)) !important;
+	}
+}
+
+/* Color Blind Friendly Patterns */
+.status-indicator {
+	position: relative;
+
+	&::before {
+		content: "";
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+	}
+
+	&.status-online::before {
+		background: rgb(var(--v-theme-success));
+		box-shadow: 0 0 0 2px rgba(var(--v-theme-success), 0.3);
+	}
+
+	&.status-degraded::before {
+		background: rgb(var(--v-theme-warning));
+		border: 2px solid rgb(var(--v-theme-on-surface));
+	}
+
+	&.status-offline::before {
+		background: rgb(var(--v-theme-error));
+		clip-path: polygon(
+			20% 0%,
+			0% 20%,
+			30% 50%,
+			0% 80%,
+			20% 100%,
+			50% 70%,
+			80% 100%,
+			100% 80%,
+			70% 50%,
+			100% 20%,
+			80% 0%,
+			50% 30%
+		);
+	}
+}
+
+/* Keyboard Navigation Helpers */
+.keyboard-navigation {
+	.v-list-item {
+		position: relative;
+
+		&[aria-selected="true"]::before {
+			content: "";
+			position: absolute;
+			left: 0;
+			top: 0;
+			bottom: 0;
+			width: 4px;
+			background: rgb(var(--v-theme-primary));
+		}
+	}
+}
+
+/* Loading States for Screen Readers */
+.loading-announcement {
+	position: absolute;
+	left: -10000px;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+}
+
+/* Error States */
+.error-message {
+	color: rgb(var(--v-theme-error));
+	font-size: 0.875rem;
+	margin-top: 4px;
+
+	&::before {
+		content: "⚠ ";
+		font-weight: bold;
+	}
+}
+
+/* Success States */
+.success-message {
+	color: rgb(var(--v-theme-success));
+	font-size: 0.875rem;
+	margin-top: 4px;
+
+	&::before {
+		content: "✓ ";
+		font-weight: bold;
+	}
+}
+
+/* Live Regions */
+.live-region {
+	position: absolute;
+	left: -10000px;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+}
+
+/* Semantic HTML Helpers */
+main {
+	min-height: 100vh;
+	padding-top: 64px; /* Account for app bar */
+}
+
+/* Navigation Landmarks */
+nav[aria-label] {
+	position: relative;
+}
+
+/* Form Accessibility */
+.form-group {
+	margin-bottom: 1rem;
+
+	.form-label {
+		display: block;
+		margin-bottom: 0.5rem;
+		font-weight: 500;
+		color: rgb(var(--v-theme-on-surface));
+	}
+
+	.form-help {
+		font-size: 0.875rem;
+		color: rgb(var(--v-theme-on-surface-variant));
+		margin-top: 0.25rem;
+	}
+
+	.form-error {
+		@extend .error-message;
+	}
+}
+
+/* Table Accessibility */
+.accessible-table {
+	th {
+		text-align: left;
+		font-weight: 600;
+
+		&[aria-sort] {
+			cursor: pointer;
+			user-select: none;
+
+			&::after {
+				content: " ↕";
+				opacity: 0.5;
+			}
+
+			&[aria-sort="ascending"]::after {
+				content: " ↑";
+				opacity: 1;
+			}
+
+			&[aria-sort="descending"]::after {
+				content: " ↓";
+				opacity: 1;
+			}
+		}
+	}
+
+	tbody tr:hover {
+		background-color: rgba(var(--v-theme-on-surface), 0.04);
+	}
+}
+
+/* Dialog/Modal Accessibility */
+.modal-backdrop {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	z-index: 1000;
+}
+
+.modal-content {
+	position: relative;
+	z-index: 1001;
+
+	&:focus {
+		outline: none;
+	}
+}
+
+/* Menu Accessibility */
+.menu-container {
+	[role="menu"] {
+		padding: 4px 0;
+
+		[role="menuitem"] {
+			padding: 8px 16px;
+			cursor: pointer;
+
+			&:hover,
+			&[aria-selected="true"] {
+				background-color: rgba(var(--v-theme-primary), 0.1);
+			}
+
+			&[aria-disabled="true"] {
+				opacity: 0.5;
+				cursor: not-allowed;
+				pointer-events: none;
+			}
+		}
+
+		[role="separator"] {
+			height: 1px;
+			background: rgba(var(--v-theme-on-surface), 0.12);
+			margin: 4px 0;
+		}
+	}
+}
+
+/* Tooltip Accessibility */
+.tooltip {
+	position: absolute;
+	z-index: 9999;
+	background: rgb(var(--v-theme-surface-variant));
+	color: rgb(var(--v-theme-on-surface-variant));
+	padding: 8px 12px;
+	border-radius: 4px;
+	font-size: 0.875rem;
+	max-width: 200px;
+	word-wrap: break-word;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+	&::before {
+		content: "";
+		position: absolute;
+		border: 4px solid transparent;
+	}
+
+	&.tooltip-top::before {
+		bottom: -8px;
+		left: 50%;
+		transform: translateX(-50%);
+		border-top-color: rgb(var(--v-theme-surface-variant));
+	}
+
+	&.tooltip-bottom::before {
+		top: -8px;
+		left: 50%;
+		transform: translateX(-50%);
+		border-bottom-color: rgb(var(--v-theme-surface-variant));
+	}
+}
+
+/* Print Accessibility */
+@media print {
+	.no-print {
+		display: none !important;
+	}
+
+	.print-only {
+		display: block !important;
+	}
+
+	a[href]::after {
+		content: " (" attr(href) ")";
+		font-size: 0.8em;
+		color: #666;
+	}
+
+	abbr[title]::after {
+		content: " (" attr(title) ")";
+		font-size: 0.8em;
+		color: #666;
+	}
+}
+
+/* Dark Theme Adjustments */
+.v-theme--dark {
+	.skip-link {
+		background: rgb(var(--v-theme-primary));
+		color: rgb(var(--v-theme-on-primary));
+	}
+
+	.error-message {
+		color: rgb(var(--v-theme-error));
+	}
+
+	.success-message {
+		color: rgb(var(--v-theme-success));
+	}
+}
+
+/* Animation Utilities for Accessibility */
+.fade-enter-active,
+.fade-leave-active {
+	transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+	opacity: 0;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+	transition: transform 0.2s ease;
+}
+
+.slide-enter-from {
+	transform: translateY(-10px);
+}
+
+.slide-leave-to {
+	transform: translateY(10px);
+}
+
+/* Focus Management for Modals */
+.focus-trap-active {
+	overflow: hidden;
+}
+
+/* Responsive Text Sizing */
+@media (max-width: 600px) {
+	.responsive-text {
+		font-size: 1.1rem !important;
+		line-height: 1.4 !important;
+	}
+
+	.responsive-button {
+		min-height: 44px !important;
+		min-width: 44px !important;
+	}
+}

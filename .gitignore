@@ -29,5 +29,8 @@ coverage
 
 *.tsbuildinfo
 
+# kiro files
+.kiro/*
+
 .env
 

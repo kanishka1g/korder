@@ -9,6 +9,9 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 import registerGlobals from "@/components/global";
 
+// Accessibility styles
+import "./assets/styles/accessibility.scss";
+
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
 

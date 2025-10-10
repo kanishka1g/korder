@@ -2,12 +2,22 @@ import axios from "axios";
 import dayjs from "dayjs";
 import { useLogger } from "@/utils/useLogger";
 import { useLoading } from "@/utils/loading";
-import { useAuthStore } from "@/stores/auth_store";
+import { snackbar } from "@/utils/generic_modals";
 import { dataDateFormat } from "@/utils/time";
 
 const logger = useLogger();
 const loading = useLoading();
-const authStore = useAuthStore();
+
+// Helper function to get auth store safely
+const getAuthStore = async () => {
+	try {
+		const { useAuthStore } = await import("@/stores/auth_store");
+		return useAuthStore();
+	} catch (error) {
+		console.warn("Auth store not available:", error);
+		return null;
+	}
+};
 
 const api = axios.create({
 	baseURL: `${import.meta.env.VITE_BACKEND_URL}/api`,
@@ -15,10 +25,11 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(
-	(config) => {
+	async (config) => {
 		loading.start();
 
-		const token = authStore.token;
+		const authStore = await getAuthStore();
+		const token = authStore?.token;
 		if (token) {
 			config.headers.Authorization = `Bearer ${token}`;
 		}
@@ -48,14 +59,32 @@ api.interceptors.response.use(
 
 		return response;
 	},
-	(error) => {
+	async (error) => {
 		loading.end();
 
+		// Handle authentication errors
 		if (error.response?.status === 401) {
-			authStore.logOut();
+			const authStore = await getAuthStore();
+			if (authStore) {
+				// Request re-authentication instead of immediate logout
+				authStore.requestReauth();
+				// Still logout as fallback, but give opportunity for re-auth
+				setTimeout(() => {
+					if (authStore.needsReauth) {
+						authStore.logOut();
+					}
+				}, 30000); // 30 second timeout for re-auth
+			}
 		}
 
-		logger.error(error, "API Response");
+		const log = logger.error(error, "API Response");
+
+		const skipSnackbar =
+			error.config?.skipErrorSnackbar || error.response?.status === 401 || error.response?.status === 403;
+
+		if (!skipSnackbar) {
+			snackbar.error(log);
+		}
 		return Promise.reject(error);
 	},
 );

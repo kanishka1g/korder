@@ -12,19 +12,13 @@
 		<!-- Assertive Live Region for Important Announcements -->
 		<div id="live-region-assertive" class="sr-only" aria-live="assertive" aria-atomic="true" role="alert"></div>
 	</AppShell>
-
-	<!-- Unauthenticated App without Shell -->
 	<VApp v-else>
 		<VMain>
 			<RouterView />
 		</VMain>
 		<GenericSnackbar />
 		<GenericConfirmation />
-
-		<!-- Live Region for Screen Reader Announcements -->
 		<div id="live-region" class="sr-only" aria-live="polite" aria-atomic="true" role="status"></div>
-
-		<!-- Assertive Live Region for Important Announcements -->
 		<div id="live-region-assertive" class="sr-only" aria-live="assertive" aria-atomic="true" role="alert"></div>
 	</VApp>
 </template>

@@ -609,8 +609,6 @@
 					align-items: center;
 					gap: 16px;
 					padding: 8px 16px;
-					background: rgba(var(--v-theme-surface-variant), 0.4);
-					border-radius: 12px;
 					transition: all 0.3s ease;
 
 					&:hover {

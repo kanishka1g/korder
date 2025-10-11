@@ -67,7 +67,7 @@
 						</VRow>
 
 						<div v-if="dayList.length" class="habits-list">
-							<div v-for="habit in dayList" :key="habit.id" class="habit-item mb-4">
+							<div v-for="habit in dayList" :key="habit.id" class="habit-item ">
 								<VCard
 									class="habit-card"
 									:class="{

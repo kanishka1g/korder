@@ -51,7 +51,7 @@
 		<!-- Main Content Grid -->
 		<VRow>
 			<!-- Today's Habits -->
-			<VCol cols="12" lg="6" order-lg="1" order="2">
+			<VCol cols="12" lg="6">
 				<VCard class="modern-card today-card fill-height" elevation="0">
 					<VCardTitle class="pa-6 pb-0">
 						<div class="d-flex align-center">
@@ -173,7 +173,7 @@
 			</VCol>
 
 			<!-- Active Habits -->
-			<VCol cols="12" lg="6" order-lg="2" order="1">
+			<VCol cols="12" lg="6">
 				<VCard class="modern-card habits-table-card fill-height" elevation="0">
 					<VCardTitle class="pa-6 pb-0">
 						<div class="d-flex align-center justify-space-between">

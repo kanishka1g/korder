@@ -197,21 +197,6 @@
 					<span class="font-weight-black"> {{ connectedDB }} </span>
 					database
 				</VAlert>
-				<VDivider role="presentation" />
-				<VList density="compact" role="none">
-					<VListItem
-						prepend-icon="fas fa-question-circle"
-						title="Help & Support"
-						@click="showHelp"
-						role="none"
-						aria-label="Help & Support"
-					>
-						<template #prepend>
-							<VIcon icon="fas fa-question-circle" :aria-hidden="true" />
-						</template>
-						<VListItemTitle>Help & Support</VListItemTitle>
-					</VListItem>
-				</VList>
 			</template>
 		</VNavigationDrawer>
 

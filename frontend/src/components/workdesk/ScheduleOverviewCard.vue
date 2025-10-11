@@ -75,6 +75,12 @@
 										{{ task.time }}
 									</VChip>
 								</div>
+								<div
+									v-if="item.tasksAndEvents.length === 0"
+									class="text-center pa-4 text-medium-emphasis text-body-1"
+								>
+									No tasks or events scheduled.
+								</div>
 							</TransitionGroup>
 
 							<div

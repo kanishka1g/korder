@@ -34,7 +34,7 @@
 
 	async function reload() {
 		try {
-			const response = await request.get("workdesk/day-plan");
+			const response = await request.get("workdesk/day-plan", {timeout: 30000});
 			scheduleDates.value = response.data;
 		} catch (e) {
 			error.value = e;

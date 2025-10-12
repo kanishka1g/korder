@@ -24,20 +24,15 @@
 					<VCard
 						class="plan-item-card rounded-xl fill-height"
 						:color="defaultColors[index % defaultColors.length]"
-						variant="elevated"
+						variant="tonal"
 						elevation="4"
 					>
 						<VCardTitle class="pa-4 pb-2">
-							<div class="d-flex align-center justify-space-between text-black">
+							<div class="d-flex align-center justify-space-between">
 								<div class="text-h5 font-weight-bold">
 									{{ item.label }}
 								</div>
-								<VChip
-									color="white"
-									variant="elevated"
-									size="small"
-									class="text-black font-weight-bold"
-								>
+								<VChip color="white" variant="elevated" size="small" class="font-weight-bold">
 									{{ item.tasksAndEvents.length }}
 								</VChip>
 							</div>
@@ -48,7 +43,7 @@
 								<div
 									v-for="(task, i) in limitedTasks(item)"
 									:key="task.title + i"
-									class="task-item d-flex align-center justify-space-between pa-3 mb-2 rounded-lg"
+									class="task-item d-flex justify-space-between pa-3 mb-2 rounded-lg"
 								>
 									<div class="d-flex align-center flex-grow-1">
 										<VIcon
@@ -57,21 +52,14 @@
 											"
 											size="18"
 											class="mr-3 task-icon"
-											color="black"
 										/>
 										<div>
-											<div class="text-body-1 font-weight-medium text-black">
+											<div class="text-body-1 font-weight-medium">
 												{{ task.title }}
 											</div>
 										</div>
 									</div>
-									<VChip
-										v-if="task.time"
-										color="black"
-										variant="tonal"
-										size="small"
-										class="time-chip"
-									>
+									<VChip v-if="task.time" variant="tonal" size="small" class="time-chip">
 										{{ task.time }}
 									</VChip>
 								</div>
@@ -204,7 +192,7 @@
 	}
 
 	.task-item {
-		background: rgba(255, 255, 255, 0.15);
+		background: rgba(17, 17, 17, 0.15);
 		backdrop-filter: blur(10px);
 		border: 1px solid rgba(255, 255, 255, 0.2);
 		transition: all 0.3s ease;

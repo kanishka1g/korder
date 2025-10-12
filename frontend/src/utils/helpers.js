@@ -43,4 +43,15 @@ export const externalLinks = [
 	},
 ];
 
-export const defaultColors = ["#5C6BC0", "#EC407A", "#FFA726", "#66BB6A", "#42A5F5", "#AB47BC", "#26C6DA"];
+export const defaultColors = [
+	"#66BB6A",
+	"#EC407A",
+	"#FFA726",
+	"#42A5F5",
+	"#AB47BC",
+	"#26C6DA",
+	"#FF7043",
+	"#D4E157",
+	"#5C6BC0",
+	"#8D6E63",
+];

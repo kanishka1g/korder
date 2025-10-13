@@ -1,16 +1,13 @@
 <template>
 	<div class="auth-container">
-		<!-- Background Elements -->
 		<div class="auth-background">
 			<div class="bg-shape shape-1"></div>
 			<div class="bg-shape shape-2"></div>
 			<div class="bg-shape shape-3"></div>
 		</div>
 
-		<!-- Main Content -->
 		<VContainer class="auth-content fill-height d-flex justify-center align-center">
 			<div class="auth-wrapper">
-				<!-- Brand Section -->
 				<div class="brand-section text-center mb-8">
 					<div class="brand-logo mb-4">
 						<VIcon icon="fas fa-cube" size="48" color="primary" />
@@ -19,62 +16,34 @@
 					<p class="brand-subtitle text-h6 text-medium-emphasis">Welcome back! Please sign in to continue</p>
 				</div>
 
-				<!-- Login Card -->
 				<VCard class="auth-card" elevation="0">
 					<VCardText class="pa-8">
-						<VForm ref="loginForm" @submit.prevent="handleLogin">
-							<!-- Error Alert -->
-							<VExpandTransition>
-								<VAlert
-									v-if="error"
-									type="error"
-									variant="tonal"
-									density="comfortable"
-									class="mb-6"
-									closable
-									@click:close="error = null"
-								>
-									<template #prepend>
-										<VIcon icon="fas fa-exclamation-triangle" />
-									</template>
-									{{ error }}
-								</VAlert>
-							</VExpandTransition>
-
-							<!-- Username Field -->
+						<VForm ref="login-form" @submit.prevent="handleLogin">
 							<div class="form-field mb-6">
 								<VTextField
 									v-model="username"
 									label="Username"
-									variant="outlined"
 									density="comfortable"
 									prepend-inner-icon="fas fa-user"
 									:rules="usernameRules"
-									:error-messages="usernameErrors"
 									class="modern-input"
 									@keydown.enter="handleLogin"
 								/>
 							</div>
-
-							<!-- Password Field -->
 							<div class="form-field mb-8">
 								<VTextField
 									v-model="password"
 									:type="showPassword ? 'text' : 'password'"
 									label="Password"
-									variant="outlined"
 									density="comfortable"
 									prepend-inner-icon="fas fa-lock"
 									:append-inner-icon="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"
 									:rules="passwordRules"
-									:error-messages="passwordErrors"
 									class="modern-input"
 									@click:append-inner="showPassword = !showPassword"
 									@keydown.enter="handleLogin"
 								/>
 							</div>
-
-							<!-- Login Button -->
 							<VBtn
 								type="submit"
 								color="primary"
@@ -82,7 +51,6 @@
 								size="large"
 								block
 								:loading="loading.isLoading.value"
-								:disabled="!isFormValid"
 								class="login-btn mb-4"
 							>
 								<template #prepend>
@@ -90,88 +58,38 @@
 								</template>
 								Sign In
 							</VBtn>
-
-							<!-- Additional Options -->
-							<!-- <div class="auth-options text-center">
-								<VBtn variant="text" size="small" color="primary" @click="showForgotPassword = true">
-									Forgot Password?
-								</VBtn>
-							</div> -->
 						</VForm>
 					</VCardText>
 				</VCard>
 
-				<!-- Footer -->
 				<div class="auth-footer text-center mt-6">
-					<p class="text-caption text-medium-emphasis">
-						© {{ new Date().getFullYear() }} Korder. All rights reserved.
-					</p>
+					<p class="text-caption text-medium-emphasis">© {{ now.year() }} Korder. All rights reserved.</p>
 				</div>
 			</div>
 		</VContainer>
-
-		<!-- Forgot Password Dialog -->
-		<!-- <VDialog v-model="showForgotPassword" max-width="400">
-			<VCard class="modern-modal-card" elevation="24">
-				<VCardTitle class="modal-header pa-6">
-					<div class="d-flex align-center">
-						<VIcon icon="fas fa-key" color="primary" size="24" class="mr-3" />
-						<h3 class="text-h5 font-weight-bold">Reset Password</h3>
-					</div>
-				</VCardTitle>
-
-				<VDivider />
-
-				<VCardText class="pa-6">
-					<p class="text-body-1 mb-4">Enter your username and we'll help you reset your password.</p>
-					<VTextField
-						v-model="resetUsername"
-						label="Username"
-						variant="outlined"
-						density="comfortable"
-						prepend-inner-icon="fas fa-user"
-						class="modern-input"
-					/>
-				</VCardText>
-
-				<VDivider />
-
-				<VCardActions class="pa-6">
-					<VSpacer />
-					<VBtn variant="text" @click="showForgotPassword = false" class="mr-3"> Cancel </VBtn>
-					<VBtn color="primary" variant="flat" @click="handlePasswordReset" :loading="resetLoading">
-						Send Reset Link
-					</VBtn>
-				</VCardActions>
-			</VCard>
-		</VDialog> -->
 	</div>
 </template>
 
 <script setup>
-	import { ref, computed } from "vue";
+	import { ref, useTemplateRef } from "vue";
 	import { useRouter, useRoute } from "vue-router";
 	import { useAuthStore } from "@/stores/auth_store";
 	import request from "@/utils/request";
 	import { useLoading } from "@/utils/loading";
+	import { useNow } from "@/utils/now";
 	import { snackbar } from "@/utils/generic_modals";
 
 	const authStore = useAuthStore();
 	const router = useRouter();
 	const route = useRoute();
 	const loading = useLoading();
+	const now = useNow();
 
-	// Form refs and state
-	const loginForm = ref(null);
-	const username = ref("");
-	const password = ref("");
-	const error = ref(null);
+	const loginForm = useTemplateRef("login-form");
+	const username = ref(null);
+	const password = ref(null);
 	const showPassword = ref(false);
-	const showForgotPassword = ref(false);
-	const resetUsername = ref("");
-	const resetLoading = ref(false);
 
-	// Form validation
 	const usernameRules = [
 		(v) => !!v || "Username is required",
 		(v) => (v && v.length >= 3) || "Username must be at least 3 characters",
@@ -182,42 +100,20 @@
 		(v) => (v && v.length >= 6) || "Password must be at least 6 characters",
 	];
 
-	const usernameErrors = computed(() => {
-		if (!username.value) return [];
-		return usernameRules.map((rule) => rule(username.value)).filter((result) => result !== true);
-	});
-
-	const passwordErrors = computed(() => {
-		if (!password.value) return [];
-		return passwordRules.map((rule) => rule(password.value)).filter((result) => result !== true);
-	});
-
-	const isFormValid = computed(() => {
-		return (
-			username.value && password.value && usernameErrors.value.length === 0 && passwordErrors.value.length === 0
-		);
-	});
-
 	async function handleLogin() {
-		if (!isFormValid.value) {
-			error.value = "Please fill in all required fields correctly";
+		const { valid } = await loginForm.value.validate();
+		if (!valid) {
+			snackbar.warning("Please fix the errors in the form before submitting.");
 			return;
 		}
 
 		loading.start();
-		error.value = null;
 
 		try {
-			const res = await request.post(
-				"auth/login",
-				{
-					username: username.value,
-					password: password.value,
-				},
-				{
-					skipErrorSnackbar: true, // We handle errors manually in this component
-				},
-			);
+			const res = await request.post("auth/login", {
+				username: username.value,
+				password: password.value,
+			});
 
 			if (res.data) {
 				authStore.logIn(res.data);
@@ -226,33 +122,9 @@
 				}, 500);
 			}
 		} catch (err) {
-			const errorMessage = err.response?.data?.message || "Invalid username or password";
-			error.value = errorMessage;
+			throw err;
 		} finally {
 			loading.end();
-		}
-	}
-
-	async function handlePasswordReset() {
-		if (!resetUsername.value) {
-			snackbar.warning("Please enter your username");
-			return;
-		}
-
-		resetLoading.value = true;
-
-		try {
-			await request.post("auth/forgot-password", {
-				username: resetUsername.value,
-			});
-
-			snackbar.success("Password reset link sent to your email");
-			showForgotPassword.value = false;
-			resetUsername.value = "";
-		} catch (err) {
-			snackbar.error(err.response?.data?.message || "Failed to send reset link");
-		} finally {
-			resetLoading.value = false;
 		}
 	}
 </script>

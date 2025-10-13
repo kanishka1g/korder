@@ -37,8 +37,16 @@ class Clock {
     return Clock.startOfDayUTC(a) > Clock.startOfDayUTC(b);
   }
 
+  static isAfterDayOrSameDayUTC(a, b) {
+    return this.isAfterDayUTC(a, b) || this.isSameDayUTC(a, b);
+  }
+
   static isBeforeDayUTC(a, b) {
     return Clock.startOfDayUTC(a) < Clock.startOfDayUTC(b);
+  }
+
+  static isBeforeOrSameDayUTC(a, b) {
+    return this.isBeforeDayUTC(a, b) || this.isSameDayUTC(a, b);
   }
 
   static weekdayNameUTC(d) {

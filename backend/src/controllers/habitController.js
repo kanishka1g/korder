@@ -129,111 +129,81 @@ export const getStats = async (req, res) => {
       ClockUtil.isBeforeDayUTC(habit.endDate, today)
     );
 
+    // 🕓 Find missed dates for each habit
+    const missedHabits = [];
+
+    for (const habit of habits) {
+      const { title, startDate, endDate, weekdays, checkIns } = habit;
+
+      // Skip habits that haven’t started yet
+      if (ClockUtil.isAfterDayUTC(startDate, today)) continue;
+
+      const end = ClockUtil.isBeforeDayUTC(endDate, today)
+        ? ClockUtil.startOfDayUTC(endDate)
+        : today;
+
+      const missedDates = [];
+      let currentDate = ClockUtil.startOfDayUTC(startDate);
+
+      while (ClockUtil.isBeforeOrSameDayUTC(currentDate, end)) {
+        const weekday = currentDate
+          .toLocaleDateString("en-US", {
+            weekday: "long",
+          })
+          .toLowerCase();
+
+        if (weekdays.includes(weekday)) {
+          const match = checkIns.find((c) =>
+            ClockUtil.isSameDayUTC(new Date(c.date), currentDate)
+          );
+
+          if (!match || !match.checked) {
+            // Save missed date in ISO format (YYYY-MM-DD)
+            missedDates.push(currentDate.toISOString().split("T")[0]);
+          }
+        }
+
+        currentDate.setUTCDate(currentDate.getUTCDate() + 1);
+      }
+
+      if (missedDates.length > 0) {
+        missedHabits.push({ title, missedDates });
+      }
+    }
+
+    // 🧮 Build stats list
     if (habits.length)
-      stats.push({ title: "Total Habits", items: habits, hideView: true });
+      stats.push({
+        title: "Total Habits",
+        items: habits,
+        hideView: true,
+        type: "HABIT",
+      });
     if (upcomingHabits.length)
       stats.push({
         title: "Upcoming Habits",
         items: upcomingHabits,
         hideView: false,
+        type: "HABIT",
       });
     if (completedHabits.length)
       stats.push({
         title: "Completed Habits",
         items: completedHabits,
         hideView: false,
+        type: "HABIT",
+      });
+    if (missedHabits.length)
+      stats.push({
+        title: "Missed Habits",
+        items: missedHabits,
+        hideView: false,
+        type: "CHECKINS",
       });
 
     res.json(stats);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" });
-  }
-};
-
-const badDataTypes = {
-  outOfScheduleCheck: "Out of Schedule Check",
-  noCheckIn: "Habit has no valid check-ins",
-  checkInHasTime: "Check-in date contains time",
-};
-
-export const findBadHabitData = async (req, res) => {
-  try {
-    const badEntries = [];
-    const habits = await Habit.find({ userId: req.user.userId }).sort({
-      title: 1,
-    });
-
-    habits.forEach((habit) => {
-      if (
-        !habit.checkIns.length ||
-        habit.checkIns.every((check) => !check.checked && !check.missedNote)
-      ) {
-        badEntries.push({
-          habitId: habit._id,
-          habitTitle: habit.title,
-          type: badDataTypes.noCheckIn,
-        });
-      }
-
-      habit.checkIns.forEach((check) => {
-        const dayName = ClockUtil.weekdayNameUTC(check.date);
-
-        if (!habit.weekdays.includes(dayName)) {
-          badEntries.push({
-            habitId: habit._id,
-            habitTitle: habit.title,
-            date: check.date,
-            dayName,
-            checked: check.checked,
-            missedNote: check.missedNote,
-            checkedId: check._id,
-            type: badDataTypes.outOfScheduleCheck,
-          });
-        }
-
-        // 🔹 Case 3: Check-in date has time (anything not 00:00:00)
-        const d = new Date(check.date);
-        if (
-          d.getUTCHours() !== 0 ||
-          d.getUTCMinutes() !== 0 ||
-          d.getUTCSeconds() !== 0 ||
-          d.getUTCMilliseconds() !== 0
-        ) {
-          badEntries.push({
-            habitId: habit._id,
-            habitTitle: habit.title,
-            date: check.date,
-            checkedId: check._id,
-            type: badDataTypes.checkInHasTime,
-          });
-        }
-      });
-    });
-
-    res.json(badEntries);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
-export const removeBadData = async (req, res) => {
-  try {
-    const { checkInId } = req.params;
-
-    const result = await Habit.updateOne(
-      { "checkIns._id": checkInId },
-      { $pull: { checkIns: { _id: checkInId } } }
-    );
-
-    if (result.modifiedCount === 0) {
-      return res
-        .status(404)
-        .json({ message: "Check-in not found or already removed" });
-    }
-
-    res.json({ message: "Bad check-in deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
   }
 };

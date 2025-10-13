@@ -7,8 +7,6 @@ import {
   checkHabitForDay,
   getDayList,
   getStats,
-  findBadHabitData,
-  removeBadData,
 } from "../controllers/habitController.js";
 
 const router = express.Router();
@@ -20,6 +18,4 @@ router.put("/:id", updateHabit);
 router.delete("/:id", deleteHabit);
 router.post("/:id/check", checkHabitForDay);
 router.get("/stats", getStats);
-router.get("/bad-data", findBadHabitData);
-router.delete("/bad-data/:checkInId", removeBadData);
 export default router;

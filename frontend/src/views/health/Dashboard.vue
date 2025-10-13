@@ -388,36 +388,76 @@
     	return Math.round(total / weights.value.length);
     });
 
-    const lineChartData = computed(function () {
-    	const sortedWeights = [...weights.value].sort((a, b) => dayjs(a.date).valueOf() - dayjs(b.date).valueOf());
+ const lineChartData = computed(() => {
+	const sortedWeights = [...weights.value].sort((a, b) =>
+		dayjs(a.date).valueOf() - dayjs(b.date).valueOf()
+	);
 
-    	// Get actual theme colors
-    	const colors = theme.global.current.value.colors;
+	// Group data by week (using ISO week for consistency)
+	const weeklyData = {};
+	for (const w of sortedWeights) {
+		const weekKey = dayjs(w.date).isoWeek(); // e.g. 41, 42, 43
+		const year = dayjs(w.date).year(); // handle year crossover
+		const key = `${year}-W${weekKey}`;
 
-    	return {
-    		labels: sortedWeights.map((w) => dayjs(w.date).format(displayLongMonthDayFormat)),
-    		datasets: [
-    			{
-    				label: "Weight (kg)",
-    				data: sortedWeights.map((w) => w.weight),
-    				yAxisID: "y",
-    				borderColor: colors.primary,
-    				backgroundColor: colors.primary + "20",
-    				tension: 0.4,
-    				fill: true,
-    			},
-    			{
-    				label: "Burned Calories",
-    				data: sortedWeights.map((w) => w.burnedCalories),
-    				yAxisID: "y1",
-    				borderColor: colors.warning,
-    				backgroundColor: colors.warning + "20",
-    				tension: 0.4,
-    				fill: true,
-    			},
-    		],
-    	};
-    });
+		if (!weeklyData[key]) {
+			weeklyData[key] = { weights: [], calories: [] };
+		}
+
+		weeklyData[key].weights.push(w.weight);
+		weeklyData[key].calories.push(w.burnedCalories);
+	}
+
+	// Calculate weekly averages
+	const weeklyAverages = Object.entries(weeklyData).map(([key, values]) => {
+		const avgWeight =
+			values.weights.reduce((a, b) => a + b, 0) / values.weights.length;
+		const avgCalories =
+			values.calories.reduce((a, b) => a + b, 0) / values.calories.length;
+
+		// Use the first date of the week for the label
+		const [year, weekNum] = key.split("-W");
+		const weekStart = dayjs().year(Number(year)).isoWeek(Number(weekNum)).startOf("week");
+
+		return {
+			label: weekStart.format("MMM D"), // e.g. "Oct 7"
+			avgWeight,
+			avgCalories,
+		};
+	});
+
+	// Sort by week order (in case of year crossover)
+	weeklyAverages.sort(
+		(a, b) => dayjs(a.label, "MMM D").valueOf() - dayjs(b.label, "MMM D").valueOf()
+	);
+
+	// Get actual theme colors
+	const colors = theme.global.current.value.colors;
+
+	return {
+		labels: weeklyAverages.map((x) => x.label),
+		datasets: [
+			{
+				label: "Avg Weight (kg)",
+				data: weeklyAverages.map((x) => x.avgWeight),
+				yAxisID: "y",
+				borderColor: colors.primary,
+				backgroundColor: colors.primary + "20",
+				tension: 0.4,
+				fill: true,
+			},
+			{
+				label: "Avg Burned Calories",
+				data: weeklyAverages.map((x) => x.avgCalories),
+				yAxisID: "y1",
+				borderColor: colors.warning,
+				backgroundColor: colors.warning + "20",
+				tension: 0.4,
+				fill: true,
+			},
+		],
+	};
+});
 
     function handleAdd() {
     	weightModal.value.form = weightObject();

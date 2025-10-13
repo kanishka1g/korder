@@ -21,6 +21,8 @@ import weekOfYear from "dayjs/plugin/weekOfYear";
 dayjs.extend(weekOfYear);
 import localeData from "dayjs/plugin/localeData";
 import "dayjs/locale/en-au";
+import isoWeek from "dayjs/plugin/isoWeek";
+dayjs.extend(isoWeek);
 
 dayjs.extend(localeData);
 dayjs.locale("en-au");

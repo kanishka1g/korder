@@ -433,7 +433,12 @@
 			confirm-color="primary"
 			@confirm="statsModal.show = false"
 		>
-			<SelectionTable v-if="statsModal.type='HABIT'" :headers="headers" :items="statsModal.items" hide-active-toggle>
+			<SelectionTable
+				v-if="statsModal.type === 'HABIT'"
+				:headers="headers"
+				:items="statsModal.items"
+				hide-active-toggle
+			>
 				<template #item.startDate="{ item }">
 					<DisplayDateTime :value="item.startDate" date-only />
 				</template>
@@ -462,6 +467,27 @@
 					</div>
 				</template>
 			</SelectionTable>
+			<VRow v-else-if="statsModal.type === 'CHECKINS'">
+				<VCol v-for="item of statsModal.items" :key="item.title" cols="12" md="6">
+					<VCard class="fill-height">
+						<VCardTitle class="pa-4">
+							<div class="d-flex align-center">
+								<div class="text-subtitle-1 font-weight-medium">
+									{{ item.title }}
+								</div>
+							</div>
+						</VCardTitle>
+						<VCardText class="pa-4">
+							<VRow v-for="date in item.missedDates" :key="date" class="mb-3">
+								<VCol>
+									<!-- {{ date }} -->
+									<DisplayDateTime :value="parseDate(date)" date-only />
+								</VCol>
+							</VRow>
+						</VCardText>
+				</VCard>
+				</VCol>
+			</VRow>
 		</Modal>
 	</Page>
 </template>
@@ -481,6 +507,7 @@
     import DisplayDateTime from "@/components/common/DisplayDateTime.vue";
     import DisplayWeekdays from "@/components/common/DisplayWeekdays.vue";
     import Page from "@/components/global/Page.vue";
+import { parseDate } from "@/utils/time";
 
     const now = useNow();
     const loading = useLoading();

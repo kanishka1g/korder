@@ -154,12 +154,11 @@ export const getStats = async (req, res) => {
 
         if (weekdays.includes(weekday)) {
           const match = checkIns.find((c) =>
-            ClockUtil.isSameDayUTC(new Date(c.date), currentDate)
+            ClockUtil.isSameDayUTC(c.date, currentDate)
           );
 
-          if (!match || !match.checked) {
-            // Save missed date in ISO format (YYYY-MM-DD)
-            missedDates.push(currentDate.toISOString().split("T")[0]);
+          if (!match) {
+            missedDates.push(currentDate.toLocaleDateString());
           }
         }
 

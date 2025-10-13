@@ -14,6 +14,11 @@
 			<VCol cols="12" lg="6" order="4">
 				<AppLinks />
 			</VCol>
+			<VCol cols="12" lg="6" order="4">
+				<VBtn @click="handlePushNotification" class="ma-2" variant="outlined" color="primary">
+					Push Notification Test
+				</VBtn>
+			</VCol>
 		</VRow>
 	</Page>
 </template>
@@ -42,6 +47,28 @@
 	}
 
 	reload();
+
+	function handlePushNotification() {
+		if ("Notification" in window) {
+			if (Notification.permission === "granted") {
+				new Notification("Test Notification", {
+					body: "This is a test notification from Korder.",
+					icon: "/logo-192.png",
+				});
+			} else if (Notification.permission !== "denied") {
+				Notification.requestPermission().then((permission) => {
+					if (permission === "granted") {
+						new Notification("Test Notification", {
+							body: "This is a test notification from Korder.",
+							icon: "/logo-192.png",
+						});
+					}
+				});
+			}
+		} else {
+			alert("This browser does not support desktop notification");
+		}
+	}
 </script>
 
 <style scoped lang="scss">

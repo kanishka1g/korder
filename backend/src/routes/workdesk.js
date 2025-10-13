@@ -1,9 +1,9 @@
-import { fetchDayPlan } from "../controllers/workdeskController.js";
+import { fetchSchedules } from "../controllers/workdeskController.js";
 
 import express from "express";
 
 const router = express.Router();
 
-router.get("/day-plan", fetchDayPlan);
+router.get("/schedules", fetchSchedules);
 
 export default router;

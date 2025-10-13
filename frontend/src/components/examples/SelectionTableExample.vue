@@ -451,7 +451,11 @@
 
 		.demo-header {
 			.gradient-text {
-				background: linear-gradient(45deg, rgb(var(--v-theme-primary)), rgb(var(--v-theme-secondary)));
+				background: linear-gradient(
+					45deg,
+					rgb(var(--v-theme-primary)),
+					rgb(var(--v-theme-secondary-lighten-1))
+				);
 				-webkit-background-clip: text;
 				-webkit-text-fill-color: transparent;
 				background-clip: text;

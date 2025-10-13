@@ -1,21 +1,17 @@
 <template>
 	<VCard class="schedule-overview-card pa-6 rounded-xl fill-height" elevation="8">
 		<VCardTitle class="pa-0 mb-6">
-			<div class="d-flex align-center justify-space-between">
-				<div class="d-flex align-center">
-					<VIcon icon="fas fa-calendar-check" color="primary" size="24" class="mr-3" />
-					<h3 class="text-h4 font-weight-bold planner-title">Schedule Overview</h3>
-				</div>
-				<VSelect
-					v-model="dayPlanType"
-					:items="dayPlanTypes"
-					variant="outlined"
-					density="compact"
-					hide-details
-					class="plan-selector"
-					style="max-width: 160px"
-				/>
-			</div>
+			<VRow justify="end">
+				<VCol>
+					<div class="d-flex align-center">
+						<VIcon icon="fas fa-calendar-check" color="primary" size="24" class="mr-3" />
+						<h3 class="text-h4 font-weight-bold card-title">Schedule Overview</h3>
+					</div>
+				</VCol>
+				<VCol cols="auto">
+					<VSwitch v-model="showWeek" label="Show week" color="primary" hide-details />
+				</VCol>
+			</VRow>
 		</VCardTitle>
 
 		<VCardText class="pa-0">
@@ -109,15 +105,10 @@
 		},
 	});
 
-	const dayPlanTypes = [
-		{ title: "Today", value: "today" },
-		{ title: "Next 7 Days", value: "next_7_days" },
-	];
-
-	const dayPlanType = ref("today");
+	const showWeek = ref();
 
 	const filteredItems = computed(() => {
-		if (dayPlanType.value === "next_7_days") {
+		if (showWeek.value) {
 			return props.dates;
 		}
 		return props.dates.filter((item) => parseDate(item.date).isSame(now.value, "day"));
@@ -156,17 +147,11 @@
 		}
 	}
 
-	.planner-title {
-		background: linear-gradient(45deg, rgb(var(--v-theme-primary)), rgb(var(--v-theme-secondary)));
+	.card-title {
+		background: linear-gradient(45deg, rgb(var(--v-theme-primary)), rgb(var(--v-theme-secondary-lighten-1)));
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
 		background-clip: text;
-	}
-
-	.plan-selector {
-		:deep(.v-field) {
-			border-radius: 12px;
-		}
 	}
 
 	.plan-item-card {
@@ -289,7 +274,7 @@
 			padding: 1rem;
 		}
 
-		.planner-title {
+		.card-title {
 			font-size: 1.25rem !important;
 		}
 
@@ -306,10 +291,6 @@
 				font-size: 0.9rem;
 			}
 		}
-
-		.plan-selector {
-			max-width: 140px !important;
-		}
 	}
 
 	@media (max-width: 480px) {
@@ -321,11 +302,6 @@
 			flex-direction: column;
 			align-items: flex-start;
 			gap: 1rem;
-		}
-
-		.plan-selector {
-			align-self: stretch;
-			max-width: none !important;
 		}
 	}
 </style>

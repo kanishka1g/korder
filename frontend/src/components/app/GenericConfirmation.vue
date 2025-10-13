@@ -8,6 +8,7 @@
 			:color="getModalColor(m)"
 			:confirm-icon="m.icon"
 			persistent
+			showDefaultActions
 			:fullscreen="false"
 			size="small"
 			:confirm-text="m.action"

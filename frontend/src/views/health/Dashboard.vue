@@ -418,7 +418,7 @@
 				avgCalories,
 			};
 		});
-		console.log(weeklyAverages);
+
 		weeklyAverages.sort((a, b) => dayjs(a.label, "MMM D").valueOf() - dayjs(b.label, "MMM D").valueOf());
 
 		const colors = theme.global.current.value.colors;

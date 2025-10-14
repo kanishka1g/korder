@@ -321,508 +321,509 @@
 </template>
 
 <script setup>
-    import { computed, ref } from "vue";
-    import { useTheme } from "vuetify";
-    import { useNow } from "@/utils/now";
-    import dayjs from "@/plugins/dayjs";
-    import request from "@/utils/request";
-    import { useLogger } from "@/utils/useLogger";
-    import { useLoading } from "@/utils/loading";
-    import { snackbar, confirmation } from "@/utils/generic_modals";
-    import { displayLongMonthDayFormat } from "@/utils/time";
+	import { computed, ref } from "vue";
+	import { useTheme } from "vuetify";
+	import { useNow } from "@/utils/now";
+	import dayjs from "@/plugins/dayjs";
+	import request from "@/utils/request";
+	import { useLogger } from "@/utils/useLogger";
+	import { useLoading } from "@/utils/loading";
+	import { snackbar, confirmation } from "@/utils/generic_modals";
+	import { displayLongMonthDayFormat } from "@/utils/time";
 
-    import LineChart from "@/components/charts/LineChart.vue";
-    import DateField from "@/components/common/DateField.vue";
-    import SelectionTable from "@/components/common/SelectionTable.vue";
-    import DisplayDateTime from "@/components/common/DisplayDateTime.vue";
-    import Page from "@/components/global/Page.vue";
+	import LineChart from "@/components/charts/LineChart.vue";
+	import DateField from "@/components/common/DateField.vue";
+	import SelectionTable from "@/components/common/SelectionTable.vue";
+	import DisplayDateTime from "@/components/common/DisplayDateTime.vue";
+	import Page from "@/components/global/Page.vue";
 
-    const now = useNow();
-    const theme = useTheme();
+	const now = useNow();
+	const theme = useTheme();
 
-    const headers = [
-    	{ title: "Date", key: "date" },
-    	{ title: "Weight", key: "weight" },
-    	{ title: "Burned Calories", key: "burnedCalories" },
-    	{ title: "", key: "action" },
-    ];
+	const headers = [
+		{ title: "Date", key: "date" },
+		{ title: "Weight", key: "weight" },
+		{ title: "Burned Calories", key: "burnedCalories" },
+		{ title: "", key: "action" },
+	];
 
-    const weightRules = [
-    	(v) => !!v || "Weight is required",
-    	(v) => v > 50 || "Weight must be greater than 50",
-    	(v) => v < 100 || "Weight must be less than 100",
-    ];
+	const weightRules = [
+		(v) => !!v || "Weight is required",
+		(v) => v > 50 || "Weight must be greater than 50",
+		(v) => v < 100 || "Weight must be less than 100",
+	];
 
-    const calorieRules = [
-    	(v) => !!v || "Calorie is required",
-    	(v) => v > 150 || "Calorie must be greater than 0",
-    	(v) => v < 1000 || "Calorie must be less than 1000",
-    ];
+	const calorieRules = [
+		(v) => !!v || "Calorie is required",
+		(v) => v > 150 || "Calorie must be greater than 0",
+		(v) => v < 1000 || "Calorie must be less than 1000",
+	];
 
-    const locations = ["home", "gym"];
+	const locations = ["home", "gym"];
 
-    const error = ref();
-    const activeTab = ref("weight");
-    const weightModal = ref({
-    	show: false,
-    	action: "Add",
-    	form: weightObject(),
-    });
-    const weightForm = ref(null);
-    const weights = ref([]);
-    const filterLocation = ref("home");
+	const error = ref();
+	const activeTab = ref("weight");
+	const weightModal = ref({
+		show: false,
+		action: "Add",
+		form: weightObject(),
+	});
+	const weightForm = ref(null);
+	const weights = ref([]);
+	const filterLocation = ref("home");
 
-    const filterWeights = computed(() => {
-    	return weights.value.filter((w) => w.location === filterLocation.value);
-    });
+	const filterWeights = computed(() => {
+		return weights.value.filter((w) => w.location === filterLocation.value);
+	});
 
-    const latestWeight = computed(() => {
-    	if (weights.value.length === 0) return 0;
-    	const sortedWeights = [...weights.value].sort((a, b) => dayjs(b.date).valueOf() - dayjs(a.date).valueOf());
-    	return sortedWeights[0]?.weight || 0;
-    });
+	const latestWeight = computed(() => {
+		if (weights.value.length === 0) return 0;
+		const sortedWeights = [...weights.value].sort((a, b) => dayjs(b.date).valueOf() - dayjs(a.date).valueOf());
+		return sortedWeights[0]?.weight || 0;
+	});
 
-    const avgCalories = computed(() => {
-    	if (weights.value.length === 0) return 0;
-    	const total = weights.value.reduce((sum, w) => sum + (w.burnedCalories || 0), 0);
-    	return Math.round(total / weights.value.length);
-    });
+	const avgCalories = computed(() => {
+		if (weights.value.length === 0) return 0;
+		const total = weights.value.reduce((sum, w) => sum + (w.burnedCalories || 0), 0);
+		return Math.round(total / weights.value.length);
+	});
 
- const lineChartData = computed(() => {
-	const sortedWeights = [...weights.value].sort((a, b) =>
-		dayjs(a.date).valueOf() - dayjs(b.date).valueOf()
-	);
+	const lineChartData = computed(() => {
+		const sortedWeights = [...weights.value].sort((a, b) => dayjs(a.date).valueOf() - dayjs(b.date).valueOf());
 
-	// Group data by week (using ISO week for consistency)
-	const weeklyData = {};
-	for (const w of sortedWeights) {
-		const weekKey = dayjs(w.date).isoWeek(); // e.g. 41, 42, 43
-		const year = dayjs(w.date).year(); // handle year crossover
-		const key = `${year}-W${weekKey}`;
+		const weeklyData = {};
+		for (const w of sortedWeights) {
+			const weekKey = dayjs(w.date).isoWeek();
+			const year = dayjs(w.date).year();
+			const key = `${year}-W${weekKey}`;
 
-		if (!weeklyData[key]) {
-			weeklyData[key] = { weights: [], calories: [] };
+			if (!weeklyData[key]) {
+				weeklyData[key] = { weights: [], calories: [] };
+			}
+
+			weeklyData[key].weights.push(w.weight);
+			weeklyData[key].calories.push(w.burnedCalories);
 		}
 
-		weeklyData[key].weights.push(w.weight);
-		weeklyData[key].calories.push(w.burnedCalories);
-	}
+		const weeklyAverages = Object.entries(weeklyData).map(([key, values]) => {
+			const avgWeight = values.weights.reduce((a, b) => a + b, 0) / values.weights.length;
+			const avgCalories = values.calories.reduce((a, b) => a + b, 0) / values.calories.length;
 
-	// Calculate weekly averages
-	const weeklyAverages = Object.entries(weeklyData).map(([key, values]) => {
-		const avgWeight =
-			values.weights.reduce((a, b) => a + b, 0) / values.weights.length;
-		const avgCalories =
-			values.calories.reduce((a, b) => a + b, 0) / values.calories.length;
+			const [year, weekNum] = key.split("-W");
+			const weekStart = dayjs().year(Number(year)).isoWeek(Number(weekNum)).startOf("week");
 
-		// Use the first date of the week for the label
-		const [year, weekNum] = key.split("-W");
-		const weekStart = dayjs().year(Number(year)).isoWeek(Number(weekNum)).startOf("week");
+			return {
+				label: weekStart.format("MMM D"),
+				avgWeight,
+				avgCalories,
+			};
+		});
+		console.log(weeklyAverages);
+		weeklyAverages.sort((a, b) => dayjs(a.label, "MMM D").valueOf() - dayjs(b.label, "MMM D").valueOf());
+
+		const colors = theme.global.current.value.colors;
 
 		return {
-			label: weekStart.format("MMM D"), // e.g. "Oct 7"
-			avgWeight,
-			avgCalories,
+			labels: weeklyAverages.map((x) => x.label),
+			datasets: [
+				{
+					label: "Avg Weight (kg)",
+					data: weeklyAverages.map((x) => x.avgWeight),
+					yAxisID: "y",
+					borderColor: colors.primary,
+					backgroundColor: colors.primary + "20",
+					tension: 0.4,
+					fill: true,
+				},
+				{
+					label: "Avg Burned Calories",
+					data: weeklyAverages.map((x) => x.avgCalories),
+					yAxisID: "y1",
+					borderColor: colors.warning,
+					backgroundColor: colors.warning + "20",
+					tension: 0.4,
+					fill: true,
+				},
+			],
 		};
 	});
 
-	// Sort by week order (in case of year crossover)
-	weeklyAverages.sort(
-		(a, b) => dayjs(a.label, "MMM D").valueOf() - dayjs(b.label, "MMM D").valueOf()
-	);
-
-	// Get actual theme colors
-	const colors = theme.global.current.value.colors;
-
-	return {
-		labels: weeklyAverages.map((x) => x.label),
-		datasets: [
-			{
-				label: "Avg Weight (kg)",
-				data: weeklyAverages.map((x) => x.avgWeight),
-				yAxisID: "y",
-				borderColor: colors.primary,
-				backgroundColor: colors.primary + "20",
-				tension: 0.4,
-				fill: true,
-			},
-			{
-				label: "Avg Burned Calories",
-				data: weeklyAverages.map((x) => x.avgCalories),
-				yAxisID: "y1",
-				borderColor: colors.warning,
-				backgroundColor: colors.warning + "20",
-				tension: 0.4,
-				fill: true,
-			},
-		],
-	};
-});
-
-    function handleAdd() {
-    	weightModal.value.form = weightObject();
-    	weightModal.value.form.location = filterLocation.value;
-    	weightModal.value.action = "Add";
-    	weightModal.value.show = true;
-    }
-
-    function handleEdit(item) {
-    	weightModal.value.form = {
-    		_id: item._id,
-    		location: item.location,
-    		date: dayjs(item.date),
-    		weight: item.weight.toString(),
-    		burnedCalories: item.burnedCalories.toString(),
-    	};
-    	weightModal.value.action = "Edit";
-    	weightModal.value.show = true;
-    }
-
-    async function handleDelete(item) {
-    	const confirmed = await confirmation("Delete", "Are you sure you want to delete this item?", true);
-
-    	if (!confirmed) {
-    		return;
-    	}
-
-    	const res = await request.delete(`weights/${item._id}`);
-
-    	snackbar.success(res.data.message);
-    	reload();
-    }
-
-    async function handleConfirm() {
-    	const { valid } = await weightForm.value.validate();
-    	if (!valid) {
-    		snackbar.warning("Please fix the highlighted fields.");
-    		return;
-    	}
-
-    	if (
-    		weights.value.some(
-    			(w) => w.date.isSame(weightModal.value.form.date, "day") && w._id !== weightModal.value.form._id,
-    		)
-    	) {
-    		snackbar.warning("You have already logged weight for this date.");
-    		return;
-    	}
-
-    	if (weightModal.value.action === "Add") {
-    		const res = await request.post("weights", {
-    			date: weightModal.value.form.date,
-    			weight: weightModal.value.form.weight,
-    			burnedCalories: weightModal.value.form.burnedCalories,
-    			location: weightModal.value.form.location,
-    		});
-
-    		snackbar.success("successfully added");
-    	} else if (weightModal.value.action === "Edit") {
-    		const res = await request.put(`weights/${weightModal.value.form._id}`, {
-    			date: weightModal.value.form.date,
-    			weight: weightModal.value.form.weight,
-    			burnedCalories: weightModal.value.form.burnedCalories,
-    			location: weightModal.value.form.location,
-    		});
-
-    		snackbar.success("Weight edited successfully");
-    	}
-
-    	reload();
-    	weightModal.value.show = false;
-    }
-
-    async function reload() {
-    	try {
-    		// TODO: load meal plan
-    		const [weightsResponse] = await Promise.all([request.get("weights")]);
-
-    		weights.value = weightsResponse.data;
-    	} catch (e) {
-    		error.value = e;
-    	}
-    }
-
-    reload();
-
-    function handleQuickAdd() {
-    	// Quick add based on active tab
-    	if (activeTab.value === "weight") {
-    		handleAdd();
-    	} else if (activeTab.value === "workouts") {
-    		// TODO: Implement workout quick add
-    		console.log("Quick add workout");
-    	} else if (activeTab.value === "meals") {
-    		// TODO: Implement meal quick add
-    		console.log("Quick add meal");
-    	}
-    }
-
-    function weightObject() {
-    	return {
-    		location: "home",
-    		date: now.value,
-    		weight: null,
-    		burnedCalories: null,
-    	};
-    }
-</script>
-<style scoped lang="scss">
-.health-dashboard {
-	// Dashboard-specific styles (background handled by Page component)
-}
-
-.dashboard-subtitle {
-	text-align: left;
-}
-
-.add-btn {
-	border-radius: 12px;
-	text-transform: none;
-	font-weight: 600;
-	box-shadow: 0 4px 12px rgba(var(--v-theme-primary), 0.3);
-
-	&:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 6px 20px rgba(var(--v-theme-primary), 0.4);
-	}
-}
-
-.modern-stat-card {
-	border-radius: 16px;
-	background: linear-gradient(135deg, rgba(var(--v-theme-surface), 0.95) 0%, rgba(var(--v-theme-surface), 0.8) 100%);
-	backdrop-filter: blur(20px);
-	border: 1px solid rgba(var(--v-border-color), 0.12);
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-	&:hover {
-		transform: translateY(-4px);
-		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+	function handleAdd() {
+		weightModal.value.form = weightObject();
+		weightModal.value.form.location = filterLocation.value;
+		weightModal.value.action = "Add";
+		weightModal.value.show = true;
 	}
 
-	.stat-icon {
-		opacity: 0.8;
-		transition: all 0.3s ease;
+	function handleEdit(item) {
+		weightModal.value.form = {
+			_id: item._id,
+			location: item.location,
+			date: dayjs(item.date),
+			weight: item.weight.toString(),
+			burnedCalories: item.burnedCalories.toString(),
+		};
+		weightModal.value.action = "Edit";
+		weightModal.value.show = true;
 	}
 
-	&:hover .stat-icon {
-		opacity: 1;
-		transform: scale(1.1);
+	async function handleDelete(item) {
+		const confirmed = await confirmation("Delete", "Are you sure you want to delete this item?", true);
+
+		if (!confirmed) {
+			return;
+		}
+
+		const res = await request.delete(`weights/${item._id}`);
+
+		snackbar.success(res.data.message);
+		reload();
 	}
 
-	&.weight-card:hover {
-		border-color: rgba(var(--v-theme-primary), 0.3);
+	async function handleConfirm() {
+		const { valid } = await weightForm.value.validate();
+		if (!valid) {
+			snackbar.warning("Please fix the highlighted fields.");
+			return;
+		}
+
+		if (
+			weights.value.some(
+				(w) => w.date.isSame(weightModal.value.form.date, "day") && w._id !== weightModal.value.form._id,
+			)
+		) {
+			snackbar.warning("You have already logged weight for this date.");
+			return;
+		}
+
+		if (weightModal.value.action === "Add") {
+			const res = await request.post("weights", {
+				date: weightModal.value.form.date,
+				weight: weightModal.value.form.weight,
+				burnedCalories: weightModal.value.form.burnedCalories,
+				location: weightModal.value.form.location,
+			});
+
+			snackbar.success("successfully added");
+		} else if (weightModal.value.action === "Edit") {
+			const res = await request.put(`weights/${weightModal.value.form._id}`, {
+				date: weightModal.value.form.date,
+				weight: weightModal.value.form.weight,
+				burnedCalories: weightModal.value.form.burnedCalories,
+				location: weightModal.value.form.location,
+			});
+
+			snackbar.success("Weight edited successfully");
+		}
+
+		reload();
+		weightModal.value.show = false;
 	}
 
-	&.calories-card:hover {
-		border-color: rgba(var(--v-theme-warning), 0.3);
-	}
+	async function reload() {
+		try {
+			// TODO: load meal plan
+			const [weightsResponse] = await Promise.all([request.get("weights")]);
 
-	&.workout-card:hover {
-		border-color: rgba(var(--v-theme-success), 0.3);
-	}
-
-	&.meals-card:hover {
-		border-color: rgba(var(--v-theme-info), 0.3);
-	}
-}
-
-.modern-card {
-	border-radius: 20px;
-	background: linear-gradient(135deg, rgba(var(--v-theme-surface), 0.95) 0%, rgba(var(--v-theme-surface), 0.8) 100%);
-	backdrop-filter: blur(20px);
-	border: 1px solid rgba(var(--v-border-color), 0.12);
-	overflow: hidden;
-
-	&.main-content-card {
-		min-height: 600px;
-	}
-}
-
-.health-tabs {
-	border-bottom: 1px solid rgba(var(--v-border-color), 0.12);
-	background: linear-gradient(135deg, rgba(var(--v-theme-surface), 0.5) 0%, rgba(var(--v-theme-surface), 0.2) 100%);
-
-	.tab-item {
-		text-transform: none;
-		font-weight: 600;
-		font-size: 0.95rem;
-		min-height: 64px;
-
-		&:hover {
-			background: rgba(var(--v-theme-primary), 0.08);
+			weights.value = weightsResponse.data;
+		} catch (e) {
+			error.value = e;
 		}
 	}
 
-	:deep(.v-tab--selected) {
-		background: linear-gradient(
-			135deg,
-			rgba(var(--v-theme-primary), 0.1) 0%,
-			rgba(var(--v-theme-primary), 0.05) 100%
-		);
-		border-bottom: 3px solid rgb(var(--v-theme-primary));
+	reload();
+
+	function handleQuickAdd() {
+		// Quick add based on active tab
+		if (activeTab.value === "weight") {
+			handleAdd();
+		} else if (activeTab.value === "workouts") {
+			// TODO: Implement workout quick add
+			console.log("Quick add workout");
+		} else if (activeTab.value === "meals") {
+			// TODO: Implement meal quick add
+			console.log("Quick add meal");
+		}
 	}
-}
 
-.tabs-content {
-	min-height: 500px;
+	function weightObject() {
+		return {
+			location: "home",
+			date: now.value,
+			weight: null,
+			burnedCalories: null,
+		};
+	}
+</script>
+<style scoped lang="scss">
+	.health-dashboard {
+		// Dashboard-specific styles (background handled by Page component)
+	}
 
-	.chart-card,
-	.data-card {
+	.dashboard-subtitle {
+		text-align: left;
+	}
+
+	.add-btn {
 		border-radius: 12px;
-		background: rgba(var(--v-theme-surface), 0.6);
-		backdrop-filter: blur(10px);
-		transition: all 0.3s ease;
+		text-transform: none;
+		font-weight: 600;
+		box-shadow: 0 4px 12px rgba(var(--v-theme-primary), 0.3);
 
 		&:hover {
 			transform: translateY(-2px);
-			box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+			box-shadow: 0 6px 20px rgba(var(--v-theme-primary), 0.4);
 		}
 	}
 
-	.coming-soon-card {
+	.modern-stat-card {
 		border-radius: 16px;
 		background: linear-gradient(
 			135deg,
-			rgba(var(--v-theme-surface), 0.8) 0%,
-			rgba(var(--v-theme-surface), 0.6) 100%
+			rgba(var(--v-theme-surface), 0.95) 0%,
+			rgba(var(--v-theme-surface), 0.8) 100%
 		);
-		backdrop-filter: blur(15px);
+		backdrop-filter: blur(20px);
+		border: 1px solid rgba(var(--v-border-color), 0.12);
+		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-		.v-chip {
-			font-weight: 600;
-
-			.v-icon {
-				font-size: 1rem;
-			}
+		&:hover {
+			transform: translateY(-4px);
+			box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 		}
-	}
-}
 
-// Theme-specific enhancements (background handled by Page component)
-.v-theme--dark {
-	.modern-stat-card,
-	.modern-card {
-		background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.8) 100%);
-	}
-
-	.health-tabs {
-		background: linear-gradient(135deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.2) 100%);
-	}
-
-	.chart-card,
-	.data-card {
-		background: rgba(30, 41, 59, 0.6);
-	}
-
-	.coming-soon-card {
-		background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.6) 100%);
-	}
-}
-
-.v-theme--light {
-	.modern-stat-card,
-	.modern-card {
-		background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.8) 100%);
-	}
-
-	.health-tabs {
-		background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(248, 250, 252, 0.2) 100%);
-	}
-
-	.chart-card,
-	.data-card {
-		background: rgba(255, 255, 255, 0.6);
-	}
-
-	.coming-soon-card {
-		background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.6) 100%);
-	}
-}
-
-// Responsive design
-@media (max-width: 960px) {
-	.dashboard-subtitle {
-		text-align: center;
-	}
-
-	.health-tabs {
-		.tab-item {
-			min-height: 56px;
-			font-size: 0.875rem;
-
-			.v-icon {
-				display: none;
-			}
-		}
-	}
-}
-
-@media (max-width: 600px) {
-	// Responsive styles now handled by Page component
-
-	.modern-stat-card {
 		.stat-icon {
-			font-size: 2rem !important;
+			opacity: 0.8;
+			transition: all 0.3s ease;
 		}
 
-		.text-h4 {
-			font-size: 1.5rem !important;
+		&:hover .stat-icon {
+			opacity: 1;
+			transform: scale(1.1);
+		}
+
+		&.weight-card:hover {
+			border-color: rgba(var(--v-theme-primary), 0.3);
+		}
+
+		&.calories-card:hover {
+			border-color: rgba(var(--v-theme-warning), 0.3);
+		}
+
+		&.workout-card:hover {
+			border-color: rgba(var(--v-theme-success), 0.3);
+		}
+
+		&.meals-card:hover {
+			border-color: rgba(var(--v-theme-info), 0.3);
+		}
+	}
+
+	.modern-card {
+		border-radius: 20px;
+		background: linear-gradient(
+			135deg,
+			rgba(var(--v-theme-surface), 0.95) 0%,
+			rgba(var(--v-theme-surface), 0.8) 100%
+		);
+		backdrop-filter: blur(20px);
+		border: 1px solid rgba(var(--v-border-color), 0.12);
+		overflow: hidden;
+
+		&.main-content-card {
+			min-height: 600px;
+		}
+	}
+
+	.health-tabs {
+		border-bottom: 1px solid rgba(var(--v-border-color), 0.12);
+		background: linear-gradient(
+			135deg,
+			rgba(var(--v-theme-surface), 0.5) 0%,
+			rgba(var(--v-theme-surface), 0.2) 100%
+		);
+
+		.tab-item {
+			text-transform: none;
+			font-weight: 600;
+			font-size: 0.95rem;
+			min-height: 64px;
+
+			&:hover {
+				background: rgba(var(--v-theme-primary), 0.08);
+			}
+		}
+
+		:deep(.v-tab--selected) {
+			background: linear-gradient(
+				135deg,
+				rgba(var(--v-theme-primary), 0.1) 0%,
+				rgba(var(--v-theme-primary), 0.05) 100%
+			);
+			border-bottom: 3px solid rgb(var(--v-theme-primary));
 		}
 	}
 
 	.tabs-content {
+		min-height: 500px;
+
+		.chart-card,
+		.data-card {
+			border-radius: 12px;
+			background: rgba(var(--v-theme-surface), 0.6);
+			backdrop-filter: blur(10px);
+			transition: all 0.3s ease;
+
+			&:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+			}
+		}
+
 		.coming-soon-card {
-			.v-icon {
-				font-size: 3rem !important;
-			}
+			border-radius: 16px;
+			background: linear-gradient(
+				135deg,
+				rgba(var(--v-theme-surface), 0.8) 0%,
+				rgba(var(--v-theme-surface), 0.6) 100%
+			);
+			backdrop-filter: blur(15px);
 
-			h3 {
-				font-size: 1.5rem !important;
-			}
+			.v-chip {
+				font-weight: 600;
 
-			.d-flex {
-				flex-direction: column;
-
-				.v-chip {
-					width: 100%;
-					justify-content: center;
+				.v-icon {
+					font-size: 1rem;
 				}
 			}
 		}
 	}
-}
 
-// Animation enhancements
-.modern-stat-card,
-.chart-card,
-.data-card {
-	animation: fadeInUp 0.6s ease-out;
-}
+	// Theme-specific enhancements (background handled by Page component)
+	.v-theme--dark {
+		.modern-stat-card,
+		.modern-card {
+			background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.8) 100%);
+		}
 
-@keyframes fadeInUp {
-	from {
-		opacity: 0;
-		transform: translateY(30px);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
-}
+		.health-tabs {
+			background: linear-gradient(135deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.2) 100%);
+		}
 
-// Stagger animation for stat cards
-.modern-stat-card {
-	&:nth-child(1) {
-		animation-delay: 0.1s;
+		.chart-card,
+		.data-card {
+			background: rgba(30, 41, 59, 0.6);
+		}
+
+		.coming-soon-card {
+			background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.6) 100%);
+		}
 	}
-	&:nth-child(2) {
-		animation-delay: 0.2s;
+
+	.v-theme--light {
+		.modern-stat-card,
+		.modern-card {
+			background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.8) 100%);
+		}
+
+		.health-tabs {
+			background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(248, 250, 252, 0.2) 100%);
+		}
+
+		.chart-card,
+		.data-card {
+			background: rgba(255, 255, 255, 0.6);
+		}
+
+		.coming-soon-card {
+			background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.6) 100%);
+		}
 	}
-	&:nth-child(3) {
-		animation-delay: 0.3s;
+
+	// Responsive design
+	@media (max-width: 960px) {
+		.dashboard-subtitle {
+			text-align: center;
+		}
+
+		.health-tabs {
+			.tab-item {
+				min-height: 56px;
+				font-size: 0.875rem;
+
+				.v-icon {
+					display: none;
+				}
+			}
+		}
 	}
-	&:nth-child(4) {
-		animation-delay: 0.4s;
+
+	@media (max-width: 600px) {
+		// Responsive styles now handled by Page component
+
+		.modern-stat-card {
+			.stat-icon {
+				font-size: 2rem !important;
+			}
+
+			.text-h4 {
+				font-size: 1.5rem !important;
+			}
+		}
+
+		.tabs-content {
+			.coming-soon-card {
+				.v-icon {
+					font-size: 3rem !important;
+				}
+
+				h3 {
+					font-size: 1.5rem !important;
+				}
+
+				.d-flex {
+					flex-direction: column;
+
+					.v-chip {
+						width: 100%;
+						justify-content: center;
+					}
+				}
+			}
+		}
 	}
-}
+
+	// Animation enhancements
+	.modern-stat-card,
+	.chart-card,
+	.data-card {
+		animation: fadeInUp 0.6s ease-out;
+	}
+
+	@keyframes fadeInUp {
+		from {
+			opacity: 0;
+			transform: translateY(30px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	// Stagger animation for stat cards
+	.modern-stat-card {
+		&:nth-child(1) {
+			animation-delay: 0.1s;
+		}
+		&:nth-child(2) {
+			animation-delay: 0.2s;
+		}
+		&:nth-child(3) {
+			animation-delay: 0.3s;
+		}
+		&:nth-child(4) {
+			animation-delay: 0.4s;
+		}
+	}
 </style>

@@ -119,14 +119,12 @@ export const getStats = async (req, res) => {
     const habits = await Habit.find({ userId });
     const stats = [];
 
-    const today = ClockUtil.startOfDayUTC(clock.now);
-
     const upcomingHabits = habits.filter((habit) =>
-      ClockUtil.isAfterDayUTC(habit.startDate, today)
+      ClockUtil.isAfterDayUTC(habit.startDate, clock.now)
     );
 
     const completedHabits = habits.filter((habit) =>
-      ClockUtil.isBeforeDayUTC(habit.endDate, today)
+      ClockUtil.isBeforeDayUTC(habit.endDate, clock.now)
     );
 
     // 🕓 Find missed dates for each habit
@@ -136,11 +134,11 @@ export const getStats = async (req, res) => {
       const { title, startDate, endDate, weekdays, checkIns } = habit;
 
       // Skip habits that haven’t started yet
-      if (ClockUtil.isAfterDayUTC(startDate, today)) continue;
+      if (ClockUtil.isAfterDayUTC(startDate, clock.now)) continue;
 
-      const end = ClockUtil.isBeforeDayUTC(endDate, today)
+      const end = ClockUtil.isBeforeDayUTC(endDate, clock.now)
         ? ClockUtil.startOfDayUTC(endDate)
-        : today;
+        : clock.now.setUTCDate(clock.now.getUTCDate() - 1);
 
       const missedDates = [];
       let currentDate = ClockUtil.startOfDayUTC(startDate);
@@ -157,7 +155,7 @@ export const getStats = async (req, res) => {
             ClockUtil.isSameDayUTC(c.date, currentDate)
           );
 
-          if (!match) {
+          if (!match || (!match.checked && !match.missedNote)) {
             missedDates.push(currentDate.toLocaleDateString());
           }
         }

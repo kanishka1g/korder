@@ -26,13 +26,14 @@
 <script setup>
 	import { ref } from "vue";
 	import request from "@/utils/request";
+	import { useNotification } from "@/composables/useNotification";
 
 	import Welcome from "@/components/workdesk/WelcomeCard.vue";
 	import Status from "@/components/workdesk/StatusCard.vue";
 	import ScheduleOverview from "@/components/workdesk/ScheduleOverviewCard.vue";
 	import AppLinks from "@/components/workdesk/AppLinksCard.vue";
 
-	import LoginDialogExample from "@/components/examples/DesignSystemExample.vue";
+	const { init, showNotification } = useNotification();
 
 	const error = ref();
 	const scheduleDates = ref([]);
@@ -48,26 +49,15 @@
 
 	reload();
 
-	function handlePushNotification() {
-		if ("Notification" in window) {
-			if (Notification.permission === "granted") {
-				new Notification("Test Notification", {
-					body: "This is a test notification from Korder.",
-					icon: "/logo-192.png",
-				});
-			} else if (Notification.permission !== "denied") {
-				Notification.requestPermission().then((permission) => {
-					if (permission === "granted") {
-						new Notification("Test Notification", {
-							body: "This is a test notification from Korder.",
-							icon: "/logo-192.png",
-						});
-					}
-				});
-			}
-		} else {
-			alert("This browser does not support desktop notification");
-		}
+	async function handlePushNotification() {
+		await init();
+
+		// Trigger a notification immediately
+		showNotification({
+			title: "Korder Alert!",
+			body: "This is an immediate notification 🚀",
+			createdAt: new Date().toISOString(), // optional, for tracking
+		});
 	}
 </script>
 

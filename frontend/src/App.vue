@@ -31,7 +31,9 @@
 	import GenericConfirmation from "./components/app/GenericConfirmation.vue";
 	import { useAccessibility } from "@/composables/useAccessibility";
 	import { useAuthStore } from "@/stores/auth_store";
+	import { useNotification } from "./composables/useNotification";
 
+	const { init } = useNotification();
 	const { announce } = useAccessibility();
 	const authStore = useAuthStore();
 	const route = useRoute();
@@ -51,6 +53,7 @@
 
 		// Set up global keyboard shortcuts (only for authenticated users)
 		document.addEventListener("keydown", handleGlobalKeydown);
+		init();
 	});
 
 	const handleGlobalKeydown = (event) => {

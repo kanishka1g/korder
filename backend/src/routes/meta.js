@@ -1,6 +1,7 @@
 import express from "express";
 import { exec } from "child_process";
 import { mongoDbName } from "../config/db_check.js";
+import { getNotifications } from "../controllers/metaController.js";
 
 const router = express.Router();
 
@@ -37,5 +38,7 @@ router.post("/deploy", (req, res) => {
     res.json({ success: true, output: stdout || "Script ran successfully" });
   });
 });
+
+router.get("/notifications", getNotifications);
 
 export default router;

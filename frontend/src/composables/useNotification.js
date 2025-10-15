@@ -16,6 +16,8 @@ export function useNotification() {
 	const showNotification = (n) => {
 		if (Notification.permission === "granted") {
 			new Notification(n.title, { body: n.body, icon: "/icon.png" });
+		} else {
+			console.log("Notification received (no permission):", n);
 		}
 	};
 

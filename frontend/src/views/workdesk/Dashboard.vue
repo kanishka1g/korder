@@ -32,8 +32,11 @@
 	import Status from "@/components/workdesk/StatusCard.vue";
 	import ScheduleOverview from "@/components/workdesk/ScheduleOverviewCard.vue";
 	import AppLinks from "@/components/workdesk/AppLinksCard.vue";
+	import { useNow } from "@/utils/now";
 
 	const { triggerNotification } = useNotification();
+
+	const now = useNow();
 
 	const error = ref();
 	const scheduleDates = ref([]);
@@ -50,7 +53,7 @@
 	reload();
 
 	async function handlePushNotification() {
-		triggerNotification("Korder Alert!", "This is an immediate notification 🚀");
+		triggerNotification("Korder Alert!", now.value.format("HH:mm:ss"));
 	}
 </script>
 

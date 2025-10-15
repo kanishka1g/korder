@@ -1,58 +1,34 @@
-import { ref, onMounted } from "vue";
-import request from "@/utils/request";
+import { socket } from "@/stores/socket_store.js";
+import { io } from "socket.io-client";
 
 export function useNotification() {
-	const permissionGranted = ref(false);
-	const notifications = ref([]);
+	const init = () => {
+		if (!socket.value) {
+			socket.value = io(`${import.meta.env.VITE_BACKEND_URL}/notification`);
 
-	// Request permission & start polling
-	const init = async () => {
-		if (!("Notification" in window)) {
-			console.warn("This browser does not support notifications.");
-			return;
+			socket.value.on("notification", (data) => {
+				console.log("🔔 Notification received:", data);
+				showNotification(data);
+			});
 		}
-
-		const permission = await Notification.requestPermission();
-		permissionGranted.value = permission === "granted";
-
-		if (permissionGranted.value) {
-			console.log(permissionGranted.value);
-			pollNotifications();
-		}
-	};
-
-	// Poll backend every minute (or adjust interval)
-	const pollNotifications = async () => {
-		setInterval(async () => {
-			try {
-				const res = await request.get("meta/notifications");
-				const data = await res.json();
-				console.log(data);
-				data.forEach((n) => {
-					if (!notifications.value.find((x) => x.createdAt === n.createdAt)) {
-						showNotification(n);
-						notifications.value.push(n);
-					}
-				});
-			} catch (err) {
-				console.error("Failed to fetch notifications:", err);
-			}
-		}, 60 * 1000);
 	};
 
 	const showNotification = (n) => {
-		if (!permissionGranted.value) return;
-
-		new Notification(n.title, {
-			body: n.body,
-			icon: "/icon.png", // optional
-		});
+		if (Notification.permission === "granted") {
+			new Notification(n.title, { body: n.body, icon: "/icon.png" });
+		}
 	};
 
-	return {
-		init,
-		permissionGranted,
-		notifications,
-		showNotification,
+	const requestPermission = async () => {
+		if (Notification.permission !== "granted") {
+			await Notification.requestPermission();
+		}
 	};
+
+	const triggerNotification = (title, body) => {
+		if (!socket.value) return console.error("Socket not initialized");
+		socket.value.emit("trigger-notification", { title, body });
+	};
+
+	return { init, triggerNotification, requestPermission };
 }

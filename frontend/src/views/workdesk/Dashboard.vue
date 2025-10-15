@@ -33,7 +33,7 @@
 	import ScheduleOverview from "@/components/workdesk/ScheduleOverviewCard.vue";
 	import AppLinks from "@/components/workdesk/AppLinksCard.vue";
 
-	const { init, showNotification } = useNotification();
+	const { triggerNotification } = useNotification();
 
 	const error = ref();
 	const scheduleDates = ref([]);
@@ -50,14 +50,7 @@
 	reload();
 
 	async function handlePushNotification() {
-		await init();
-
-		// Trigger a notification immediately
-		showNotification({
-			title: "Korder Alert!",
-			body: "This is an immediate notification 🚀",
-			createdAt: new Date().toISOString(), // optional, for tracking
-		});
+		triggerNotification("Korder Alert!", "This is an immediate notification 🚀");
 	}
 </script>
 

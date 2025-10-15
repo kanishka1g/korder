@@ -1,37 +1,33 @@
 import { getSystemStatus } from "../services/system.js";
+import cron from "node-cron";
 
 export const setupSystemStatusSocket = (io) => {
   const clients = new Set();
-  let statusInterval = null;
-
   const namespace = io.of("/system");
+  let cronJob = null;
 
   namespace.on("connection", (socket) => {
     console.log("🔌 System client connected");
     clients.add(socket);
 
-    async function runStatusUpdate() {
-      try {
-        const status = await getSystemStatus();
-        for (const client of clients) {
-          client.emit("statusUpdate", status);
+    if (!cronJob) {
+      cronJob = cron.schedule("*/2 * * * * *", async () => {
+        try {
+          const status = await getSystemStatus();
+          namespace.emit("statusUpdate", status);
+        } catch (err) {
+          console.error("❌ Error fetching system status:", err);
         }
-      } catch (err) {
-        console.error("Error fetching system status:", err);
-      }
-    }
-
-    if (!statusInterval) {
-      runStatusUpdate();
-      statusInterval = setInterval(runStatusUpdate, 2000);
+      });
     }
 
     socket.on("disconnect", () => {
-      console.log("❌ System client disconnected");
+      console.log("❌ System client disconnected:", socket.id);
       clients.delete(socket);
-      if (clients.size === 0) {
-        clearInterval(statusInterval);
-        statusInterval = null;
+
+      if (clients.size === 0 && cronJob) {
+        cronJob.stop();
+        cronJob = null;
       }
     });
   });

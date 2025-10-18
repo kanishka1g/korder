@@ -5,7 +5,7 @@ export const setupNotificationSocket = (io) => {
   const namespace = io.of("/notification");
 
   namespace.on("connection", async (socket) => {
-    console.log(`📡 Notification client connected: ${socket.id}`);
+    console.log(`📡 Notification client connected`);
 
     // Emit pending notifications to the newly-connected client
     const pending = await Notification.find({ isSuccess: false });

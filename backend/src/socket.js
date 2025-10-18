@@ -1,7 +1,7 @@
 // socket.js
 import { Server } from "socket.io";
 import { setupSystemStatusSocket } from "./socket/systemStatusSocket.js";
-import { setupNotificationSocket } from "./socket/NotificationSocket.js";
+import { setupNotificationSocket } from "./socket/notificationSocket.js";
 import { startNotificationCron } from "./services/notification.js";
 
 let io;

@@ -469,19 +469,31 @@
 			</SelectionTable>
 			<VRow v-else-if="statsModal.type === 'CHECKINS'">
 				<VCol v-for="item of statsModal.items" :key="item.title" cols="12" md="6">
-					<VCard class="fill-height">
-						<VCardTitle class="pa-4">
-							<div class="d-flex align-center">
-								<div class="text-subtitle-1 font-weight-medium">
-									{{ item.title }}
-								</div>
-							</div>
+					<VCard rounded="xl" elevation="2" class="fill-height" >
+						<VCardTitle class="font-weight-bold">
+							<VIcon color="primary" size="small" icon="fas fa-calendar-check"></VIcon>
+							{{ item.title }}
 						</VCardTitle>
-						<VCardText class="pa-4">
-							<VRow v-for="date in item.missedDates" :key="date" class="mb-3">
+						<VCardText>
+							<VRow
+								v-for="date in item.missedDates"
+								:key="date"
+								class="rounded-lg mt-2 d-flex align-center"
+							>
+								<VCol cols="auto">
+									<VIcon color="error" size="18" icon="fas fa-times-circle"></VIcon>
+								</VCol>
 								<VCol>
-									<!-- {{ date }} -->
-									<DisplayDateTime :value="parseDate(date)" date-only />
+									<DisplayDateTime :value="parseDate(date)" date-only long />
+								</VCol>
+								<VCol class="d-flex justify-end" cols="auto">
+									<VBtn
+										size="small"
+										variant="text"
+										@click="handleMissedDate(parseDate(date))"
+									>
+										View Date
+									</VBtn>
 								</VCol>
 							</VRow>
 						</VCardText>
@@ -762,6 +774,11 @@
 			Total: "info",
 		};
 		return colorMap[title] || "primary";
+	}
+
+	function handleMissedDate(date) {
+		filterDate.value = dayjs(date);
+		statsModal.value.show = false;
 	}
 
 	watch(filterDate, function (value) {

@@ -156,7 +156,7 @@ export const getStats = async (req, res) => {
           );
 
           if (!match || (!match.checked && !match.missedNote)) {
-            missedDates.push(currentDate.toLocaleDateString());
+            missedDates.push(currentDate.toISOString());
           }
         }
 

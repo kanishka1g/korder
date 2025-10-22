@@ -5,8 +5,7 @@ import HabitNew from "../models/habits/Habit.js";
 import HabitCycle from "../models/habits/HabitCycle.js";
 import HabitCheckin from "../models/habits/HabitCheckin.js";
 
-const uri =
-  "mongodb+srv://kanishka:Plesewait89@korder.lon8u.mongodb.net/korder_dev?retryWrites=true&w=majority&appName=Korder";
+const uri = "";
 
 async function migrateHabits() {
   try {

@@ -174,20 +174,10 @@
 								<VIcon icon="fas fa-list-check" color="primary" class="mr-3" />
 								<h3 class="text-h5 font-weight-bold">Active Habits</h3>
 							</div>
-							<VChip :color="showArchived ? 'warning' : 'success'" variant="tonal" size="small">
-								{{ showArchived ? "Archived" : "Active" }}
-							</VChip>
 						</div>
 					</VCardTitle>
 					<VCardText class="pa-6">
-						<SelectionTable
-							v-model:active="showArchived"
-							:headers="headers"
-							:items="filteredHabits"
-							active-label="Show Archived"
-							@add="handleAdd"
-							searchable
-						>
+						<SelectionTable hideActiveToggle :headers="headers" :items="habits" @add="handleAdd" searchable>
 							<template #item.startDate="{ item }">
 								<DisplayDateTime :value="item.startDate" date-only />
 							</template>
@@ -520,7 +510,6 @@
 	];
 
 	const error = ref();
-	const showArchived = ref(false);
 	const filterDate = ref(now.value);
 	const habits = ref([]);
 	const dayList = ref([]);
@@ -541,16 +530,7 @@
 		title: "",
 	});
 
-	const filteredHabits = computed(function () {
-		if (showArchived.value) {
-			return habits.value.filter((habit) => {
-				return now.value.isAfter(habit.endDate, "day");
-			});
-		}
-		return habits.value.filter((habit) => {
-			return now.value.isBetween(habit.startDate, habit.endDate, "day", "[]");
-		});
-	});
+
 
 	const weekdays = computed(function () {
 		const days = [];
@@ -712,18 +692,16 @@
 		habitModal.value.show = false;
 	}
 
-	function handleView(habit) {
+	async function handleView(habit) {
+		const response = await request.get(`habits/cycles/${habit.habitCycleId}/checkins`);
+
 		viewModal.value.habit = habit;
+		viewModal.value.habit.checkIns = response.data;
 		viewModal.value.show = true;
 	}
 
-	function foundMissedNote(habit) {
-		return habit.checkIns.find((c) => dayjs(c.date).isSame(filterDate.value, "day"))?.missedNote;
-	}
-
 	function handleEditNote(habit) {
-		habit.missedNote =
-			habit.checkIns.find((c) => dayjs(c.date).isSame(filterDate.value, "day"))?.missedNote || null;
+		habit.missedNote = habit.missedNote || null;
 		habit.showMissedNote = true;
 	}
 

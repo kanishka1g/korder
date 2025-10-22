@@ -7,6 +7,7 @@ import {
   checkHabitForDay,
   getDayList,
   getStats,
+  getCheckIns,
 } from "../controllers/habitController.js";
 
 const router = express.Router();
@@ -18,4 +19,5 @@ router.put("/:id", updateHabit);
 router.delete("/:id", deleteHabit);
 router.post("/:id/check", checkHabitForDay);
 router.get("/stats", getStats);
+router.get("/cycles/:id/checkins", getCheckIns);
 export default router;

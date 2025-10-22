@@ -37,7 +37,7 @@ export const setupNotificationSocket = (io) => {
     });
 
     socket.on("disconnect", () => {
-      console.log(`❌ Notification client disconnected: ${socket.id}`);
+      console.log(`❌ Notification client disconnected`);
     });
   });
 };

@@ -57,26 +57,13 @@ export const getHabits = async (req, res) => {
       habitId: { $in: habitIds },
       startDate: { $lte: today },
       endDate: { $gte: today },
-      weekdays: weekday,
     })
       .populate("habitId", "title")
       .lean();
 
     if (!activeCycles.length) return res.json([]);
 
-    // 3️⃣ Get today's check-ins for these cycles
-    const cycleIds = activeCycles.map((c) => c._id);
-    const checkins = await HabitCheckin.find({
-      habitCycleId: { $in: cycleIds },
-      date: { $gte: today, $lte: ClockUtil.endOfDayUTC(today) },
-    }).lean();
-
-    // 4️⃣ Merge habit + cycle + check-in data
     const result = activeCycles.map((cycle) => {
-      const checkin = checkins.find(
-        (c) => String(c.habitCycleId) === String(cycle._id)
-      );
-
       return {
         _id: cycle.habitId?._id,
         title: cycle.habitId?.title,
@@ -84,14 +71,27 @@ export const getHabits = async (req, res) => {
         startDate: cycle.startDate,
         endDate: cycle.endDate,
         weekdays: cycle.weekdays,
-        checked: checkin?.checked || false,
-        missedNote: checkin?.missedNote || null,
       };
     });
 
     res.json(result);
   } catch (err) {
     console.error("❌ Error fetching active habits:", err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const getCheckIns = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.userId;
+
+    const checkins = await HabitCheckin.find({
+      habitCycleId: id,
+    }).lean();
+
+    res.json(checkins);
+  } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
@@ -332,7 +332,7 @@ export const getStats = async (req, res) => {
 
     // 1) fetch all habits for user
     const habits = await Habit.find({ userId }).lean();
-
+    const today = ClockUtil.startOfDayUTC(new Date());
     // 2) fetch cycles and checkins in bulk
     const habitIds = habits.map((h) => h._id);
     const cycles = await HabitCycle.find({ habitId: { $in: habitIds } }).lean();
@@ -352,61 +352,110 @@ export const getStats = async (req, res) => {
         (c) => String(c.habitId) === String(habit._id)
       );
 
-      // if no cycles, skip for now
       if (!myCycles.length) continue;
 
-      // Determine if habit is upcoming or completed using earliest start / latest end
-      const earliestStart = new Date(
-        Math.min(...myCycles.map((c) => new Date(c.startDate).getTime()))
-      );
-      const latestEnd = new Date(
-        Math.max(...myCycles.map((c) => new Date(c.endDate).getTime()))
-      );
+      const activeCycle = await HabitCycle.findOne({
+        habitId: habit._id,
+        startDate: { $lte: today },
+        endDate: { $gte: today },
+      })
+        .populate("habitId", "title")
+        .lean();
 
-      if (ClockUtil.isAfterDayUTC(earliestStart, clock.now))
-        upcomingHabits.push(habit);
-      if (ClockUtil.isBeforeDayUTC(latestEnd, clock.now))
-        completedHabits.push(habit);
+      if (!activeCycle) {
+        const completedCycle = await HabitCycle.find({
+          habitId: habit._id,
+          endDate: { $lt: today },
+        })
+          .populate("habitId", "title")
+          .lean();
+
+        const upcomingCycle = await HabitCycle.find({
+          habitId: habit._id,
+          startDate: { $gt: today },
+        })
+          .populate("habitId", "title")
+          .lean();
+
+        completedCycle.forEach((cycle) => {
+          completedHabits.push({
+            _id: cycle.habitId?._id,
+            title: cycle.habitId?.title,
+            habitCycleId: cycle._id,
+            startDate: cycle.startDate,
+            endDate: cycle.endDate,
+            weekdays: cycle.weekdays,
+          });
+        });
+        upcomingCycle.forEach((cycle) => {
+          upcomingHabits.push({
+            _id: cycle.habitId?._id,
+            title: cycle.habitId?.title,
+            habitCycleId: cycle._id,
+            startDate: cycle.startDate,
+            endDate: cycle.endDate,
+            weekdays: cycle.weekdays,
+          });
+        });
+
+        continue;
+      }
+
+      const result = {
+        _id: activeCycle.habitId?._id,
+        title: activeCycle.habitId?.title,
+        habitCycleId: activeCycle._id,
+        startDate: activeCycle.startDate,
+        endDate: activeCycle.endDate,
+        weekdays: activeCycle.weekdays,
+      };
+
+      debugger;
+
+      // if (ClockUtil.isAfterDayUTC(activeCycle.startDate, clock.now))
+      //   upcomingHabits.push(result);
+      // if (ClockUtil.isBeforeDayUTC(activeCycle.endDate, clock.now))
+      //   completedHabits.push(result);
 
       // For missed dates we need to iterate each cycle's date range
-      for (const cycle of myCycles) {
-        // skip cycles that haven't started yet
-        if (ClockUtil.isAfterDayUTC(cycle.startDate, clock.now)) continue;
+      // for (const cycle of myCycles) {
+      // skip cycles that haven't started yet
+      if (ClockUtil.isAfterDayUTC(activeCycle.startDate, clock.now)) continue;
 
-        // compute end day: if cycle ended before today use cycle.endDate else yesterday
-        const end = ClockUtil.isBeforeDayUTC(cycle.endDate, clock.now)
-          ? ClockUtil.startOfDayUTC(cycle.endDate)
-          : clock.now.setUTCDate(clock.now.getUTCDate() - 1);
+      // compute end day: if cycle ended before today use cycle.endDate else yesterday
+      const end = ClockUtil.isBeforeDayUTC(activeCycle.endDate, clock.now)
+        ? ClockUtil.startOfDayUTC(activeCycle.endDate)
+        : clock.now.setUTCDate(clock.now.getUTCDate() - 1);
 
-        let currentDate = ClockUtil.startOfDayUTC(cycle.startDate);
-        const missedDates = [];
+      let currentDate = ClockUtil.startOfDayUTC(activeCycle.startDate);
+      const missedDates = [];
 
-        while (ClockUtil.isBeforeOrSameDayUTC(currentDate, end)) {
-          const weekday = currentDate
-            .toLocaleDateString("en-US", {
-              weekday: "long",
-            })
-            .toLowerCase();
+      while (ClockUtil.isBeforeOrSameDayUTC(currentDate, end)) {
+        const weekday = currentDate
+          .toLocaleDateString("en-US", {
+            weekday: "long",
+          })
+          .toLowerCase();
 
-          if (cycle.weekdays.includes(weekday)) {
-            const match = checkins.find(
-              (ci) =>
-                String(ci.habitCycleId) === String(cycle._id) &&
-                ClockUtil.isSameDayUTC(ci.date, currentDate)
-            );
+        if (activeCycle.weekdays.includes(weekday)) {
+          const match = checkins.find(
+            (ci) =>
+              String(ci.habitCycleId) === String(activeCycle._id) &&
+              ClockUtil.isSameDayUTC(ci.date, currentDate)
+          );
 
-            if (!match || (!match.checked && !match.missedNote)) {
-              missedDates.push(currentDate.toISOString());
-            }
+          if (!match || (!match.checked && !match.missedNote)) {
+            missedDates.push(currentDate.toISOString());
           }
-
-          currentDate.setUTCDate(currentDate.getUTCDate() + 1);
         }
 
-        if (missedDates.length > 0) {
-          missedHabits.push({ title: habit.title, missedDates });
-        }
+        currentDate.setUTCDate(currentDate.getUTCDate() + 1);
       }
+
+      if (missedDates.length > 0) {
+        missedHabits.push({ title: habit.title, missedDates });
+      }
+      // }
     }
 
     // build stats response

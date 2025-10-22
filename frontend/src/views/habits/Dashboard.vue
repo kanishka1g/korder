@@ -46,9 +46,7 @@
 			</VCol>
 		</VRow>
 
-		<!-- Main Content Grid -->
 		<VRow>
-			<!-- Today's Habits -->
 			<VCol cols="12" lg="6">
 				<VCard class="modern-card today-card fill-height" elevation="0">
 					<VCardTitle class="pa-6 pb-0">
@@ -70,7 +68,7 @@
 									class="habit-card mb-4"
 									:class="{
 										'habit-completed': habit.checked,
-										'habit-missed': !habit.checked && foundMissedNote(habit),
+										'habit-missed': !habit.checked && habit.missedNote,
 									}"
 									variant="outlined"
 								>
@@ -82,12 +80,12 @@
 												:label="habit.title"
 												hide-details
 												density="comfortable"
-												:disabled="Boolean(foundMissedNote(habit))"
+												:disabled="Boolean(habit.missedNote)"
 												@update:model-value="handleDailyCheck(habit)"
 												class="habit-checkbox"
 											/>
 											<VBtn
-												v-if="!habit.checked && !foundMissedNote(habit)"
+												v-if="!habit.checked && !habit.missedNote"
 												icon="fas fa-note-sticky"
 												size="small"
 												variant="text"
@@ -96,7 +94,6 @@
 											/>
 										</div>
 
-										<!-- Missed Note Section -->
 										<VExpandTransition>
 											<div v-if="habit.showMissedNote" class="mt-3">
 												<VTextarea
@@ -127,14 +124,13 @@
 											</div>
 										</VExpandTransition>
 
-										<!-- Existing Missed Note -->
 										<VExpandTransition>
 											<div
-												v-if="!habit.checked && foundMissedNote(habit) && !habit.showMissedNote"
+												v-if="!habit.checked && habit.missedNote && !habit.showMissedNote"
 												class="mt-3"
 											>
 												<VAlert type="warning" variant="tonal" density="compact" class="mb-2">
-													<strong>Note:</strong> {{ foundMissedNote(habit) }}
+													<strong>Note:</strong> {{ habit.missedNote }}
 												</VAlert>
 												<div class="d-flex justify-end gap-2">
 													<VBtn
@@ -170,7 +166,6 @@
 				</VCard>
 			</VCol>
 
-			<!-- Active Habits -->
 			<VCol cols="12" lg="6">
 				<VCard class="modern-card habits-table-card fill-height" elevation="0">
 					<VCardTitle class="pa-6 pb-0">
@@ -318,7 +313,6 @@
 			confirm-color="primary"
 			@confirm="viewModal.show = false"
 		>
-			<!-- Habit Details -->
 			<VCard class="habit-details-card mb-4" variant="outlined" elevation="0">
 				<VCardText class="pa-4">
 					<VRow dense>
@@ -346,7 +340,6 @@
 				</VCardText>
 			</VCard>
 
-			<!-- Progress Summary -->
 			<VCard v-if="viewModal.habit.checkIns.length" class="progress-card mb-4" variant="tonal" color="info">
 				<VCardText class="pa-4">
 					<div class="d-flex align-center justify-space-between">
@@ -369,7 +362,6 @@
 				</VCardText>
 			</VCard>
 
-			<!-- Check-ins History -->
 			<VCard class="checkins-card" variant="outlined" elevation="0">
 				<VCardTitle class="pa-4">
 					<div class="d-flex align-center">
@@ -469,7 +461,7 @@
 			</SelectionTable>
 			<VRow v-else-if="statsModal.type === 'CHECKINS'">
 				<VCol v-for="item of statsModal.items" :key="item.title" cols="12" md="6">
-					<VCard rounded="xl" elevation="2" class="fill-height" >
+					<VCard rounded="xl" elevation="2" class="fill-height">
 						<VCardTitle class="font-weight-bold">
 							<VIcon color="primary" size="small" icon="fas fa-calendar-check"></VIcon>
 							{{ item.title }}
@@ -487,11 +479,7 @@
 									<DisplayDateTime :value="parseDate(date)" date-only long />
 								</VCol>
 								<VCol class="d-flex justify-end" cols="auto">
-									<VBtn
-										size="small"
-										variant="text"
-										@click="handleMissedDate(parseDate(date))"
-									>
+									<VBtn size="small" variant="text" @click="handleMissedDate(parseDate(date))">
 										View Date
 									</VBtn>
 								</VCol>
@@ -591,13 +579,12 @@
 			stats.value = statsResponse.data;
 			habits.value = habitsResponse.data;
 			dayList.value = dayListResponse.data.map((item) => {
-				item.checked = item.checkIns.some((checkin) => {
-					return filterDate.value.isSame(dayjs(checkin.date), "day") && checkin.checked;
-				});
+				item.checked = item.checked;
 
 				return item;
 			});
 		} catch (e) {
+			throw e;
 			error.value = e;
 		}
 	}

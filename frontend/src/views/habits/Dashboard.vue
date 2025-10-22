@@ -52,7 +52,7 @@
 					<VCardTitle class="pa-6 pb-0">
 						<div class="d-flex align-center">
 							<VIcon icon="fas fa-calendar-day" color="primary" class="mr-3" />
-							<h3 class="text-h5 font-weight-bold">Today's Habits</h3>
+							<h3 class="text-h5 font-weight-bold">Daily Habits</h3>
 						</div>
 					</VCardTitle>
 					<VCardText class="pa-6">

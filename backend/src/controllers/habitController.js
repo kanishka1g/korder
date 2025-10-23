@@ -3,20 +3,20 @@ import HabitCycle from "../models/habits/HabitCycle.js";
 import HabitCheckin from "../models/habits/HabitCheckin.js";
 import clock, { Clock as ClockUtil } from "../utils/clock.js";
 
-/**
- * Create a Habit (definition) + initial HabitCycle
- * Request body: { title, startDate, endDate, weekdays }
- */
 export const addHabit = async (req, res) => {
   try {
-    const { title, startDate, endDate, weekdays } = req.body;
+    const { id, title, startDate, endDate, weekdays } = req.body;
     const userId = req.user.userId;
+    let habit;
 
-    // 1) create Habit (definition)
-    const habit = await Habit.create({
-      userId,
-      title,
-    });
+    if (!id) {
+      habit = await Habit.create({
+        userId,
+        title,
+      });
+    } else {
+      habit = await Habit.findOne({ _id: id, userId });
+    }
 
     // 2) create initial HabitCycle
     const cycle = await HabitCycle.create({
@@ -38,10 +38,31 @@ export const addHabit = async (req, res) => {
   }
 };
 
-/**
- * Get all habits for user (with their cycles)
- */
-export const getHabits = async (req, res) => {
+export const getCompletedHabits = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const today = ClockUtil.startOfDayUTC(new Date());
+
+    const completedHabits = await HabitCycle.find({
+      endDate: { $lt: today },
+    })
+      .populate("habitId", "title")
+      .lean();
+
+    const result = completedHabits.map((cycle) => {
+      return {
+        _id: cycle.habitId?._id,
+        title: cycle.habitId?.title,
+      };
+    });
+
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const getActiveHabits = async (req, res) => {
   try {
     const userId = req.user.userId;
 

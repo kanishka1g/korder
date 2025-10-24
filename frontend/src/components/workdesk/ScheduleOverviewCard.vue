@@ -50,7 +50,7 @@
 											class="mr-3 task-icon"
 										/>
 										<div>
-											<div class="text-body-1 font-weight-medium">
+											<div class="text-body-1 font-weight-medium text-medium-emphasis">
 												{{ task.title }}
 											</div>
 										</div>

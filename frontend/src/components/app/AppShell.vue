@@ -14,7 +14,12 @@
 				<VAppBarTitle class="text-h6 font-weight-bold"> Korder </VAppBarTitle>
 			</div>
 
-			<VSpacer />
+			<VAlert v-if="connectedDB" type="warning" variant="tonal" density="compact" class="mx-5">
+				you are connected to the
+				<span class="font-weight-black"> {{ connectedDB }} </span>
+				database
+			</VAlert>
+			<VSpacer v-else />
 
 			<VTextField
 				v-model="searchQuery"
@@ -188,15 +193,6 @@
 						</template>
 					</VListItem>
 				</VList>
-			</template>
-
-			<!-- Drawer Footer -->
-			<template #append>
-				<VAlert v-if="connectedDB" type="warning" variant="flat" density="compact">
-					you are connected to the
-					<span class="font-weight-black"> {{ connectedDB }} </span>
-					database
-				</VAlert>
 			</template>
 		</VNavigationDrawer>
 

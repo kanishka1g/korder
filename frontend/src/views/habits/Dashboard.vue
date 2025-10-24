@@ -231,7 +231,7 @@
 			<VForm ref="habitForm">
 				<VRow>
 					<VCol cols="12">
-						<VAutocomplete
+						<VSelect
 							v-if="habitModal.action === 'Add' && !habitModal.isNewTitle"
 							v-model="habitModal.data.id"
 							:items="habitList"
@@ -243,7 +243,7 @@
 							<template #append>
 								<VBtn icon="fas fa-toggle-off" variant="text" @click="habitModal.isNewTitle = true" />
 							</template>
-						</VAutocomplete>
+						</VSelect>
 						<VTextField
 							v-else
 							v-model="habitModal.data.title"

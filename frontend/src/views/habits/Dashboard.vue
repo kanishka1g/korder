@@ -231,15 +231,35 @@
 			<VForm ref="habitForm">
 				<VRow>
 					<VCol cols="12">
+						<VSelect
+							v-if="habitModal.action === 'Add' && !habitModal.isNewTitle"
+							v-model="habitModal.data.id"
+							:items="habitList"
+							prepend-inner-icon="fas fa-tag"
+							label="Select Habit Title"
+							itemTitle="title"
+							itemValue="_id"
+						>
+							<template #append>
+								<VBtn icon="fas fa-toggle-off" variant="text" @click="habitModal.isNewTitle = true" />
+							</template>
+						</VSelect>
 						<VTextField
+							v-else
 							v-model="habitModal.data.title"
 							label="Habit Title"
-							variant="outlined"
-							density="comfortable"
 							prepend-inner-icon="fas fa-tag"
 							required
-							class="mb-4"
-						/>
+						>
+							<template v-if="habitModal.action === 'Add'" #append>
+								<VBtn
+									icon="fas fa-toggle-on"
+									variant="text"
+									color="success"
+									@click="habitModal.isNewTitle = false"
+								/>
+							</template>
+						</VTextField>
 					</VCol>
 				</VRow>
 
@@ -514,10 +534,12 @@
 	const habits = ref([]);
 	const dayList = ref([]);
 	const stats = ref([]);
+	const habitList = ref([]);
 	const habitForm = ref(null);
 	const habitModal = ref({
 		show: false,
 		action: "Add",
+		isNewTitle: false,
 		data: habitObject(),
 	});
 	const viewModal = ref({
@@ -529,8 +551,6 @@
 		items: [],
 		title: "",
 	});
-
-
 
 	const weekdays = computed(function () {
 		const days = [];
@@ -571,16 +591,24 @@
 
 	reload();
 
-	function handleAdd() {
+	async function handleAdd() {
+		const response = await request.get("habits/complete-list");
+
+		habitList.value = response.data;
+		habitModal.value.isNewTitle = false;
 		habitModal.value.data = habitObject();
 		habitModal.value.data.weekdays = weekdays.value.map((day) => day.value);
 		habitModal.value.action = "Add";
 		habitModal.value.show = true;
 	}
 
-	function handleEdit(habit) {
+	async function handleEdit(habit) {
+		const response = await request.get("habits");
+
+		habitList.value = response.data;
 		habitModal.value.data = {
 			...habit,
+			id: habit._id,
 			startDate: dayjs(habit.startDate),
 			endDate: dayjs(habit.endDate),
 		};
@@ -677,6 +705,7 @@
 
 		const { action, data } = habitModal.value;
 		const payload = {
+			id: data.id,
 			title: data.title,
 			startDate: data.startDate,
 			endDate: data.endDate,
@@ -714,6 +743,7 @@
 
 	function habitObject() {
 		return {
+			id: null,
 			title: null,
 			startDate: now.value,
 			endDate: now.value.add(7, "day"),

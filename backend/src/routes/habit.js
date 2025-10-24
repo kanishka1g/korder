@@ -1,7 +1,8 @@
 import express from "express";
 import {
   addHabit,
-  getHabits,
+  getActiveHabits,
+  getCompletedHabits,
   updateHabit,
   deleteHabit,
   checkHabitForDay,
@@ -13,7 +14,8 @@ import {
 const router = express.Router();
 
 router.post("/", addHabit);
-router.get("/", getHabits);
+router.get("/", getActiveHabits);
+router.get("/complete-list", getCompletedHabits);
 router.get("/day-list", getDayList);
 router.put("/:id", updateHabit);
 router.delete("/:id", deleteHabit);

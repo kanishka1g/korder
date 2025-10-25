@@ -49,14 +49,15 @@
 											size="18"
 											class="mr-3 task-icon"
 										/>
-										<div>
-											<div class="text-body-1 font-weight-medium text-medium-emphasis">
-												{{ task.title }}
-											</div>
+										<div class="text-body-1 font-weight-medium text-medium-emphasis">
+											{{ task.title }}
 										</div>
+										<span v-if="task.time" class="ml-4 text-body-2 text-medium-emphasis">
+											{{ task.time }}
+										</span>
 									</div>
-									<VChip v-if="task.time" variant="tonal" size="small" class="time-chip">
-										{{ task.time }}
+									<VChip size="small" variant="outlined" class="font-weight-bold text-body-2">
+										{{ task.priority }}
 									</VChip>
 								</div>
 								<div
